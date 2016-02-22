@@ -12,6 +12,8 @@ Either of these environments can be used to build IntelliMediaCore:
 
 For now, simply take a snapshot of the source and place the IntelliMediaCore dirctory in your Unity project's **Assets** directory. Refer to the [Tic Tac Toe](https://github.com/IntelliMedia/TicTacToe) sample for examples of how to use some of the classes. More documentation and examples will be created in the future.
 
+Test.
+
 ## Contributing
 
 We welcome contributions of new features, improvements, and bug fixes from the community. However, since this is our first attempt at an open source project, we haven't quite figured out the logisitics, yet. Contact us at intellimedia@ncsu.edu if you are interested in contributing. Once we have a policy we'll update this text.
