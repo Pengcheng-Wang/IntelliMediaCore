@@ -111,11 +111,6 @@ namespace IntelliMediaSample
 					Container.Bind(activityToView.ViewType).ToInstance(activityToView.View);
 				}
 			}
-		}
-
-		public override void Start()
-		{
-			base.Start();
 
 			foreach (ActivityToView activityToView in activityConfiguration)
 			{
