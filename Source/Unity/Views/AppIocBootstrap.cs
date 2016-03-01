@@ -79,7 +79,7 @@ namespace IntelliMediaSample
             Container.Resolve<ViewFactory>().Register<SignInViewModel, SignInView>();
 			Container.Resolve<ViewFactory>().Register<MainMenuViewModel, MainMenuView>();
 
-			Container.Resolve<StageManager>().Reveal<SignInViewModel>();
+			Container.Resolve<StageManager>().Reveal<SignInViewModel>().Start();
 		}
 	}
 }
