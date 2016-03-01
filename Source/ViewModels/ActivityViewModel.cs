@@ -33,8 +33,8 @@ namespace IntelliMedia
 {
 	public class ActivityViewModel : ViewModel
 	{
-		private StageManager navigator;
-		private ActivityService activityService;
+		protected StageManager navigator;
+		protected ActivityService activityService;
 
 		public Activity Activity { get; set; }
 		public ActivityState ActivityState { get; set; }

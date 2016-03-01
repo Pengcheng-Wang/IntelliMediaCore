@@ -95,16 +95,19 @@ namespace IntelliMediaSample
 			
 
 		public override void InstallBindings()
-		{
+		{			
 			foreach (ActivityToView activityToView in activityConfiguration)
 			{
+				DebugLog.Info("Bind {0} to single", activityToView.ViewModelType.Name);
 				Container.Bind(activityToView.ViewModelType).ToSingle();
 				if (activityToView.ViewIsPrefab)
 				{
+					DebugLog.Info("Bind {0} to transient prefab", activityToView.ViewType);
 					Container.Bind(activityToView.ViewType).ToTransientPrefab(activityToView.View.gameObject);
 				}
 				else
 				{
+					DebugLog.Info("Bind {0} to instance", activityToView.ViewType);
 					Container.Bind(activityToView.ViewType).ToInstance(activityToView.View);
 				}
 			}
