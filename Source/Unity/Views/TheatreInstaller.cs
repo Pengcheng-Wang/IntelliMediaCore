@@ -134,6 +134,11 @@ namespace IntelliMediaSample
 					Container.Bind(vmType).ToTransient();
 				}
 
+				if (vvm.view == null)
+				{
+					throw new Exception("Missing view for " + vvm.viewModel);
+				}
+
 				Type viewType = vvm.view.GetType ();
 				if (vvm.viewIsPrefab)
 				{

@@ -43,7 +43,8 @@ namespace IntelliMedia
 		public bool TraceDataLoggingEnabled { get; set; }
 
 		public string ModuleId { get; set; }
-		public float SecondsUntilJudgmentQuestionsDisplayed { get; set; }		                
+		public float SecondsUntilJudgmentQuestionsDisplayed { get; set; }		
+		public bool HighlightAgentBeforeReactionEnabled { get; set; }
     }
 }
 
