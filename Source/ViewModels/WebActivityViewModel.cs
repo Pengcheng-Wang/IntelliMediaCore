@@ -53,7 +53,32 @@ namespace IntelliMedia
 
 			Title = "Web Browser Launched";
 			Message = String.Format("Use the web browser to complete the {0} activity.\nPress the <b>Done</b> button when you are finished.", Activity.Name);
-			Url = SubstituteParameters(Activity.Uri);
+
+			if (Activity.Uri.CompareTo("urn:assessment:pre-test") == 0)
+			{
+				Url = sessionState.CourseSettings.PreTestUrl;
+			}
+			else if (Activity.Uri.CompareTo("urn:assessment:post-test") == 0)
+			{
+				Url = sessionState.CourseSettings.PostTestUrl;
+			}
+			else
+			{
+				Url = Activity.Uri;
+			}
+
+			if (!string.IsNullOrEmpty(Url))
+			{
+				Url = SubstituteParameters(Url);				
+			}
+			else
+			{
+				navigator.Reveal<AlertViewModel>(alert => 
+				{
+					alert.Title = "Unable to launch web browser";
+					alert.Message = String.Format("URL is blank for {0} activity.", Activity.Name);
+				}).Start();				
+			}				
 
 			base.OnStartReveal ();
 		}

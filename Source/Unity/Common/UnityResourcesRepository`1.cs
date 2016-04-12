@@ -143,7 +143,7 @@ namespace IntelliMedia
             return PathCombine(DataDirectory, key.ToString());
         }
         
-        protected void GetAll(ResponseHandler callback)
+        protected virtual void GetAll(ResponseHandler callback)
         {
             List<T> items = new List<T>();
             string error = null;

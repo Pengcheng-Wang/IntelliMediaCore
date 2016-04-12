@@ -38,30 +38,12 @@ namespace IntelliMedia
 
         public string PreTestUrl { get; set; }
         public string PostTestUrl { get; set; }
+		public bool TrialModeEnabled { get; set; }
+		public bool EyeTrackingEnabled { get; set; }
+		public bool TraceDataLoggingEnabled { get; set; }
 
-        public bool StopHighlightingAfterInteractionEnabled { get; set; }
-
-		public bool CloseWithoutGotCompletionEnabled { get; set; }
-        public float SecondsUntilGotCloseButtonEnabled { get; set; }
-
-        public bool ModalPosterViewingEnabled { get; set; }
-        public float SecondsUntilPosterCloseButtonEnabled { get; set; }
-
-        public bool FastTravelEnabled { get; set; }
-        public bool FastTravelRequired { get; set; }
-                
-        public bool TrialModeEnabled { get; set; }
-
-        public bool GoldenPathEnabled { get; set; }
-
-        public bool AimMentorEnabled { get; set; }
-
-        public bool EyeTrackingEnabled { get; set; }
-
-		public bool AutoSaveEnabled { get; set; }
-		public float AutoSaveInterval { get; set; }
-        
-        public bool TraceDataLoggingEnabled { get; set; }
+		public string ModuleId { get; set; }
+		public float SecondsUntilJudgmentQuestionsDisplayed { get; set; }		                
     }
 }
 

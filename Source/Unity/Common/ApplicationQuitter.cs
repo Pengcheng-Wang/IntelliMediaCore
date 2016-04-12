@@ -1,5 +1,5 @@
-//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+﻿//---------------------------------------------------------------------------------------
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,54 +26,26 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
+using UnityEngine;
 
 namespace IntelliMedia
 {
-	public class AlertViewModel : ViewModel
+	/// <summary>
+	/// Simple component to implement Quit button behavior
+	/// </summary>
+	public class ApplicationQuitter : MonoBehaviour
 	{
-		private StageManager navigator;
-
-		public string Title { get; set; }
-		public string Message { get; set; }
-		public Exception Error { get; set; }
-		public string[] ButtonLabels { get; set; }
-
-		public delegate void AlertDismissedHandler(int buttonIndex);
-		public AlertDismissedHandler AlertDismissed;
-
-		public AlertViewModel(StageManager navigator)
+		public void Quit ()
 		{
-			Contract.ArgumentNotNull("navigator", navigator);
-
-			this.navigator = navigator;
-			Reset();
-		}
-
-		public override void OnStartReveal ()
-		{
-			if (Error != null)
+			DebugLog.Info("Quit application");
+			if (Application.isWebPlayer)
 			{
-				DebugLog.Error("Error Alert Displayed. {0}. {1}", Error.Message, Error.StackTrace);
+				WebBrowserUtility.QuitWebApplication();
 			}
-			base.OnStartReveal();
-		}
-
-		public void ButtonPressed(int index)
-		{
-			navigator.Hide(this, (IView view) =>
+			else
 			{
-				if (AlertDismissed != null)
-				{
-					AlertDismissed(index);
-				}
-				Reset();
-			});
-		}
-
-		private void Reset()
-		{
-			ButtonLabels = new string[] { "OK" };
-			AlertDismissed = null;
+				Application.Quit();
+			}
 		}
 	}
 }

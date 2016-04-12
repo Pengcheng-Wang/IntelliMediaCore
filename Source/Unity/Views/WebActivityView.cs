@@ -65,16 +65,19 @@ namespace IntelliMedia
 
 		}
 
-		public override void OnAppearing ()
+		public override void OnAppearing()
 		{
 			base.OnAppearing();
 
 			title.text = (!string.IsNullOrEmpty (ViewModel.Title) ? ViewModel.Title : "");
 			message.text = (!string.IsNullOrEmpty (ViewModel.Message) ? ViewModel.Message : "");
 
-			WebBrowserUtility.OpenUrl(
-				ViewModel.Url,
-				string.Format("This activity requires switching to a web browser to complete."));
+			if (!string.IsNullOrEmpty(ViewModel.Url))
+			{
+				WebBrowserUtility.OpenUrl(
+					ViewModel.Url,
+					string.Format("This activity requires switching to a web browser to complete."));
+			}
 		}
 
 		public void OnClicked()

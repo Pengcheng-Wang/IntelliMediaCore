@@ -1,17 +1,12 @@
+﻿#region Copyright 2015 North Carolina State University
 //---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+// Copyright 2015 North Carolina State University
 //
+// Computer Science Department
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
 //
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-//   * Redistributions of source code must retain the above copyright notice, this 
-//     list of conditions and the following disclaimer.
-//   * Redistributions in binary form must reproduce the above copyright notice, 
-//     this list of conditions and the following disclaimer in the documentation 
-//     and/or other materials provided with the distribution.
+// All rights reserved
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
@@ -25,30 +20,14 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using System;
+#endregion
+
+using UnityEngine;
 
 namespace IntelliMedia
 {
-    public class OnceEvent<T>
+    public class AdditionalTraceData : MonoBehaviour 
     {
-		public delegate void OnceEventHandler(T sender);
-		public OnceEventHandler EventTriggered;
-
-		public void Trigger(T sender)
-		{
-			if (EventTriggered != null)
-			{
-				EventTriggered(sender);
-				RemoveAllListeners();
-			}
-		}
-
-		private void RemoveAllListeners()
-		{
-			foreach(Delegate d in EventTriggered.GetInvocationList())
-			{
-				EventTriggered -= (OnceEventHandler)d;
-			}
-		}
+        public string userFriendlyName;
     }
 }

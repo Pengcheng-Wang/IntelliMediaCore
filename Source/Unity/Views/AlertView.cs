@@ -83,7 +83,7 @@ namespace IntelliMedia
 				int buttonIndex = index;
 				string buttonLabel = ViewModel.ButtonLabels [index];
 				Transform newButton = GameObject.Instantiate (buttonPrefab);
-				newButton.name = buttonLabel + "Button";
+				newButton.name = (buttonLabel + "Button").Replace(" ", string.Empty);
 				newButton.GetComponent<Button>().onClick.AddListener (() => OnClicked (buttonIndex));
 				newButton.GetComponentInChildren<Text> ().text = buttonLabel;
 				newButton.transform.SetParent (buttonRow);

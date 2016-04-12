@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------------------
 // Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
@@ -25,55 +25,21 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using Zenject;
+using IntelliMedia;
 using System;
+using System.Linq;
+using System.Reflection;
 
-namespace IntelliMedia
+namespace IntelliMediaSample
 {
-	public class AlertViewModel : ViewModel
+	public class StageManagerInstaller : MonoInstaller
 	{
-		private StageManager navigator;
-
-		public string Title { get; set; }
-		public string Message { get; set; }
-		public Exception Error { get; set; }
-		public string[] ButtonLabels { get; set; }
-
-		public delegate void AlertDismissedHandler(int buttonIndex);
-		public AlertDismissedHandler AlertDismissed;
-
-		public AlertViewModel(StageManager navigator)
+		public override void InstallBindings()
 		{
-			Contract.ArgumentNotNull("navigator", navigator);
-
-			this.navigator = navigator;
-			Reset();
-		}
-
-		public override void OnStartReveal ()
-		{
-			if (Error != null)
-			{
-				DebugLog.Error("Error Alert Displayed. {0}. {1}", Error.Message, Error.StackTrace);
-			}
-			base.OnStartReveal();
-		}
-
-		public void ButtonPressed(int index)
-		{
-			navigator.Hide(this, (IView view) =>
-			{
-				if (AlertDismissed != null)
-				{
-					AlertDismissed(index);
-				}
-				Reset();
-			});
-		}
-
-		private void Reset()
-		{
-			ButtonLabels = new string[] { "OK" };
-			AlertDismissed = null;
-		}
+			Container.Bind<ViewFactory>().ToSingle();
+			Container.Bind<ViewModel.Factory>().ToSingle();
+			Container.Bind<StageManager>().ToSingle();
+		}					
 	}
 }

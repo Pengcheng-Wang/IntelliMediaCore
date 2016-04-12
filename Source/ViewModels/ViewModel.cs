@@ -30,8 +30,8 @@ using System;
 using System.Linq;
 using System.Runtime;
 using System.Linq.Expressions;
-using Zenject;
 using System.Reflection;
+using Zenject;
 
 namespace IntelliMedia
 {

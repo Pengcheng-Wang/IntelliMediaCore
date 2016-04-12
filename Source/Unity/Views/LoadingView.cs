@@ -29,7 +29,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using Zenject;
-using IntelliMedia;
 using UnityEngine.Events;
 
 namespace IntelliMedia

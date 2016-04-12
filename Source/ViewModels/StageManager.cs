@@ -28,7 +28,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Zenject;
+using System.Reflection;
 
 namespace IntelliMedia
 {
@@ -82,6 +82,7 @@ namespace IntelliMedia
 				}
 				catch(Exception e)
 				{
+					DebugLog.Error("Unable to reveal '{0}'. {1}", vm.GetType().Name, e.Message);
 					onError(e);
 				}
 			});
@@ -92,6 +93,26 @@ namespace IntelliMedia
 			TViewModel vm = viewModelFactory.Resolve<TViewModel>(setStateAction);
 
 			return Reveal(vm);
+		}
+
+		public AsyncTask Reveal(string className)
+		{
+			ViewModel vm = viewModelFactory.Resolve(ClassNameToType(className));
+
+			return Reveal(vm);
+		}
+
+		private static Type ClassNameToType(string className)
+		{
+			Contract.ArgumentNotNull("className", className);
+
+			Type viewModelType = Assembly.GetExecutingAssembly().GetTypes().First(t => String.Compare(t.Name, className) == 0);
+			if (viewModelType == null)
+			{
+				throw new Exception("Unable to find class with name: " + className);
+			}
+
+			return viewModelType;
 		}
 
 		public ViewModel Hide(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null)

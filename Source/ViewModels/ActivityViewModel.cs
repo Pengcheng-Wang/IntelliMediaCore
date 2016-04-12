@@ -25,7 +25,6 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using Zenject;
 using System.Collections.Generic;
 using System;
 
@@ -38,6 +37,7 @@ namespace IntelliMedia
 
 		public Activity Activity { get; set; }
 		public ActivityState ActivityState { get; set; }
+		private LogEntry startedEntry;
 		
 		public ActivityViewModel(StageManager navigator, ActivityService activityService)
 		{
@@ -46,6 +46,34 @@ namespace IntelliMedia
 			
 			this.navigator = navigator;
 			this.activityService = activityService;
+		}
+
+		public override void OnStartReveal()
+		{
+			DebugLog.Info("Revealed activity:" + Activity.Name);
+			startedEntry = TraceLog.Player(TraceLog.Action.Started, "Activity",
+			                               "Name", Activity.Name,
+			                               "ActivityUri", Activity.Uri,
+										   "IsComplete", ActivityState.IsComplete,
+										   "CanResume", ActivityState.CanResume,
+										   "StartDate", ActivityState.ModifiedDate.ToIso8601(),
+										   "TraceId", ActivityState.TraceId);
+
+
+			base.OnStartReveal();
+		}
+
+		public override void OnFinishHide()
+		{
+			base.OnFinishHide();
+
+			if (startedEntry != null)
+			{
+				TraceLog.Player(startedEntry, TraceLog.Action.Ended, "Activity",
+					"IsComplete", ActivityState.IsComplete,
+					"CanResume", ActivityState.CanResume);
+				startedEntry = null;
+			}
 		}
 		
 		protected TDataModel DeserializeActivityData<TDataModel>() where TDataModel : class, new()

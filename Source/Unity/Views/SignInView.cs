@@ -39,6 +39,7 @@ namespace IntelliMedia
 		public InputField groupField;
 		public InputField usernameField;
 		public InputField passwordField;
+		public Text versionLabel;
 
 		public override void OnHidden()
 		{
@@ -51,6 +52,13 @@ namespace IntelliMedia
 			passwordField.text = "";
 
 			base.OnHidden();
+		}
+
+		public override void OnAppearing ()
+		{
+			versionLabel.text = ViewModel.Version;
+
+			base.OnAppearing();
 		}
 
 		public void SignIn()

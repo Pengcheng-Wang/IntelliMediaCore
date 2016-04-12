@@ -33,18 +33,26 @@ namespace IntelliMedia
 	public class SessionService 
 	{
 		private AppSettings appSettings;
+		private LogEntry sessionStartedEntry;
+
+		public bool IsSessionStarted { get { return sessionStartedEntry != null; }}
 
 		public SessionService(AppSettings appSettings)
 		{
 			this.appSettings = appSettings;
 		}
-		
-		public AsyncTask Start(string sessionId)
+
+		public AsyncTask StartSession(Student student)
 		{
 			return new AsyncTask((prevResult, onCompleted, onError) =>
 			{
 				try
-				{
+				{			
+					if (IsSessionStarted)
+					{
+						throw new Exception("Attempting to start session without ending previous session");
+					}
+
 					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
 					Uri restUri = new Uri(serverUri, "rest/");
 
@@ -53,24 +61,116 @@ namespace IntelliMedia
 					{
 						throw new Exception("SessionRepository is not initialized.");
 					}
-								
-					repo.GetByKey(sessionId, (response) =>
+
+					// Get session info
+					repo.GetByKey(student.SessionGuid, (response) =>
 					{
 						if (response.Success)
 						{
-							onCompleted(response.Item);
+							// Update session info
+							Session session = response.Item;
+							UpdatePlatformInfo(session);
+							StartLogging(student, session);
+							repo.Update(session, (SessionRepository.Response updateResponse) =>
+							{
+								if (updateResponse.Success)
+								{
+									onCompleted(updateResponse.Item);
+								}
+								else
+								{
+									onError(new Exception(updateResponse.Error));
+								}
+							});
 						}
 						else
 						{
 							onError(new Exception(response.Error));
 						}
-					});                   
+					});
 				}
 				catch (Exception e)
 				{
 					onError(e);
 				}
 			});
+		}
+
+		public AsyncTask EndSession()
+		{
+			return new AsyncTask((prevResult, onCompleted, onError) =>
+			{
+				try
+				{					
+					if (!IsSessionStarted)
+					{
+						throw new Exception("Attempting to end session that has not been started");
+					}
+
+					EndLogging((bool success, string error) =>
+					{
+						if (success)
+						{
+							onCompleted(true);
+						}
+						else
+						{
+							onError(new Exception(error));
+						}						
+					});
+				}
+				catch (Exception e)
+				{
+					onError(e);
+				}
+			});
+		}
+
+		void StartLogging(Student student, Session session)
+		{
+			// Enable Trace Logging 
+			string filename = String.Format ("{0}.{1}", session.Id, SerializerCsv.Instance.FilenameExtension);
+			TraceLog.Open (session.Id, new FileLogger (System.IO.Path.Combine (appSettings.TraceDataDirectory, filename), SerializerCsv.Instance, appSettings.WriteTraceDataToLocalFile)//, new RepositoryLogger(TraceDataDirectory, SerializerXml.Instance, true)
+			);
+			sessionStartedEntry = TraceLog.Player(TraceLog.Action.Started, "Session", 
+				"Username", student.Username, 
+				"SubjectId", student.SubjectId, 
+				"InstitutionName", student.InstitutionName, 
+				"InstructorName", student.InstructorName, 
+				"CourseName", student.CourseName, 
+				"Platform", session.Platform, 
+				"OperatingSystem", session.OperatingSystem, 
+				"WebBrowser", session.WebBrowser, 
+				"GameVersion", session.GameVersion, 
+				"GameReleaseType", session.GameReleaseType);
+		}
+
+		void EndLogging(IntelliMedia.TraceLog.CloseCallback callback)
+		{			
+			TraceLog.Player(sessionStartedEntry, TraceLog.Action.Ended, "Session");
+			sessionStartedEntry = null;
+			TraceLog.Close(callback);
+		}
+
+		private void UpdatePlatformInfo(Session session)
+		{
+			session.Platform = UnityEngine.Application.platform.ToString();
+			session.OperatingSystem = UnityEngine.SystemInfo.operatingSystem;
+
+			session.GameVersion = MetaTutorIVH.AssemblyInfo.Version.ToString(); 
+//			WebBrowserUtility webBrowser = Global.Component<WebBrowserUtility>();
+//			if (UnityEngine.Application.isWebPlayer && webBrowser != null)
+//			{
+//				session.WebBrowser = webBrowser.DisplayName;
+//				session.WebBrowserVersion = webBrowser.DisplayVersion;
+//			}
+
+			session.ProcessorType = UnityEngine.SystemInfo.processorType;
+			session.ProcessorCount = UnityEngine.SystemInfo.processorCount.ToString();
+			session.SystemMemorySize = UnityEngine.SystemInfo.systemMemorySize.ToString();
+			session.GraphicsMemorySize = UnityEngine.SystemInfo.graphicsMemorySize.ToString();
+			session.GraphicsDeviceName = UnityEngine.SystemInfo.graphicsDeviceName;
+			session.GraphicsShaderLevel = UnityEngine.SystemInfo.graphicsShaderLevel.ToString();
 		}
 	}
 }

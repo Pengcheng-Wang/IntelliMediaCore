@@ -170,6 +170,10 @@ namespace IntelliMedia
 			/// An action or task has been completed or finished. 
 			/// </summary>
 			Completed,
+			/// <summary>
+			/// A player answer or response has been recorded 
+			/// </summary>
+			Submitted,
         }
 
         public delegate void UpdateLogEntry(LogEntry entry);
@@ -198,7 +202,7 @@ namespace IntelliMedia
         }
 
         public delegate void CloseCallback(bool success, string error);
-        public static void Close(CloseCallback callback)
+        public static void Close(CloseCallback callback = null)
         {
             try
             {   
@@ -209,7 +213,11 @@ namespace IntelliMedia
 
                 Loggers.Clear();
 
-                callback(true, null);
+				if (callback != null)
+				{
+                	callback(true, null);
+				}
+
             }
             catch(Exception e)
             {

@@ -78,24 +78,21 @@ namespace IntelliMedia
 			});
 		}
 		
-		public void SignOut(AuthenticateHandler callback)
+		public AsyncTask SignOut()
 		{
-			Contract.ArgumentNotNull("callback", callback);
-			
-			try
+			return new AsyncTask((prevResult, onCompleted, onError) =>
 			{
-				// TODO Release token
-				Token = null;
-
-				callback(true, null);
-			}
-			catch (Exception e)
-			{
-				if (callback != null)
+				try
 				{
-					callback(false, e.Message);
+					// TODO Release token
+					Token = null;
+					onCompleted(true);
 				}
-			}
+				catch (Exception e)
+				{
+					onError(e);
+				}
+			});
 		}
 	}
 }

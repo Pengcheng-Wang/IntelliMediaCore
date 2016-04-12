@@ -28,6 +28,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using MetaTutorIVH;
 
 namespace IntelliMedia
 {
@@ -36,10 +37,17 @@ namespace IntelliMedia
 		private StageManager navigator;
 		private SessionState sessionState;
 		private AuthenticationService authenticator;
+		private SessionService sessionService;
 		private ActivityService activityService;
 		private ActivityLauncher activityLauncher;
+		private EyeTrackingService eyeTrackingService;
 
-		public string Username { get; set; }
+		public readonly BindableProperty<string> UsernameProperty = new BindableProperty<string>();	
+		public string Username 
+		{ 
+			get { return UsernameProperty.Value; }
+			set { UsernameProperty.Value = value; }
+		}
 
 		public readonly BindableProperty<List<Activity>> ActivitiesProperty = new BindableProperty<List<Activity>>();	
 		public List<Activity> Activities 
@@ -59,19 +67,25 @@ namespace IntelliMedia
 			StageManager navigator, 
 			SessionState sessionState,
 			AuthenticationService authenticator, 
+			SessionService sessionService,
 			ActivityService activityService,
-			ActivityLauncher activityLauncher)
+			ActivityLauncher activityLauncher,
+			EyeTrackingService eyeTrackingService)
 		{
 			this.navigator = navigator;
 			this.sessionState = sessionState;
 			this.authenticator = authenticator;
+			this.sessionService = sessionService;
 			this.activityService = activityService;
 			this.activityLauncher = activityLauncher;
+			this.eyeTrackingService = eyeTrackingService;
 		}
 
 		public override void OnStartReveal()
 		{
 			RefreshActivityList();
+			eyeTrackingService.Initialize(ShowMessageHandler);
+
 			base.OnStartReveal ();
 		}
 
@@ -79,6 +93,8 @@ namespace IntelliMedia
 		{
 			try
 			{
+				Username = sessionState.Student.Username;
+
 				Contract.PropertyNotNull("sessionState.CourseSettings", sessionState.CourseSettings);
 				
 				DebugLog.Info("RefreshActivityList");
@@ -91,6 +107,10 @@ namespace IntelliMedia
                     {
 						DebugLog.Info("Activities loaded");	
 						Activities = prevResult.ResultAs<List<Activity>>();
+						for (int index = 0; index < Activities.Count; ++index)
+						{
+							DebugLog.Info("[{0}] {1}", index, Activities[index].Name);
+						}
 						IEnumerable<string> activityIds = Activities.Select(a => a.Id);
 						activityService.LoadActivityStates(sessionState.Student.Id, activityIds).Start(onCompleted, onError);
                     })
@@ -131,6 +151,43 @@ namespace IntelliMedia
 		}
 
 		public void StartActivity(Activity activity)
+		{
+			if (sessionState.CourseSettings.EyeTrackingEnabled 
+				&& eyeTrackingService.IsEnabled
+				// TODO rgtaylor 2016-04-05 Use some other approach for disabling eye tracking for web view activities
+				&& !activity.Uri.Contains("assessment"))
+			{
+				eyeTrackingService.Calibrate(
+					() => 
+					{ 
+						TransitionToActivity(activity); 
+					},
+					ShowMessageHandler);
+			}
+			else
+			{
+				TransitionToActivity(activity);
+			}			
+		}
+
+		public void ShowMessageHandler(string title, string message, string[] buttons = null, EyeTrackingService.ButtonHandler buttonHandler = null)
+		{
+			navigator.Reveal<AlertViewModel>(alert =>
+			{
+				alert.Title = title;
+				alert.Message = message;
+				if (buttons != null)
+				{
+					alert.ButtonLabels = buttons;
+				}
+				if (buttonHandler != null)
+				{
+					alert.AlertDismissed += ((int index) => buttonHandler(index));
+				}
+			}).Start();			
+		}
+
+		private void TransitionToActivity(Activity activity)
 		{
 			try
 			{
@@ -177,29 +234,46 @@ namespace IntelliMedia
 
 		public void SignOut()
 		{
-			DebugLog.Info("SignOut");
-			try
+			DebugLog.Info("SignOut...");
+			navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
 			{
-				authenticator.SignOut((bool success, string message) => 
-				{
-					navigator.Transition(this, typeof(SignInViewModel));
-				});
-			}
-			catch (Exception e)
-			{
-				navigator.Reveal<AlertViewModel>(alert => 
-				                                 {
-					alert.Title = "Unable to sign out";
-					alert.Message = e.Message;
-					alert.Error = e;
-					alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-				}).Start();
-			}
+				ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
+				ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
+				// TODO rgtaylor 2015-12-10 Replace hardcoded 'domain'
+				sessionService.EndSession()
+					.Then((prevResult, onCompleted, onError) =>
+					{
+						DebugLog.Info("Session ended");
+						authenticator.SignOut().Start(onCompleted, onError);
+					})
+					.Then((prevResult, onCompleted, onError) =>
+					{
+						DebugLog.Info("Signed out");
+						navigator.Transition(this, typeof(SignInViewModel));
+						onCompleted(true);
+					}).Catch((Exception e) =>
+					{
+						navigator.Reveal<AlertViewModel>(alert =>
+						{
+							alert.Title = "Unable to sign out";
+							alert.Message = e.Message;
+							alert.Error = e;
+							alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
+						}).Start();
+
+					}).Finally(() =>
+					{
+						busyIndicator.Dispose();
+					}).Start();
+
+				onRevealed(true);
+
+			}).Start();
 		}
 
-		private void LoadActivities()
-		{
-
-		}
+        public void Settings()
+        {            
+            navigator.Transition(this, typeof(SettingsViewModel));
+        }
 	}
 }

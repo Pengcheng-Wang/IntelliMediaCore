@@ -30,8 +30,11 @@ using System.Collections.Generic;
 namespace IntelliMedia
 {
     public class AppSettings
-    {        
-        public string ServerURI { get; set; }	
+    {
+		public string Version { get; set; }
+		public bool WriteTraceDataToLocalFile { get; set; }
+		public string TraceDataDirectory { get; set; }
+		public string ServerURI { get; set; }
     }
 }
 

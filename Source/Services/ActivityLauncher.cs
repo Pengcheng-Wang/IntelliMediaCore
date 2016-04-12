@@ -28,6 +28,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace IntelliMedia
 {
@@ -56,36 +57,7 @@ namespace IntelliMedia
 					{
 						// Generate a new trace ID for restarts or new games that don't have saved state
 						activityState.TraceId = Guid.NewGuid().ToString();
-					}
-
-					DebugLog.Info("Start activity!");
-//					startedEntry = TraceLog.Player(TraceLog.Action.Started, "Activity",
-//					                               "Name", activity.Name,
-//					                               "ActivityUri", activity.Uri,
-//					                               "IsComplete", activityState.IsComplete,
-//					                               "CanResume", activityState.CanResume,
-//					                               "Restart", resetActivityState,
-//					                               "StartDate", activityState.ModifiedDate.ToIso8601(),
-//					                               "Username", student.Username,
-//					                               "SubjectId", student.SubjectId,
-//					                               "TraceId", activityState.TraceId);
-//					
-//					if (activity.Uri.Contains("episode"))
-//					{
-//						LaunchEpisode(activityState, activity.Name, activity.Uri, resetActivityState);                
-//					}
-//					else if (activity.Uri.Contains("assessment"))
-//					{
-//						LaunchAssessment(activityState, activity.Name, activity.Uri);                
-//					}
-//					else if (activity.Uri.Contains("http"))
-//					{
-//						LaunchUrl(activityState, activity.Name, activity.Uri);
-//					} 
-//					else
-//					{
-//						throw new Exception(String.Format("{0} has an unknown URI type: ", activity.Name, activity.Uri));
-//					}	
+					}												
 
 					onCompleted(viewModelFactory.Resolve<ActivityViewModel>(Resolve(activity.Uri), vm =>
 					{
@@ -93,64 +65,23 @@ namespace IntelliMedia
 						vm.ActivityState = activityState;
 					}));
 
-//					promise.Resolve(viewModelFactory.Resolve<WebActivityViewModel>(web => 
-//					{
-//						web.Title = "Web Browser Launched";
-//						web.Message = "Complete web viewer action for " + activity.Name;
-//						web.URL = "http://www.google.com";
-//					}));
 				});
 		}
-
-		private void LaunchEpisode(ActivityState activityState, string activityName, string episodeUrn, bool restart = false)
-		{
-//			Episode episode = Episode.All.FirstOrDefault(e => String.Compare(e.Urn, episodeUrn, StringComparison.CurrentCultureIgnoreCase) == 0);
-//			if (episode != null)
-//			{
-//				Action startGameAction = () =>
-//				{
-//					if (restart)
-//					{
-//						// Clear previous save data
-//						activityState.Restart();
-//					}
-//					
-//					activityState.RecordLaunch();
-//					
-//					SaveActivityState("Launching", false, activityState,
-//					                  (bool success, ActivityState savedActivityState, string error) =>
-//					                  {
-//						GameViewModel.Instance.StartGame(episode, activityName, savedActivityState, ActivityEnded);
-//					});
-//				};
-//
-//				// TODO rgtaylor 2015-12-16 Refactor
-////				if (EyeTrackingService.Instance.IsEnabled)
-////				{
-////					EyeTrackingService.Instance.Initialize();
-////					EyeTrackingService.Instance.Calibrate(startGameAction);
-////				}
-////				else
-//				{
-//					startGameAction();
-//				}
-//			}
-//			else
-//			{
-//				throw new Exception(String.Format("The '{0}' activity is not supported.", activityName));
-//			}
-		}
-
+			
 		public Type Resolve(string activityUrn)
 		{
 			Contract.ArgumentNotNull("activityUrn", activityUrn);
-			
-			if (!urnToViewModelType.ContainsKey(activityUrn))
+
+			foreach(string registeredUrnPattern in urnToViewModelType.Keys)
 			{
-				throw new Exception(String.Format("Activity URN not registered for '{0}'", activityUrn));
+				Regex regex = new Regex(registeredUrnPattern);
+				if (regex.IsMatch(activityUrn))
+				{
+					return urnToViewModelType[registeredUrnPattern];
+				}
 			}
-			
-			return urnToViewModelType[activityUrn];
+
+			throw new Exception(String.Format("Activity URN not registered for '{0}'", activityUrn));
 		}
 		
 		public void Register(string urn, Type viewModel)

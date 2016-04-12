@@ -32,6 +32,7 @@ namespace IntelliMedia
 	public class SignInViewModel : ViewModel
 	{
 		private StageManager navigator;
+		private AppSettings appSettings;
 		private SessionState sessionState;
 		private AuthenticationService authenticator;
 		private SessionService sessionService;
@@ -39,16 +40,23 @@ namespace IntelliMedia
 
 		public SignInViewModel(
 			StageManager navigator, 
+			AppSettings appSettings,
 			SessionState sessionState,
 			AuthenticationService authenticator,
 			SessionService sessionService,
 			CourseSettingsService courseSettingsService)
 		{
 			this.navigator = navigator;
+			this.appSettings = appSettings;
 			this.sessionState = sessionState;
 			this.authenticator = authenticator;
 			this.sessionService = sessionService;
 			this.courseSettingsService = courseSettingsService;
+		}
+
+		public string Version
+		{
+			get { return appSettings.Version; }
 		}
 
 		public void SignIn(string group, string username, string password)
@@ -79,7 +87,7 @@ namespace IntelliMedia
 	                    {
 							DebugLog.Info("Signed in {0}", username);
 							sessionState.Student = prevResult.ResultAs<Student>();
-							sessionService.Start(sessionState.Student.SessionGuid).Start(onCompleted, onError);
+							sessionService.StartSession(sessionState.Student).Start(onCompleted, onError);
 	                    })
 						.Then((prevResult, onCompleted, onError) =>
 	                    {
@@ -102,7 +110,7 @@ namespace IntelliMedia
 	                            alert.Message = e.Message;
 	                            alert.Error = e;
 	                            alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-	                        });
+							}).Start();
 
 	                    }).Finally(() =>
 	                    {

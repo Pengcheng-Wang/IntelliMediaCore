@@ -35,8 +35,9 @@ namespace IntelliMedia
 {
 	public class MainMenuView : UnityGuiView
 	{
+		public Text usernameLabel;
 		public Transform buttonPanel;
-
+        
 		public MainMenuViewModel ViewModel { get { return (MainMenuViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
@@ -69,6 +70,11 @@ namespace IntelliMedia
 			if (ViewModel == null || ViewModel.Activities == null)
 			{
 				return;
+			}
+
+			if (usernameLabel != null)
+			{
+				usernameLabel.text = ViewModel.Username;
 			}
 
 			// Use existing button as a prefab for creating new buttons
@@ -108,5 +114,12 @@ namespace IntelliMedia
 		{
 			ViewModel.SignOut();
 		}
+
+        public void OnSettingsButtonClicked()
+        {
+            ViewModel.Settings();
+
+        }
+
 	}
 }

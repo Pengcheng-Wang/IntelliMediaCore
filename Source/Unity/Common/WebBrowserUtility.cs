@@ -92,6 +92,15 @@ namespace IntelliMedia
             Application.OpenURL(url);
         }
 
+		/// <summary>
+		/// Close the tab that the app is running in
+		/// </summary>
+		public static void QuitWebApplication()
+		{
+			string javascript = "window.close();";
+			UnityEngine.Application.ExternalEval(javascript);
+		}
+
         public void Start()
         {
             startTime = GameTime.time;
