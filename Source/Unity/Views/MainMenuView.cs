@@ -30,6 +30,8 @@ using UnityEngine.UI;
 using System.Collections;
 using Zenject;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace IntelliMedia
 {
@@ -37,6 +39,14 @@ namespace IntelliMedia
 	{
 		public Text usernameLabel;
 		public Transform buttonPanel;
+
+		[Serializable]
+		public class ActivityIcon
+		{
+			public string uri;
+			public Sprite icon;
+		}
+		public ActivityIcon[] activityIcons;
         
 		public MainMenuViewModel ViewModel { get { return (MainMenuViewModel)BindingContext; }}
 
@@ -99,11 +109,25 @@ namespace IntelliMedia
 				Transform newButton = GameObject.Instantiate(buttonPrefab);
 				newButton.name = buttonLabel + "Button";
 				newButton.GetComponent<Button>().onClick.AddListener (() => OnClicked(currentActivity));
-				newButton.GetComponentInChildren<Text> ().text = buttonLabel;
+				newButton.GetComponentInChildren<Text>().text = buttonLabel;
+				Transform iconObject = newButton.transform.Find("Panel/IconImage");
+				if (iconObject != null)
+				{
+					Sprite iconSprite = GetIconForActivity(currentActivity);
+					if (iconSprite != null)
+					{
+						iconObject.GetComponent<Image>().sprite = iconSprite;
+					}
+				}
 				newButton.transform.SetParent(buttonPanel);
 			}
 			
 			Destroy (buttonPrefab.gameObject);
+		}
+
+		private Sprite GetIconForActivity(Activity activity)
+		{
+			return activityIcons.Where(i => activity.Uri.StartsWith(i.uri)).Select(i => i.icon).First();
 		}
 		
 		public void OnClicked(Activity activity)

@@ -29,7 +29,7 @@ using System;
 using System.Collections.Generic;
 
 namespace IntelliMedia
-{
+{	
 	public class GazeEventArgs : EventArgs
 	{
         // Current position in pixel coordinates 
@@ -44,6 +44,13 @@ namespace IntelliMedia
 
     public abstract class EyeTracker
     {
+		public enum Platform
+		{
+			Unknown,
+			Windows,
+			OSX,
+		}
+
 		public delegate void CalibrationResultHandler(bool success, string message, Dictionary<string, object> calibrationPropertyResults);
 
 		public event EventHandler<GazeEventArgs> GazeChanged;
@@ -71,6 +78,25 @@ namespace IntelliMedia
 		public virtual void Calibrate(CalibrationResultHandler callback) 
 		{
 			throw new NotImplementedException("Calibration is not required for " + this.GetType().Name);
+		}
+
+		public static List<string> GetAvailableEyeTrackers(Platform platform)
+		{
+			List<string> availabeEyeTrackers = new List<string>();
+			availabeEyeTrackers.Add(EyeTrackerSettings.EyeTrackerSystem.None.ToString());
+			availabeEyeTrackers.Add(EyeTrackerSettings.EyeTrackerSystem.Simulated.ToString());
+
+			if (platform == Platform.Windows)
+			{
+				availabeEyeTrackers.Add(EyeTrackerSettings.EyeTrackerSystem.SMI.ToString());
+				availabeEyeTrackers.Add(EyeTrackerSettings.EyeTrackerSystem.EyeTribe.ToString());
+			}
+			else if (platform == Platform.OSX)
+			{
+				availabeEyeTrackers.Add(EyeTrackerSettings.EyeTrackerSystem.EyeTribe.ToString());
+			}
+
+			return availabeEyeTrackers;			
 		}
     }
 }

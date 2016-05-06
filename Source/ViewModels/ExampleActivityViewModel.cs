@@ -41,8 +41,9 @@ namespace IntelliMedia
 
 		public override void OnStartReveal()
 		{
-			InitializeFromSaveData();
 			base.OnStartReveal();
+
+			InitializeFromSaveData();
 		}
 
 		private void InitializeFromSaveData()

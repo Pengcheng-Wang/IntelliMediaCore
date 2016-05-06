@@ -57,7 +57,10 @@ namespace IntelliMedia
 					{
 						// Generate a new trace ID for restarts or new games that don't have saved state
 						activityState.TraceId = Guid.NewGuid().ToString();
-					}												
+					}			
+
+					activityState.RecordLaunch();
+					activityState.ModifiedDate = DateTime.Now;
 
 					onCompleted(viewModelFactory.Resolve<ActivityViewModel>(Resolve(activity.Uri), vm =>
 					{

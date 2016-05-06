@@ -92,7 +92,7 @@ namespace IntelliMediaSample
 
 		void InstallBindingsByName(string groupName, string[] classNames)
 		{
-			if (services.Length == 0)
+			if (classNames == null || classNames.Length == 0)
 			{
 				DebugLog.Info("No {0} to install", groupName);
 				return;

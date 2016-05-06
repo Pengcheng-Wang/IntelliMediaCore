@@ -83,10 +83,10 @@ namespace IntelliMedia
 
 		public override void OnStartReveal()
 		{
+			base.OnStartReveal();
+
 			RefreshActivityList();
 			eyeTrackingService.Initialize(ShowMessageHandler);
-
-			base.OnStartReveal ();
 		}
 
 		private void RefreshActivityList()
@@ -155,7 +155,8 @@ namespace IntelliMedia
 			if (sessionState.CourseSettings.EyeTrackingEnabled 
 				&& eyeTrackingService.IsEnabled
 				// TODO rgtaylor 2016-04-05 Use some other approach for disabling eye tracking for web view activities
-				&& !activity.Uri.Contains("assessment"))
+				&& !activity.Uri.Contains("assessment")
+				&& !activity.Uri.Contains("video"))
 			{
 				eyeTrackingService.Calibrate(
 					() => 
@@ -273,7 +274,7 @@ namespace IntelliMedia
 
         public void Settings()
         {            
-            navigator.Transition(this, typeof(SettingsViewModel));
+			navigator.Transition(this, typeof(SettingsViewModel));
         }
 	}
 }

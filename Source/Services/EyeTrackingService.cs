@@ -207,8 +207,8 @@ namespace IntelliMedia
 										message, 
 										new string[]
 										{
+											"Start",
 											"Recalibrate",
-											"Start Game",
 											"Cancel"
 										},
 										(int option) =>
@@ -216,16 +216,16 @@ namespace IntelliMedia
 										switch(option)
 										{
 										case 0:
-											Calibrate(launchAction, showMessage);
+											launchAction();
 											break;
 
 										case 1:
-											launchAction();
+											Calibrate(launchAction, showMessage);
 											break;
 
 										default:
 											// Do nothing
-											DebugLog.Info("Start game cancelled by user.");
+											DebugLog.Info("Start cancelled by user.");
 											break;
 										}
 									});
