@@ -65,8 +65,9 @@ namespace IntelliMedia
             }
         }
 
-        public void Dispose()
+		public void Close(LoggerCloseCallback callback)
         {
+			callback(true, null);
         }
         
         #endregion

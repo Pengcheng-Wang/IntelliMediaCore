@@ -44,6 +44,7 @@ namespace IntelliMedia
     {
         public const string UrlEncoded = "application/x-www-form-urlencoded";
         public const string TextXml = "text/xml";
+		public const string TextCsv = "text/csv";
         public const string ApplicationXml = "application/xml";
         public const string ImageJpegContent = "image/jpeg";
         const string ImagePngContent = "image/png";
@@ -62,10 +63,10 @@ namespace IntelliMedia
         /// </summary>
         /// <param name="contentType">http://en.wikipedia.org/wiki/Internet_media_type</param>
         /// <param name="data">Caller formatted string data</param>
-        public MimePart(string contentType, string data)
+		public MimePart(string partName, string contentType, string data)
         {
+			Name = partName;
             ContentType = contentType;
-            Name = null;
             Value = data;
         }
 
@@ -74,12 +75,13 @@ namespace IntelliMedia
         /// </summary>
         /// <param name="contentType">http://en.wikipedia.org/wiki/Internet_media_type</param>
         /// <param name="data">Caller formatted string data</param>
-        public MimePart(string contentType, params string[] namesAndValues)
+		public MimePart(string partName, string contentType, params string[] namesAndValues)
         {
             Contract.ArgumentNotNull("namesAndValues", namesAndValues);
             Contract.Argument("Must have even number of string parameters (name1, value1, name2, value2, ....)", 
                               "namesAndValues", (namesAndValues.Length%2 == 0));
 
+			Name = partName;
             ContentType = contentType;
             NameValueCollection nameValueCollection = new NameValueCollection();
             for (int index = 0; index < namesAndValues.Length; index += 2)
@@ -97,8 +99,9 @@ namespace IntelliMedia
         /// <param name="contentType">http://en.wikipedia.org/wiki/Internet_media_type</param>
         /// <param name="namesAndValues">First argument is a name, the second is the value</param>
         /// <param name="excludeNullValues">If the value is null, exclude it from the MIME name/value pairs</param>
-        public MimePart(string contentType, NameValueCollection namesAndValues, bool excludeNullValues = false)
-        {           
+		public MimePart(string partName, string contentType, NameValueCollection namesAndValues, bool excludeNullValues = false)
+        {   
+			Name = partName;
             ContentType = contentType;
             Value = ToUrlEncodedString(namesAndValues, excludeNullValues);
         }
@@ -107,13 +110,13 @@ namespace IntelliMedia
         /// Constructor used to upload binary data
         /// </summary>
         /// <param name="contentType">Constructor</param>
-        /// <param name="name">Name of part</param>
+		/// <param name="partName">Name of part</param>
         /// <param name="filename">Filename</param>
         /// <param name="stream">Binary data</param>
-        public MimePart(string contentType, string name, string filename, Stream stream)
+		public MimePart(string partName, string contentType, string filename, Stream stream)
         {
+			Name = partName;
             ContentType = contentType;
-            Name = name;
             Filename = filename;
             Stream = stream;
             IsFile = true;
@@ -121,7 +124,6 @@ namespace IntelliMedia
 
         private static string ToUrlEncodedString(NameValueCollection collection, bool excludeNullValues = false)
         {
-
             List<string> pairs = new List<string>();
             for (int index = 0; index < collection.Count; ++index)
             {

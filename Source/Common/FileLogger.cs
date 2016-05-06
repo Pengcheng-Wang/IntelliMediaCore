@@ -84,15 +84,26 @@ namespace IntelliMedia
             }
         }
 
-        public void Dispose()
+		public void Close(LoggerCloseCallback callback)
         {
-            if (FileStreamWriter != null)
-            {
-                FileStreamWriter.Flush();
-                FileStreamWriter.Dispose();
-                Filename = null;
-                FileStreamWriter = null;
-            }
+			string error = null;
+
+			try
+			{
+	            if (FileStreamWriter != null)
+	            {
+	                FileStreamWriter.Flush();
+	                FileStreamWriter.Dispose();
+	                Filename = null;
+	                FileStreamWriter = null;
+	            }
+			}
+			catch(Exception e)
+			{
+				error = e.Message;
+			}
+
+			callback(error != null, error);
         }
         
         #endregion

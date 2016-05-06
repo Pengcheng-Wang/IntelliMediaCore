@@ -54,7 +54,7 @@ namespace IntelliMedia
         /// <returns>WebRequest IAsyncResult object</returns>
         public IAsyncResult Post(Uri uri, int retries, MimePart mimePart, AsyncCallback callback)
         {
-            return Post(uri, retries, new List<MimePart> { mimePart }, callback);
+            return Post(uri, retries, false, new List<MimePart> { mimePart }, callback);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace IntelliMedia
         /// <param name="mimeParts">MIME encoded payload</param>
         /// <param name="callback">Method called on failure or success that is passed an AsyncResult whose Result property is set to HttpResult</param>
         /// <returns>WebRequest IAsyncResult object</returns>
-        public IAsyncResult Post(Uri uri, int retries, List<MimePart> mimeParts, AsyncCallback callback)
+		public IAsyncResult Post(Uri uri, int retries, bool forceMultipart, List<MimePart> mimeParts, AsyncCallback callback)
         {
 #if (SILVERLIGHT || WPF || TOOL)
             WebRequest webRequest = WebRequest.Create(uri);
@@ -77,7 +77,7 @@ namespace IntelliMedia
             {
                 WebRequest request = (WebRequest)asynchronousResult.AsyncState;
 
-                if (mimeParts.Count > 1)
+				if (mimeParts.Count > 1 || forceMultipart)
                 {
                     CreateMultiPartRequest(request, asynchronousResult, mimeParts);
                 }
@@ -104,7 +104,7 @@ namespace IntelliMedia
                         if (retries > 0 && we.Status != WebExceptionStatus.RequestCanceled)
                         {
                             DebugLog.Info("Retry {0} '{1}'", webRequest.Method, uri.ToString());
-                            Post(uri, --retries, mimeParts, callback);
+							Post(uri, --retries, forceMultipart, mimeParts, callback);
                             retry = true;
                         }
                         else
@@ -226,7 +226,7 @@ namespace IntelliMedia
                         StringBuilder sbHeader = new StringBuilder();
                         sbHeader.AppendFormat("--{0}", boundary);
                         sbHeader.Append("\r\n");
-                        sbHeader.AppendFormat("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\";", part.Name, part.Filename);
+						sbHeader.AppendFormat("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"", part.Name, part.Filename);
                         sbHeader.Append("\r\n");
                         sbHeader.AppendFormat("Content-Type: {0}", part.ContentType);
                         sbHeader.Append("\r\n");
@@ -242,7 +242,7 @@ namespace IntelliMedia
                         StringBuilder sbHeader = new StringBuilder();
                         sbHeader.AppendFormat("--{0}", boundary);
                         sbHeader.Append("\r\n");
-                        sbHeader.AppendFormat("Content-Disposition: form-data; name=\"{0}\";", part.Name);
+						sbHeader.AppendFormat("Content-Disposition: form-data; name=\"{0}\"", part.Name);
                         sbHeader.Append("\r\n");
                         sbHeader.AppendFormat("Content-Type: {0}; charset=UTF-8", part.ContentType);
                         sbHeader.Append("\r\n");

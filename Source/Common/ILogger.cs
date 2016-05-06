@@ -30,11 +30,13 @@ using System.Text;
 
 namespace IntelliMedia
 {
-    public interface ILogger : IDisposable
+	public delegate void LoggerCloseCallback(bool success, string error);
+
+    public interface ILogger
     {   
         bool Enabled { get; set; }
-
         void Write(LogEntry entry);
+		void Close(LoggerCloseCallback callback);
     }
 }
 
