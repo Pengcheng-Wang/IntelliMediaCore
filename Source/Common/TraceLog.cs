@@ -98,7 +98,11 @@ namespace IntelliMedia
 			/// </summary>
 			Paused,
 			/// <summary>
-			/// A long running action has resumed executing.
+			/// Something is shown or highlighted.
+			/// </summary>
+			Revealed,
+			/// <summary>
+			/// The player has moved to a new named location in the scene (e.g. Infirmary)
 			/// </summary>
 			Resumed,
             /// <summary>
