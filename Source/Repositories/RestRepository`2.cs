@@ -75,7 +75,7 @@ namespace IntelliMedia
         {
             string serializedObj = Serializer.Serialize<T>(instance);
 
-            MimePart mimePart = new MimePart(MimePart.ApplicationXml, serializedObj);
+			MimePart mimePart = new MimePart("SerializedObject", MimePart.ApplicationXml, serializedObj);
             
             httpClient.Post(CreateUri, DefaultRetryCount, mimePart, (postResult) =>
             {
@@ -125,7 +125,7 @@ namespace IntelliMedia
         {
             string serializedObj = Serializer.Serialize<T>(instance);
             
-            MimePart mimePart = new MimePart(MimePart.ApplicationXml, serializedObj);
+			MimePart mimePart = new MimePart("SerializedObject", MimePart.ApplicationXml, serializedObj);
             
             httpClient.Post(UpdateUri, DefaultRetryCount, mimePart, (postResult) =>
             {

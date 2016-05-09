@@ -28,6 +28,7 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace IntelliMedia
 {
@@ -200,33 +201,62 @@ namespace IntelliMedia
                 }
             }
         }
-
-        public delegate void CloseCallback(bool success, string error);
-        public static void Close(CloseCallback callback = null)
+		        
+		public static void Close(LoggerCloseCallback callback)
         {
             try
             {   
-                foreach (ILogger logger in Loggers)
+				ILogger[] loggersToClose = Loggers.ToArray();
+				Loggers.Clear();
+
+				CallbackAccumulator accumulator = new CallbackAccumulator(loggersToClose.Length, callback);
+				foreach (ILogger logger in loggersToClose)
                 {
-                    logger.Dispose();
+					logger.Close(accumulator.Callback);
                 }
-
-                Loggers.Clear();
-
-				if (callback != null)
-				{
-                	callback(true, null);
-				}
-
             }
             catch(Exception e)
             {
-                if (callback != null)
-                {
-                    callback(false, e.Message);
-                }
+				callback(false, string.Format("Failed to close all trace logs. {0}", e.Message));
             }
         }
+
+		private class CallbackAccumulator
+		{
+			private readonly object syncLock = new object();
+			private int CallbacksExpected;
+			private LoggerCloseCallback CloseCallback { get; set; }
+			private StringBuilder ErrorMsg { get; set; }
+
+			public CallbackAccumulator(int callbacksExpected, LoggerCloseCallback callback)
+			{
+				Contract.Argument("Must be expecting at least one callback", "callbacksExpected", callbacksExpected > 0);
+				Contract.ArgumentNotNull("callback", callback);
+
+				ErrorMsg = new StringBuilder();
+
+				CallbacksExpected = callbacksExpected;
+				CloseCallback = callback;
+			}
+
+			public void Callback(bool success, string error)
+			{
+				lock(syncLock)
+				{
+					--CallbacksExpected;
+					if (error != null)
+					{
+						ErrorMsg.AppendFormat("{0}. ",  error);
+					}
+				}
+
+				if (CallbacksExpected < 1)
+				{
+					bool allSuccess = ErrorMsg.Length == 0; 
+					CloseCallback(allSuccess, (allSuccess ? null : ErrorMsg.ToString()));
+				}
+			}
+		}
 
         public static LogEntry Player(Action action, string target, params object[] attributes)
         {

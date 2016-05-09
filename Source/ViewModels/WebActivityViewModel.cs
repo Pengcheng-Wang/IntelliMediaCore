@@ -47,7 +47,8 @@ namespace IntelliMedia
 
 		public override void OnStartReveal()
 		{
-			Contract.PropertyNotNull("Activity", Activity);
+			base.OnStartReveal();
+
 			Contract.PropertyNotNull("sessionState", sessionState);
 			Contract.PropertyNotNull("sessionState.Student", sessionState.Student);
 
@@ -78,9 +79,7 @@ namespace IntelliMedia
 					alert.Title = "Unable to launch web browser";
 					alert.Message = String.Format("URL is blank for {0} activity.", Activity.Name);
 				}).Start();				
-			}				
-
-			base.OnStartReveal ();
+			}								
 		}
 		
 		private string SubstituteParameters(string uri)

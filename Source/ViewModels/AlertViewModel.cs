@@ -51,11 +51,12 @@ namespace IntelliMedia
 
 		public override void OnStartReveal ()
 		{
+			base.OnStartReveal();
+
 			if (Error != null)
 			{
 				DebugLog.Error("Error Alert Displayed. {0}. {1}", Error.Message, Error.StackTrace);
 			}
-			base.OnStartReveal();
 		}
 
 		public void ButtonPressed(int index)

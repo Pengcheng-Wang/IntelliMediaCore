@@ -49,7 +49,12 @@ namespace IntelliMedia
 		}
 
 		public override void OnStartReveal()
-		{
+		{			
+			if (Activity == null)
+			{
+				throw new Exception("Activity not loaded.");
+			}				
+
 			DebugLog.Info("Revealed activity:" + Activity.Name);
 			startedEntry = TraceLog.Player(TraceLog.Action.Started, "Activity",
 			                               "Name", Activity.Name,
