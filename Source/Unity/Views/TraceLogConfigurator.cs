@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,47 +26,27 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using Zenject;
 
 namespace IntelliMedia
 {
-	public class SignInView : UnityGuiView
+	/// <summary>
+	/// Configure trace log settings during app startup
+	/// </summary>
+	public class TraceLogConfigurator : MonoBehaviour 
 	{
-		public SignInViewModel ViewModel { get { return (SignInViewModel)BindingContext; }}
+		public string traceDataDirectory = "TraceData";
+		public bool writeTraceDataToLocalFile = false;
 
-		public InputField groupField;
-		public InputField usernameField;
-		public InputField passwordField;
-		public Text versionLabel;
+		private SessionService sessionService;
 
-		public override void OnHidden()
+		// After Dependency Injection
+		[PostInject]
+		public void Init(AppSettings appSettings)
 		{
-			Contract.PropertyNotNull("groupField", groupField);
-			Contract.PropertyNotNull("usernameField", usernameField);
-			Contract.PropertyNotNull("passwordField", passwordField);
-
-			groupField.text = "";
-			usernameField.text = "";
-			passwordField.text = "";
-
-			base.OnHidden();
-		}
-
-		public override void OnAppearing ()
-		{
-			if (versionLabel != null)
-			{
-				versionLabel.text = ViewModel.Version;
-			}
-
-			base.OnAppearing();
-		}
-
-		public void SignIn()
-		{
-			ViewModel.SignIn(groupField.text, usernameField.text, passwordField.text);
-		}
+			appSettings.WriteTraceDataToLocalFile = writeTraceDataToLocalFile;
+			appSettings.TraceDataDirectory = traceDataDirectory;
+		}			
 	}
 }
+

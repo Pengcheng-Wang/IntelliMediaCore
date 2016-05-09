@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,47 +26,26 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using Zenject;
 
 namespace IntelliMedia
 {
-	public class SignInView : UnityGuiView
+	/// <summary>
+	/// Configure repository settings during app startup
+	/// </summary>	
+	public class RepositoryConfigurator : MonoBehaviour 
 	{
-		public SignInViewModel ViewModel { get { return (SignInViewModel)BindingContext; }}
+		public string serverUrl = "http://intellimedia-portal.appspot.com/";
 
-		public InputField groupField;
-		public InputField usernameField;
-		public InputField passwordField;
-		public Text versionLabel;
-
-		public override void OnHidden()
+		// After Dependency Injection
+		[PostInject]
+		public void Init(AppSettings appSettings)
 		{
-			Contract.PropertyNotNull("groupField", groupField);
-			Contract.PropertyNotNull("usernameField", usernameField);
-			Contract.PropertyNotNull("passwordField", passwordField);
-
-			groupField.text = "";
-			usernameField.text = "";
-			passwordField.text = "";
-
-			base.OnHidden();
-		}
-
-		public override void OnAppearing ()
-		{
-			if (versionLabel != null)
-			{
-				versionLabel.text = ViewModel.Version;
-			}
-
-			base.OnAppearing();
-		}
-
-		public void SignIn()
-		{
-			ViewModel.SignIn(groupField.text, usernameField.text, passwordField.text);
-		}
+			// TODO rgtaylor 2016-04-03 Added a keyboard shortcut to switch server
+			appSettings.ServerURI = serverUrl;
+			//appSettings.ServerURI = "http://intellimedia-portal.appspot.com/";
+			//appSettings.ServerURI = "http://intellimedia-portal-dev.appspot.com/";
+			//appSettings.ServerURI = "http://localhost:8888/";
+		}			
 	}
 }

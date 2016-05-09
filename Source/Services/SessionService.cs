@@ -157,7 +157,10 @@ namespace IntelliMedia
 			session.Platform = UnityEngine.Application.platform.ToString();
 			session.OperatingSystem = UnityEngine.SystemInfo.operatingSystem;
 
-			session.GameVersion = appSettings.Version;
+			if (!String.IsNullOrEmpty(appSettings.Version))
+			{
+				session.GameVersion = appSettings.Version;
+			}
 //			WebBrowserUtility webBrowser = Global.Component<WebBrowserUtility>();
 //			if (UnityEngine.Application.isWebPlayer && webBrowser != null)
 //			{
