@@ -31,7 +31,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace Cei.Illuminate
+namespace IntelliMedia
 {
 	public class RemoteLogger : ILogger
 	{   
