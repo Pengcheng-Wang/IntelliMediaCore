@@ -145,7 +145,7 @@ namespace IntelliMedia
 				"GameReleaseType", session.GameReleaseType);
 		}
 
-		void EndLogging(IntelliMedia.TraceLog.CloseCallback callback)
+		void EndLogging(LoggerCloseCallback callback)
 		{			
 			TraceLog.Player(sessionStartedEntry, TraceLog.Action.Ended, "Session");
 			sessionStartedEntry = null;
@@ -157,7 +157,7 @@ namespace IntelliMedia
 			session.Platform = UnityEngine.Application.platform.ToString();
 			session.OperatingSystem = UnityEngine.SystemInfo.operatingSystem;
 
-			session.GameVersion = MetaTutorIVH.AssemblyInfo.Version.ToString(); 
+			session.GameVersion = appSettings.Version;
 //			WebBrowserUtility webBrowser = Global.Component<WebBrowserUtility>();
 //			if (UnityEngine.Application.isWebPlayer && webBrowser != null)
 //			{
