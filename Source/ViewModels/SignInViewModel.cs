@@ -56,7 +56,7 @@ namespace IntelliMedia
 
 		public string Version
 		{
-			get { return appSettings.Version; }
+			get { return appSettings.Version != null ? appSettings.Version : "unknown version"; }
 		}
 
 		public void SignIn(string group, string username, string password)

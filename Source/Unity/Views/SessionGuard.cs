@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,47 +26,32 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using Zenject;
 
 namespace IntelliMedia
 {
-	public class SignInView : UnityGuiView
+	/// <summary>
+	/// Ensure that the session is stopped when the application is quit.
+	/// </summary>
+	public class SessionGuard : MonoBehaviour 
 	{
-		public SignInViewModel ViewModel { get { return (SignInViewModel)BindingContext; }}
+		private SessionService sessionService;
 
-		public InputField groupField;
-		public InputField usernameField;
-		public InputField passwordField;
-		public Text versionLabel;
-
-		public override void OnHidden()
+		// After Dependency Injection
+		[PostInject]
+		public void Init(SessionService sessionService)
 		{
-			Contract.PropertyNotNull("groupField", groupField);
-			Contract.PropertyNotNull("usernameField", usernameField);
-			Contract.PropertyNotNull("passwordField", passwordField);
+			this.sessionService = sessionService;
+		}			
 
-			groupField.text = "";
-			usernameField.text = "";
-			passwordField.text = "";
-
-			base.OnHidden();
-		}
-
-		public override void OnAppearing ()
+		public void OnApplicationQuit()
 		{
-			if (versionLabel != null)
+			DebugLog.Info("SessionGuard.OnApplicationQuit()");
+
+			if (sessionService != null && sessionService.IsSessionStarted)
 			{
-				versionLabel.text = ViewModel.Version;
+				sessionService.EndSession().Start();
 			}
-
-			base.OnAppearing();
-		}
-
-		public void SignIn()
-		{
-			ViewModel.SignIn(groupField.text, usernameField.text, passwordField.text);
 		}
 	}
 }
