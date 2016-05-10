@@ -139,16 +139,23 @@ namespace IntelliMediaSample
 					throw new Exception("Missing view for " + vvm.viewModel);
 				}
 
-				Type viewType = vvm.view.GetType ();
+				Type viewType = vvm.view.GetType();
+
+				// By default, the view should be hidden until revealed by the StageManager
+				if (vvm.view.gameObject.activeSelf)
+				{
+					vvm.view.gameObject.SetActive(false);
+				}
+
 				if (vvm.viewIsPrefab)
 				{
 					DebugLog.Info ("Bind {0} to transient prefab", viewType.Name);
-					Container.Bind (viewType).ToTransientPrefab(vvm.view.gameObject);
+					Container.Bind(viewType).ToTransientPrefab(vvm.view.gameObject);
 				}
 				else
 				{
 					DebugLog.Info ("Bind {0} to instance", viewType.Name);
-					Container.Bind (viewType).ToInstance(vvm.view.gameObject);
+					Container.Bind(viewType).ToInstance(vvm.view);
 				}
 				Container.Resolve<ViewFactory> ().Register (vmType, viewType);
 				if (!String.IsNullOrEmpty (vvm.activityUrn))
