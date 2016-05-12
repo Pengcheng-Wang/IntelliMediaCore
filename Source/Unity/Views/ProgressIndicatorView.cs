@@ -34,12 +34,10 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	public class ProgressIndicatorView : UnityGuiView
+	public class ProgressIndicatorView : UnityGuiView<ProgressIndicatorViewModel>
 	{
 		public Text message;
 		public Button cancelButton;
-
-		public ProgressIndicatorViewModel ViewModel { get { return (ProgressIndicatorViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
 		{

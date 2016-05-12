@@ -40,7 +40,7 @@ using System.IO;
 
 namespace IntelliMedia
 {
-	public class VideoPlayerView : UnityGuiView
+	public class VideoPlayerView : UnityGuiView<VideoPlayerViewModel>
 	{
 		public const int VideoPrevNextCacheSize = 1;
 		public static readonly string[] VideoFilenameExtensions = { ".mov", ".mpg", ".mpeg", ".mp4" };
@@ -57,8 +57,6 @@ namespace IntelliMedia
 		public Button pause;
 		public Button play;
 		public Button skipForward;
-
-		public VideoPlayerViewModel ViewModel { get { return (VideoPlayerViewModel)BindingContext; }}
 
 		public bool IsPaused { get; private set; }
 		public bool IsPlaying { get; private set; }

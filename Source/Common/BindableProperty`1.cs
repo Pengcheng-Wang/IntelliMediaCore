@@ -25,10 +25,11 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using System;
 
 namespace IntelliMedia
 {
-    public class BindableProperty<T>
+	public class BindableProperty<T>
     {
 		public delegate void ValueChangedHandler(T oldValue, T newValue);
 		public ValueChangedHandler ValueChanged;
@@ -64,5 +65,5 @@ namespace IntelliMedia
 		{
 			return (Value != null ? Value.ToString() : "null");
 		}
-    }
+    }		
 }

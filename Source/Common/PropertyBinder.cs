@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,38 +25,57 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using System.Collections;
-using IntelliMedia;
+using System;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 
-public class OnHidden : StateMachineBehaviour {
+namespace IntelliMedia
+{
+	public class PropertyBinder<TObject>
+	{
+		public delegate void BindHandler(TObject viewModel);
+		private List<BindHandler> binders = new List<BindHandler>();
+		private List<BindHandler> unbinders = new List<BindHandler>();
 
-	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-		UnityView view = animator.GetComponent<UnityView>();
-		if (view != null)
+		public void Add<TProperty>(Expression<Func<TObject, BindableProperty<TProperty>>> expression, BindableProperty<TProperty>.ValueChangedHandler changedHandler)
 		{
-			//view.OnHidden();
+			binders.Add((TObject viewModel) => 
+			{
+				expression.Compile().Invoke(viewModel).ValueChanged += changedHandler;
+			});
+
+			unbinders.Add((TObject viewModel) => 
+			{
+				expression.Compile().Invoke(viewModel).ValueChanged -= changedHandler;
+			});				
+		}
+
+		public void Add(BindHandler bind, BindHandler unbind)
+		{
+			binders.Add(bind);
+			unbinders.Add(unbind);				
+		}
+
+		public void Bind(TObject vm)
+		{
+			if (vm != null)
+			{
+				foreach(BindHandler handler in binders)
+				{
+					handler(vm);
+				}
+			}
+		}
+
+		public void Unbind(TObject vm)
+		{
+			if (vm != null)
+			{
+				foreach(BindHandler handler in unbinders)
+				{
+					handler(vm);
+				}
+			}
 		}
 	}
-
-	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-	//override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
-	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateIK is called right after Animator.OnAnimatorIK(). Code that sets up animation IK (inverse kinematics) should be implemented here.
-	//override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
 }

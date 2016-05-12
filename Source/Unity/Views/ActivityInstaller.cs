@@ -40,7 +40,7 @@ namespace IntelliMediaSample
 		{
 			public string Urn;
 			public string ViewModelClassName;
-			public UnityGuiView View;
+			public UnityView View;
 			public bool ViewIsPrefab;
 
 			private Type viewModelType;
@@ -78,7 +78,7 @@ namespace IntelliMediaSample
 							throw new Exception("ViewObject is null");
 						}
 						
-						UnityGuiView view = View.GetComponent<UnityGuiView>();
+						UnityView view = View.GetComponent<UnityView>();
 						if (view == null)
 						{
 							throw new Exception("Unable to find View class attached to: " + View.name);

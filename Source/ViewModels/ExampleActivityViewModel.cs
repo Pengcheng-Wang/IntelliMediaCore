@@ -34,8 +34,12 @@ namespace IntelliMedia
 	public class ExampleActivityViewModel : ActivityViewModel
 	{
 		public int CurrentCount { get; set; }
-						
-		public ExampleActivityViewModel(StageManager navigator, ActivityService activityService) : base(navigator, activityService)
+
+		public readonly BindableProperty<int> BarProperty = new BindableProperty<int>();
+
+		public static readonly BindableProperty<int> GamesPlayed = new BindableProperty<int>();
+
+		public ExampleActivityViewModel(StageManager stageManager, ActivityService activityService) : base(stageManager, activityService)
 		{
 		}
 

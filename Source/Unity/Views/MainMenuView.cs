@@ -35,7 +35,7 @@ using System.Linq;
 
 namespace IntelliMedia
 {
-	public class MainMenuView : UnityGuiView
+	public class MainMenuView : UnityGuiView<MainMenuViewModel>
 	{
 		public Text usernameLabel;
 		public Transform buttonPanel;
@@ -46,9 +46,7 @@ namespace IntelliMedia
 			public string uri;
 			public Sprite icon;
 		}
-		public ActivityIcon[] activityIcons;
-        
-		public MainMenuViewModel ViewModel { get { return (MainMenuViewModel)BindingContext; }}
+		public ActivityIcon[] activityIcons;        
 
 		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
 		{

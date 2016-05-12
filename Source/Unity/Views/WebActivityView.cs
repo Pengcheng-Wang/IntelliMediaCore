@@ -34,13 +34,11 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	public class WebActivityView : UnityGuiView
+	public class WebActivityView : UnityGuiView<WebActivityViewModel>
 	{
 		public Text title;
 		public Text message;
 		public Button doneButton;
-
-		public WebActivityViewModel ViewModel { get { return (WebActivityViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
 		{

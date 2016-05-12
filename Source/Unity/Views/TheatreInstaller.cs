@@ -44,7 +44,7 @@ namespace IntelliMediaSample
 		{
 			public string viewModel;
 			public bool singleton;
-			public UnityGuiView view;
+			public UnityView view;
 			public bool viewIsPrefab;
 			public string activityUrn;
 			public bool revealOnStart;
