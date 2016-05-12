@@ -3,6 +3,8 @@ Collection of C# design patterns (MVVM, Repository, Singleton) and utility class
 
 **NOTE:** This is an **alpha** release of the class library. There are no binary distributions available at this time. The preferred approach is to create a Git subtree of the IntelliMediaCore/Source in your project's Git repository.  
 
+See the [Tic-Tac-Toe](https://github.com/IntelliMedia/TicTacToe) example for a demonstration of how IntelliMediaCore can be used in an app or game.
+
 Refer to the wiki for [detailed instructions](https://github.com/IntelliMedia/IntelliMediaCore/wiki) on how to integrate IntelliMediaCore into your project.
 
 
