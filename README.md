@@ -1,26 +1,12 @@
 # IntelliMediaCore
-Collection of C# design patterns (MVVM, Repository, Promise, Singleton) and utility classes. The class library is intended to be used in conjunction with Unity 3D game engine projects or Mono-based servers and tools.
+Collection of C# design patterns (MVVM, Repository, Singleton) and utility classes. The class library is intended to be used in conjunction with Unity 3D game engine projects and Mono-based servers and tools.
 
 **NOTE:** This is an **alpha** release of the class library. There are no binary distributions available at this time. The preferred approach is to create a Git subtree of the IntelliMediaCore/Source in your project's Git repository.  
 
-## Build requirements
-Either of these environments can be used to build IntelliMediaCore:
-* [Unity 5 Game Engine](https://unity3d.com/)
-* [Xamarin Studio 5](https://xamarin.com)
+See the [Tic-Tac-Toe](https://github.com/IntelliMedia/TicTacToe) example for a demonstration of how IntelliMediaCore can be used in an app or game.
 
-## How-to integrate into a Unity 5 project
+Refer to the wiki for [detailed instructions](https://github.com/IntelliMedia/IntelliMediaCore/wiki) on how to integrate IntelliMediaCore into your project.
 
-Create a Git subtree within your project's repository to facilitate pushing fixes and new code back into IntelliMediaCore or simply take a snapshot of the source and place the IntelliMediaCore/Source dirctory in your Unity project's **Assets** directory.
-
-1. Change directory into your Unity 5 project's *project* directory (the root directory that contains Assets, ProjectSettings, and other directories).
-1. Add a remote URL pointing to IntelliMediaCore
- * `$ git remote add -f IntelliMediaCore git@github.com:IntelliMedia/IntelliMediaCore.git`
-1. Merge into your local Git repository
- * `$ git merge -s ours --no-commit IntelliMediaCore/master`
-1. Update your Unity project with the contents of IntelliMediaCore's master branch in a new directory *Assets/IntelliMediaCore*. Run this command inside your Unity 5 project directory.
- * `$ git read-tree --prefix=Assets/IntelliMediaCore/ -u IntelliMediaCore/master`  
-1. Finalize the changes with a commit.
- * `$ git commit -m "IntelliMediaCore added as a subtree in Assets directory"`  
 
 ## Contributing
 
