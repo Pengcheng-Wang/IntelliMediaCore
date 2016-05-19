@@ -27,25 +27,46 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 using Zenject;
+using System;
 
 namespace IntelliMedia
-{
+{	
 	/// <summary>
 	/// Configure repository settings during app startup
 	/// </summary>	
 	public class RepositoryConfigurator : MonoBehaviour 
 	{
-		public string serverUrl = "http://intellimedia-portal.appspot.com/";
+		[Serializable]
+		public enum ServerType
+		{
+			Production,
+			Development,
+			Local
+		}
+			
+		public ServerType server;
 
 		// After Dependency Injection
 		[PostInject]
 		public void Init(AppSettings appSettings)
 		{
-			// TODO rgtaylor 2016-04-03 Added a keyboard shortcut to switch server
-			appSettings.ServerURI = serverUrl;
-			//appSettings.ServerURI = "http://intellimedia-portal.appspot.com/";
-			//appSettings.ServerURI = "http://intellimedia-portal-dev.appspot.com/";
-			//appSettings.ServerURI = "http://localhost:8888/";
+			switch (server)
+			{
+			case ServerType.Production:
+				appSettings.ServerURI = "https://intellimedia-portal.appspot.com/";
+				break;
+
+			case ServerType.Development:
+				appSettings.ServerURI = "https://intellimedia-portal-dev.appspot.com/";
+				break;
+
+			case ServerType.Local:
+				appSettings.ServerURI = "http://localhost:8888/";
+				break;
+
+			default:
+				throw new Exception("Unknown server type: " + server.ToString());
+			}
 		}			
 	}
 }
