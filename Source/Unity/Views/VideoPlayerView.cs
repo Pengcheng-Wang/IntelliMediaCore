@@ -142,6 +142,18 @@ namespace IntelliMedia
 				StartCoroutine(LoadVideo(newIndex, true));
 			}
 		}
+			
+		#if UNITY_WEBGL
+		public class MovieTexture : Texture
+		{
+			public void Stop() {}
+			public void Play() {}
+			public void Pause() {}
+			public AudioClip audioClip;
+			public bool isPlaying;
+			public bool isReadyToPlay;
+		}
+		#endif
 
 		public MovieTexture CurrentVideoTexture
 		{
@@ -431,7 +443,9 @@ namespace IntelliMedia
 					IsBuffering = true;
 					DebugLog.Info("Load video: {0}", videoUrl);
 					www = new WWW(videoUrl);
+					#if !UNITY_WEBGL
 					videoPlaylist[videoIndex].MovieTexture = www.movie;
+					#endif
 					yield return www;
 					DebugLog.Info ("Video load isDone = {0}", www.isDone);
 				}

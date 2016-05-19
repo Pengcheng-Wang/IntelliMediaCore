@@ -121,36 +121,56 @@ namespace IntelliMedia
             catch(Exception e)
             {
                 DebugLog.Warning("Unable to access private WWW response headers. {0}", e.Message);
-
-                // Fallback to use public headers
-                www.responseHeaders.TryGetValue("STATUS", out rawHeaders);
             }
 
-            if (string.IsNullOrEmpty(rawHeaders))
-            {
-                StatusCode = HttpStatusCode.InternalServerError;
-                StatusDescription = "HTTP status code is missing";
-                return;
-            }
-            
-            Regex statusRegex = new Regex(httpStatusCodeRegexPattern, RegexOptions.None);
-            MatchCollection matches = statusRegex.Matches(rawHeaders);
-
-            // Get the last HTTP status in the raw headers that matches the regex
-            if (matches.Count > 0 && matches[matches.Count-1].Success)
-            {
-                int status = 500;
-                int.TryParse(matches[matches.Count-1].Groups["code"].Value, out status);
-                SetStatusCode(status);
-
-                StatusDescription = matches[0].Groups["reason"].Value;
-            }
-            else
-            {
-                StatusCode = HttpStatusCode.InternalServerError;
-                StatusDescription = String.Format("Unable to parse status: {0}", rawHeaders);
-            }
+			// Parse private headers
+			if (!ParseHeadersForStatus(rawHeaders))
+			{
+				// Fallback to use public headers
+				www.responseHeaders.TryGetValue("STATUS", out rawHeaders);
+				if (!ParseHeadersForStatus(rawHeaders))
+				{
+					// Fallback to Unity's error field
+					if (String.IsNullOrEmpty(www.error))
+					{
+						StatusCode = HttpStatusCode.OK;
+						StatusDescription = null;
+					}
+					else
+					{
+						StatusCode = HttpStatusCode.InternalServerError;
+						StatusDescription = www.error;
+					}
+				}
+			}            
         }
+
+		private bool ParseHeadersForStatus(string rawHeaders)
+		{
+			if (string.IsNullOrEmpty(rawHeaders))
+			{
+				StatusCode = HttpStatusCode.InternalServerError;
+				StatusDescription = "HTTP status code is missing (no header data)";
+				return false;
+			}
+			Regex statusRegex = new Regex (httpStatusCodeRegexPattern, RegexOptions.None);
+			MatchCollection matches = statusRegex.Matches (rawHeaders);
+			// Get the last HTTP status in the raw headers that matches the regex
+			if (matches.Count > 0 && matches [matches.Count - 1].Success)
+			{
+				int status = 500;
+				int.TryParse (matches [matches.Count - 1].Groups ["code"].Value, out status);
+				SetStatusCode (status);
+				StatusDescription = matches [0].Groups ["reason"].Value;
+				return true;
+			}
+			else
+			{
+				StatusCode = HttpStatusCode.InternalServerError;
+				StatusDescription = String.Format ("Unable to parse status: {0}", rawHeaders);
+				return false;
+			}
+		}
 
         void SetStatusCode(int status)
         {

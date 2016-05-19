@@ -51,19 +51,6 @@ namespace IntelliMediaSample
 		}
 		public ViewViewModel[] viewsAndViewModels;
 
-		private static Type ClassNameToType(string className)
-		{
-			Contract.ArgumentNotNull("className", className);
-
-			Type viewModelType = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => String.Compare(t.Name, className) == 0);
-			if (viewModelType == null)
-			{
-				throw new Exception("Unable to find class with name: " + className);
-			}
-
-			return viewModelType;
-		}
-
 		public override void InstallBindings()
 		{	
 			InstallBindingsByName("Services", services);	
@@ -101,7 +88,7 @@ namespace IntelliMediaSample
 			DebugLog.Info ("Install {0} bindings", groupName);
 			foreach (string className in classNames)
 			{
-				Type type = ClassNameToType (className);
+				Type type = TypeFinder.ClassNameToType (className);
 				DebugLog.Info ("   Bind {0} to single", type.Name);
 				Container.Bind (type).ToSingle ();
 			}
@@ -122,7 +109,7 @@ namespace IntelliMediaSample
 			}
 			foreach (ViewViewModel vvm in viewsAndViewModels)
 			{
-				Type vmType = ClassNameToType(vvm.viewModel);
+				Type vmType = TypeFinder.ClassNameToType(vvm.viewModel);
 				if (vvm.singleton)
 				{
 					DebugLog.Info ("   Bind {0} to single", vmType.Name);

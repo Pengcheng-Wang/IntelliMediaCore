@@ -25,34 +25,37 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using Zenject;
-using System.Collections.Generic;
 using System;
-using IntelliMedia;
-using UnityEngine.EventSystems;
+using System.Linq;
+using System.Reflection;
+
 
 namespace IntelliMedia
 {
-	public class UnitySceneView : UnityView
-    {
-        public string sceneName;
-        public bool IsLoaded { get; private set; }
-
-		protected override void StartAnimatedReveal()
+	public class TypeFinder
+	{
+		private TypeFinder()
 		{
-			SceneService.Instance.LoadScene(sceneName, true, (bool success, string error) =>
-			{
-				IsLoaded = true;
-				OnVisible();
-			});
 		}
 
-		protected override void StartAnimatedHide()
+		public static Type ClassNameToType(string className)
 		{
-			// TODO
+			Contract.ArgumentNotNull("className", className);
+
+			#if UNITY_WEBGL
+			Assembly assembly = Assembly.Load("Assembly-CSharp");
+			#else
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			#endif
+
+			Type viewModelType = assembly.GetTypes().FirstOrDefault(t => String.Compare(t.Name, className) == 0);
+			if (viewModelType == null)
+			{
+				throw new Exception("Unable to find class with name: " + className);
+			}
+
+			return viewModelType;
 		}
 	}
 }
+

@@ -63,15 +63,22 @@ namespace IntelliMedia
 
 		protected virtual void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
 		{
+			DebugLog.Info("UnityView.OnBindingContextChanged: view='{0}' old='{1}' new='{2}'",
+				this.name,
+				(oldViewModel != null ? oldViewModel.GetType().Name : "null"),
+				(newViewModel != null ? newViewModel.GetType().Name : "null"));
+
 		}	
 
 		protected virtual void OnInitialize()
 		{
+			DebugLog.Info("UnityView.OnInitialize: view='{0}'", this.name);
 			ViewModelProperty.ValueChanged += OnBindingContextChanged;
 		}	
 
 		public virtual void OnDestroy()
 		{
+			DebugLog.Info("UnityView.OnDestroy: view='{0}'", this.name);
 			if (BindingContext.IsRevealed)
 			{
 				Hide(true);
@@ -82,6 +89,8 @@ namespace IntelliMedia
 
 		public void Reveal(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
 		{
+			DebugLog.Info("UnityView.Reveal: {0} (immediate={1})", this.name, immediate);
+
 			if (handler != null)
 			{
 				RevealedEvent.EventTriggered += handler;
@@ -100,6 +109,8 @@ namespace IntelliMedia
 
 		public void Hide(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
 		{
+			DebugLog.Info("UnityView.Hide: {0} (immediate={1})", this.name, immediate);
+
 			if (handler != null)
 			{
 				HiddenEvent.EventTriggered += handler;
@@ -112,17 +123,19 @@ namespace IntelliMedia
 			}
 			else
 			{
-				StartAnimatedHidel();
+				StartAnimatedHide();
 			}
 		}
 
 		protected virtual void StartAnimatedReveal()
 		{
+			DebugLog.Info("UnityView.StartAnimatedReveal: {0}", this.name);
 			GetComponent<Animator>().SetTrigger("Show");
 		}
 
-		protected virtual void StartAnimatedHidel()
+		protected virtual void StartAnimatedHide()
 		{
+			DebugLog.Info("UnityView.StartAnimatedHide: {0}", this.name);
 			GetComponent<Animator>().SetTrigger("Hide");
 		}
 

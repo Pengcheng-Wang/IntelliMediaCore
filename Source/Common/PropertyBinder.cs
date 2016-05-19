@@ -28,6 +28,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace IntelliMedia
 {
@@ -37,17 +38,71 @@ namespace IntelliMedia
 		private List<BindHandler> binders = new List<BindHandler>();
 		private List<BindHandler> unbinders = new List<BindHandler>();
 
+		// When built for WebGL, the expression.Compile() call fails with this error:
+		//   Unsupported internal call for IL2CPP:DynamicMethod::create_dynamic_method - System.Reflection.Emit is not supported.
+		// Don't allow this overload for WebGL builds, use the string name for the property/field instead
+		#if !UNITY_WEBGL
 		public void Add<TProperty>(Expression<Func<TObject, BindableProperty<TProperty>>> expression, BindableProperty<TProperty>.ValueChangedHandler changedHandler)
 		{
+			Func<TObject, BindableProperty<TProperty>> getProperty = expression.Compile();
+
 			binders.Add((TObject viewModel) => 
 			{
-				expression.Compile().Invoke(viewModel).ValueChanged += changedHandler;
+				getProperty(viewModel).ValueChanged += changedHandler;
 			});
 
 			unbinders.Add((TObject viewModel) => 
 			{
-				expression.Compile().Invoke(viewModel).ValueChanged -= changedHandler;
+				getProperty(viewModel).ValueChanged -= changedHandler;
 			});				
+		}
+		#endif
+
+		public void Add<TProperty>(string name, BindableProperty<TProperty>.ValueChangedHandler changedHandler)
+		{
+			PropertyInfo propertyInfo =  null;
+
+			FieldInfo fieldInfo = typeof(TObject).GetField(name, BindingFlags.Instance | BindingFlags.Public);
+			if (fieldInfo == null)
+			{
+				propertyInfo = typeof(TObject).GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
+				if (propertyInfo == null)
+				{
+					throw new Exception(String.Format("Unable to find bindable property '{0}.{1}'",
+						typeof(TObject).Name,
+						name));
+				}
+			}
+
+			binders.Add((TObject viewModel) => 
+			{
+				GetPropertyValue<TProperty>(name, viewModel, fieldInfo, propertyInfo).ValueChanged += changedHandler;
+			});
+
+			unbinders.Add((TObject viewModel) => 
+			{
+				GetPropertyValue<TProperty>(name, viewModel, fieldInfo, propertyInfo).ValueChanged -= changedHandler;
+			});				
+		}
+
+		private static BindableProperty<TProperty> GetPropertyValue<TProperty>(string name, TObject viewModel, FieldInfo fieldInfo, PropertyInfo propertyInfo)
+		{
+			object value = null;
+			if (fieldInfo != null)
+			{
+				value = fieldInfo.GetValue (viewModel);
+			}
+			else
+			{
+				value = propertyInfo.GetValue (viewModel, null);
+			}
+			BindableProperty<TProperty> bindableProperty = value as BindableProperty<TProperty>;
+			if (bindableProperty == null)
+			{
+				throw new Exception(String.Format("BindableProperty '{0}.{1}' value is null", typeof(TObject).Name, name));
+			}
+
+			return bindableProperty;
 		}
 
 		public void Add(BindHandler bind, BindHandler unbind)
@@ -58,6 +113,7 @@ namespace IntelliMedia
 
 		public void Bind(TObject vm)
 		{
+			DebugLog.Info("PropertyBinder.Bind: {0}", (vm != null ? vm.GetType().Name : "null"));
 			if (vm != null)
 			{
 				foreach(BindHandler handler in binders)
@@ -69,6 +125,7 @@ namespace IntelliMedia
 
 		public void Unbind(TObject vm)
 		{
+			DebugLog.Info("PropertyBinder.Unbind: {0}", (vm != null ? vm.GetType().Name : "null"));
 			if (vm != null)
 			{
 				foreach(BindHandler handler in unbinders)

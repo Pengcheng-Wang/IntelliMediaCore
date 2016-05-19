@@ -83,6 +83,8 @@ namespace IntelliMedia
 		
 		protected TDataModel DeserializeActivityData<TDataModel>() where TDataModel : class, new()
 		{
+			DebugLog.Info("ActivityViewModel.DeserializeActivityData");
+
 			if (ActivityState.GameData != null)
 			{
 				return SerializerXml.Instance.Deserialize<TDataModel>(ActivityState.GameData);

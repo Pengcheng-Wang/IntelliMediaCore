@@ -56,7 +56,7 @@ namespace IntelliMedia
 			GetComponent<Animator>().SetTrigger("Show");
 		}
 
-		protected override void StartAnimatedHidel()
+		protected override void StartAnimatedHide()
 		{
 			GetComponent<Animator>().SetTrigger("Hide");
 		}
