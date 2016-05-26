@@ -47,6 +47,11 @@ namespace IntelliMedia
 
 		public void Transition(ViewModel from, ViewModel to)
 		{
+			Contract.ArgumentNotNull("from", from);
+			Contract.ArgumentNotNull("to", to);
+
+			DebugLog.Info("StageManager.Transition: {0} -> {1}", from.GetType().Name, to.GetType().Name);
+
 			Hide(from, (IView view) =>
 			{
 				Reveal(to).Start();
@@ -55,6 +60,8 @@ namespace IntelliMedia
 
 		public void Transition(ViewModel from, Type toViewModelType)
 		{
+			Contract.ArgumentNotNull("toViewModelType", toViewModelType);
+
 			Transition(from, viewModelFactory.Resolve(toViewModelType));
 		}
 
@@ -86,7 +93,7 @@ namespace IntelliMedia
 					onError(e);
 				}
 			});
-		}
+		}			
 
 		public AsyncTask Reveal<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
 		{
@@ -97,22 +104,11 @@ namespace IntelliMedia
 
 		public AsyncTask Reveal(string className)
 		{
-			ViewModel vm = viewModelFactory.Resolve(ClassNameToType(className));
-
-			return Reveal(vm);
-		}
-
-		private static Type ClassNameToType(string className)
-		{
 			Contract.ArgumentNotNull("className", className);
 
-			Type viewModelType = Assembly.GetExecutingAssembly().GetTypes().First(t => String.Compare(t.Name, className) == 0);
-			if (viewModelType == null)
-			{
-				throw new Exception("Unable to find class with name: " + className);
-			}
+			ViewModel vm = viewModelFactory.Resolve(TypeFinder.ClassNameToType(className));
 
-			return viewModelType;
+			return Reveal(vm);
 		}
 
 		public ViewModel Hide(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null)

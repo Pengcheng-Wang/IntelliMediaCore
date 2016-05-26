@@ -33,12 +33,10 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	public class LoadingView : UnityGuiView
+	public class LoadingView : UnityGuiView<LoadingViewModel>
 	{
 		public Text message;
 		public Button cancelButton;
-
-		public LoadingViewModel ViewModel { get { return (LoadingViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
 		{

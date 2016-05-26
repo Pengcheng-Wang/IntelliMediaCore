@@ -37,105 +37,28 @@ using UnityEngine.EventSystems;
 namespace IntelliMedia
 {
 	[RequireComponent(typeof(Animator), typeof(CanvasGroup))]
-	public class UnityGuiView : MonoBehaviour, IView
+	public abstract class UnityGuiView<TViewModel> : UnityView where TViewModel:ViewModel
     {
-		public VisibilityEvent RevealedEvent = new VisibilityEvent();
-		public VisibilityEvent HiddenEvent = new VisibilityEvent();
+		protected readonly PropertyBinder<TViewModel> Binder = new PropertyBinder<TViewModel>();
+				  
+		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
 
-		public bool modal;
-		public bool destroyOnHide;
+		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)
+		{
+			base.OnBindingContextChanged (oldViewModel, newViewModel);
 
-		public readonly BindableProperty<ViewModel> ViewModelProperty = new BindableProperty<ViewModel>();	
-		public ViewModel BindingContext 
-		{ 
-			get { return ViewModelProperty.Value; }
-			set { ViewModelProperty.Value = value; }
+			Binder.Unbind((TViewModel)BindingContext);
+			Binder.Bind(ViewModel);
+		}
+			
+		protected override void StartAnimatedReveal()
+		{
+			GetComponent<Animator>().SetTrigger("Show");
 		}
 
-		protected virtual void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
+		protected override void StartAnimatedHide()
 		{
-		}	
-
-		public UnityGuiView()
-		{
-			this.ViewModelProperty.ValueChanged += OnBindingContextChanged;
-		}
-
-		public void Reveal(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
-		{
-			if (handler != null)
-			{
-				RevealedEvent.EventTriggered += handler;
-			}
-
-			OnAppearing();
-			if (immediate || BindingContext.IsRevealed)
-			{
-				OnVisible();
-			}
-			else
-			{
-				GetComponent<Animator>().SetTrigger("Show");
-			}
-		}
-
-		public void Hide(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
-		{
-			if (handler != null)
-			{
-				HiddenEvent.EventTriggered += handler;
-			}
-
-			OnDisappearing();
-			if (immediate || !BindingContext.IsRevealed)
-			{
-				OnHidden();
-			}
-			else
-			{
-				GetComponent<Animator>().SetTrigger("Hide");
-			}
-		}
-
-		public virtual void OnAppearing()
-		{
-			gameObject.SetActive(true);
-			BindingContext.OnStartReveal();
-		}
-
-		public virtual void OnVisible()
-		{
-			BindingContext.OnFinishReveal();
-			RevealedEvent.Trigger(this);
-		}
-
-		public virtual void OnDisappearing()
-		{
-			BindingContext.OnStartHide();
-		}
-
-		public virtual void OnHidden()
-		{
-			gameObject.SetActive(false);
-			BindingContext.OnFinishHide();
-			HiddenEvent.Trigger(this);
-			if (destroyOnHide)
-			{
-				Destroy(this.gameObject);
-			}
-		}
-
-		// Create
-		// view.transform.SetParent(rootView.transform);
-		// view.GetComponent<UnityEngine.RectTransform>().localPosition = new UnityEngine.Vector3();
-
-		public virtual void OnDestroy()
-		{
-			if (BindingContext.IsRevealed)
-			{
-				Hide(true);
-			}
-			BindingContext = null;
+			GetComponent<Animator>().SetTrigger("Hide");
 		}
 	}
 }

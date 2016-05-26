@@ -36,111 +36,23 @@ using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
-	public class UnitySceneView : MonoBehaviour, IView
+	public class UnitySceneView : UnityView
     {
         public string sceneName;
-        public bool destroyOnHide;
-
         public bool IsLoaded { get; private set; }
 
-        public VisibilityEvent RevealedEvent = new VisibilityEvent();
-		public VisibilityEvent HiddenEvent = new VisibilityEvent();
-
-		public readonly BindableProperty<ViewModel> ViewModelProperty = new BindableProperty<ViewModel>();	
-		public ViewModel BindingContext 
-		{ 
-			get { return ViewModelProperty.Value; }
-			set { ViewModelProperty.Value = value; }
-		}
-
-		protected virtual void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
+		protected override void StartAnimatedReveal()
 		{
-		}	
-
-		public UnitySceneView()
-		{
-			this.ViewModelProperty.ValueChanged += OnBindingContextChanged;
-		}
-
-		public void Reveal(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
-		{
-			if (handler != null)
+			SceneService.Instance.LoadScene(sceneName, true, (bool success, string error) =>
 			{
-				RevealedEvent.EventTriggered += handler;
-			}
-
-			OnAppearing();
-			if (immediate || BindingContext.IsRevealed)
-			{
+				IsLoaded = true;
 				OnVisible();
-			}
-			else
-			{
-                SceneService.Instance.LoadScene(sceneName, true, (bool success, string error) =>
-                {
-                    IsLoaded = true;
-                    OnVisible();
-                });
-			}
+			});
 		}
 
-		public void Hide(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
+		protected override void StartAnimatedHide()
 		{
-			if (handler != null)
-			{
-				HiddenEvent.EventTriggered += handler;
-			}
-
-			OnDisappearing();
-			if (immediate || !BindingContext.IsRevealed)
-			{
-				OnHidden();
-			}
-			else
-			{
-				//GetComponent<Animator>().SetTrigger("Hide");
-			}
-		}
-
-		public virtual void OnAppearing()
-		{
-			//gameObject.SetActive(true);
-			BindingContext.OnStartReveal();
-		}
-
-		public virtual void OnVisible()
-		{
-			BindingContext.OnFinishReveal();
-			RevealedEvent.Trigger(this);
-		}
-
-		public virtual void OnDisappearing()
-		{
-			BindingContext.OnStartHide();
-		}
-
-		public virtual void OnHidden()
-		{
-			//gameObject.SetActive(false);
-			BindingContext.OnFinishHide();
-			HiddenEvent.Trigger(this);
-			if (destroyOnHide)
-			{
-				//Destroy(this.gameObject);
-			}
-		}
-
-		// Create
-		// view.transform.SetParent(rootView.transform);
-		// view.GetComponent<UnityEngine.RectTransform>().localPosition = new UnityEngine.Vector3();
-
-		public virtual void OnDestroy()
-		{
-			if (BindingContext.IsRevealed)
-			{
-				Hide(true);
-			}
-			BindingContext = null;
+			// TODO
 		}
 	}
 }

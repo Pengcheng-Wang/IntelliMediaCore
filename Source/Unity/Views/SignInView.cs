@@ -32,10 +32,8 @@ using Zenject;
 
 namespace IntelliMedia
 {
-	public class SignInView : UnityGuiView
+	public class SignInView : UnityGuiView<SignInViewModel>
 	{
-		public SignInViewModel ViewModel { get { return (SignInViewModel)BindingContext; }}
-
 		public InputField groupField;
 		public InputField usernameField;
 		public InputField passwordField;
@@ -56,7 +54,10 @@ namespace IntelliMedia
 
 		public override void OnAppearing ()
 		{
-			versionLabel.text = ViewModel.Version;
+			if (versionLabel != null)
+			{
+				versionLabel.text = ViewModel.Version;
+			}
 
 			base.OnAppearing();
 		}

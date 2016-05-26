@@ -45,13 +45,18 @@ namespace IntelliMedia
         {
             Contract.ArgumentNotNull("viewModel", viewModel);
 
+			DebugLog.Info("ViewFactory.Resolve: '{0}'", viewModel.GetType().Name);
+
             if (!modelToView.ContainsKey(viewModel.GetType()))
             {
                 throw new Exception(String.Format("View not registered for '{0}'", viewModel.GetType().Name));
             }
 
-            IView view = (IView)container.Resolve(modelToView[viewModel.GetType()]);
-            view.BindingContext = viewModel;
+			Type viewType = modelToView[viewModel.GetType()];
+
+			IView view = (IView)container.Resolve(viewType);
+
+			DebugLog.Info("ViewFactory: Resolved to View: '{0}'", view.GetType().Name);
 
             return view;
         }

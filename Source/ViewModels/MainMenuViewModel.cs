@@ -69,7 +69,7 @@ namespace IntelliMedia
 			SessionService sessionService,
 			ActivityService activityService,
 			ActivityLauncher activityLauncher,
-			EyeTrackingService eyeTrackingService)
+			[Zenject.InjectOptional] EyeTrackingService eyeTrackingService)
 		{
 			this.navigator = navigator;
 			this.sessionState = sessionState;
@@ -85,7 +85,10 @@ namespace IntelliMedia
 			base.OnStartReveal();
 
 			RefreshActivityList();
-			eyeTrackingService.Initialize(ShowMessageHandler);
+			if (eyeTrackingService != null)
+			{
+				eyeTrackingService.Initialize(ShowMessageHandler);
+			}
 		}
 
 		private void RefreshActivityList()
@@ -151,7 +154,8 @@ namespace IntelliMedia
 
 		public void StartActivity(Activity activity)
 		{
-			if (sessionState.CourseSettings.EyeTrackingEnabled 
+			if (eyeTrackingService != null
+				&& sessionState.CourseSettings.EyeTrackingEnabled 
 				&& eyeTrackingService.IsEnabled
 				// TODO rgtaylor 2016-04-05 Use some other approach for disabling eye tracking for web view activities
 				&& !activity.Uri.Contains("assessment")

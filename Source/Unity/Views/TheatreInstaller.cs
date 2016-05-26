@@ -44,25 +44,12 @@ namespace IntelliMediaSample
 		{
 			public string viewModel;
 			public bool singleton;
-			public UnityGuiView view;
+			public UnityView view;
 			public bool viewIsPrefab;
 			public string activityUrn;
 			public bool revealOnStart;
 		}
 		public ViewViewModel[] viewsAndViewModels;
-
-		private static Type ClassNameToType(string className)
-		{
-			Contract.ArgumentNotNull("className", className);
-
-			Type viewModelType = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => String.Compare(t.Name, className) == 0);
-			if (viewModelType == null)
-			{
-				throw new Exception("Unable to find class with name: " + className);
-			}
-
-			return viewModelType;
-		}
 
 		public override void InstallBindings()
 		{	
@@ -101,7 +88,7 @@ namespace IntelliMediaSample
 			DebugLog.Info ("Install {0} bindings", groupName);
 			foreach (string className in classNames)
 			{
-				Type type = ClassNameToType (className);
+				Type type = TypeFinder.ClassNameToType (className);
 				DebugLog.Info ("   Bind {0} to single", type.Name);
 				Container.Bind (type).ToSingle ();
 			}
@@ -122,7 +109,7 @@ namespace IntelliMediaSample
 			}
 			foreach (ViewViewModel vvm in viewsAndViewModels)
 			{
-				Type vmType = ClassNameToType(vvm.viewModel);
+				Type vmType = TypeFinder.ClassNameToType(vvm.viewModel);
 				if (vvm.singleton)
 				{
 					DebugLog.Info ("   Bind {0} to single", vmType.Name);
@@ -139,16 +126,23 @@ namespace IntelliMediaSample
 					throw new Exception("Missing view for " + vvm.viewModel);
 				}
 
-				Type viewType = vvm.view.GetType ();
+				Type viewType = vvm.view.GetType();
+
+				// By default, the view should be hidden until revealed by the StageManager
+				if (vvm.view.gameObject.activeSelf)
+				{
+					vvm.view.gameObject.SetActive(false);
+				}
+
 				if (vvm.viewIsPrefab)
 				{
 					DebugLog.Info ("Bind {0} to transient prefab", viewType.Name);
-					Container.Bind (viewType).ToTransientPrefab(vvm.view.gameObject);
+					Container.Bind(viewType).ToTransientPrefab(vvm.view.gameObject);
 				}
 				else
 				{
 					DebugLog.Info ("Bind {0} to instance", viewType.Name);
-					Container.Bind (viewType).ToInstance(vvm.view.gameObject);
+					Container.Bind(viewType).ToInstance(vvm.view);
 				}
 				Container.Resolve<ViewFactory> ().Register (vmType, viewType);
 				if (!String.IsNullOrEmpty (vvm.activityUrn))

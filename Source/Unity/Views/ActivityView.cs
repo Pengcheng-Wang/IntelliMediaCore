@@ -31,10 +31,8 @@ using Zenject;
 
 namespace IntelliMedia
 {
-	public class ActivityView : UnityGuiView
+	public class ActivityView : UnityGuiView<ActivityViewModel>
 	{
-		public ActivityViewModel ViewModel { get { return (ActivityViewModel)BindingContext; }}
-
 		public void NextPage()
 		{
 			//ViewModel.StartActivity("123");

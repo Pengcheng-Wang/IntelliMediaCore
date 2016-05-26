@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,37 +26,47 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using System.Collections;
-using IntelliMedia;
+using Zenject;
+using System;
 
-public class OnHidden : StateMachineBehaviour {
-
-	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-		UnityView view = animator.GetComponent<UnityView>();
-		if (view != null)
+namespace IntelliMedia
+{	
+	/// <summary>
+	/// Configure repository settings during app startup
+	/// </summary>	
+	public class RepositoryConfigurator : MonoBehaviour 
+	{
+		[Serializable]
+		public enum ServerType
 		{
-			//view.OnHidden();
+			Production,
+			Development,
+			Local
 		}
+			
+		public ServerType server;
+
+		// After Dependency Injection
+		[PostInject]
+		public void Init(AppSettings appSettings)
+		{
+			switch (server)
+			{
+			case ServerType.Production:
+				appSettings.ServerURI = "https://intellimedia-portal.appspot.com/";
+				break;
+
+			case ServerType.Development:
+				appSettings.ServerURI = "https://intellimedia-portal-dev.appspot.com/";
+				break;
+
+			case ServerType.Local:
+				appSettings.ServerURI = "http://localhost:8888/";
+				break;
+
+			default:
+				throw new Exception("Unknown server type: " + server.ToString());
+			}
+		}			
 	}
-
-	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-	//override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
-	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateIK is called right after Animator.OnAnimatorIK(). Code that sets up animation IK (inverse kinematics) should be implemented here.
-	//override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
 }

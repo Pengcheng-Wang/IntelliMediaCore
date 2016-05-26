@@ -49,6 +49,8 @@ namespace IntelliMedia
 		
 		public AsyncTask Start(Student student, Activity activity, bool resetActivityState = false)
 		{
+			DebugLog.Info("ActivityLauncher: Start  '{0}' ({1})", activity.Name, activity.Uri);
+
 			return activityService.LoadActivityState(student.Id, activity.Id, true)
 				.Then((prevResult, onCompleted, onError) =>
 				{
@@ -84,7 +86,7 @@ namespace IntelliMedia
 				}
 			}
 
-			throw new Exception(String.Format("Activity URN not registered for '{0}'", activityUrn));
+			throw new Exception(String.Format("Activity URI not registered for '{0}'", activityUrn));
 		}
 		
 		public void Register(string urn, Type viewModel)

@@ -37,11 +37,9 @@ using System.Text.RegularExpressions;
 
 namespace IntelliMedia
 {
-	public class ExampleActivityView : UnityGuiView
+	public class ExampleActivityView : UnityGuiView<ExampleActivityViewModel>
 	{
 		public InputField dataDisplayField;
-
-		public ExampleActivityViewModel ViewModel { get { return (ExampleActivityViewModel)BindingContext; }}
 
 		public override void OnVisible()
 		{

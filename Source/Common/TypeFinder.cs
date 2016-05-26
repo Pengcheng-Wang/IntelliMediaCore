@@ -25,38 +25,37 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using System.Collections;
-using IntelliMedia;
+using System;
+using System.Linq;
+using System.Reflection;
 
-public class OnHidden : StateMachineBehaviour {
 
-	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-		UnityView view = animator.GetComponent<UnityView>();
-		if (view != null)
+namespace IntelliMedia
+{
+	public class TypeFinder
+	{
+		private TypeFinder()
 		{
-			//view.OnHidden();
+		}
+
+		public static Type ClassNameToType(string className)
+		{
+			Contract.ArgumentNotNull("className", className);
+
+			#if UNITY_WEBGL
+			Assembly assembly = Assembly.Load("Assembly-CSharp");
+			#else
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			#endif
+
+			Type viewModelType = assembly.GetTypes().FirstOrDefault(t => String.Compare(t.Name, className) == 0);
+			if (viewModelType == null)
+			{
+				throw new Exception("Unable to find class with name: " + className);
+			}
+
+			return viewModelType;
 		}
 	}
-
-	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-	//override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
-	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateIK is called right after Animator.OnAnimatorIK(). Code that sets up animation IK (inverse kinematics) should be implemented here.
-	//override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
 }
+

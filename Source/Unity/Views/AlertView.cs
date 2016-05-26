@@ -34,13 +34,11 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	public class AlertView : UnityGuiView
+	public class AlertView : UnityGuiView<AlertViewModel>
 	{
 		public Text title;
 		public Text message;
 		public Transform buttonRow;
-
-		public AlertViewModel ViewModel { get { return (AlertViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
 		{
