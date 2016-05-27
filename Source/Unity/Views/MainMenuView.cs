@@ -46,27 +46,17 @@ namespace IntelliMedia
 			public string uri;
 			public Sprite icon;
 		}
-		public ActivityIcon[] activityIcons;        
+		public ActivityIcon[] activityIcons;  
 
-		protected override void OnBindingContextChanged(ViewModel oldViewModel, ViewModel newViewModel)
+		protected override void OnInitialize()
 		{
-			Contract.PropertyNotNull("buttonPanel", buttonPanel);
+			base.OnInitialize();
 
-			MainMenuViewModel oldMainMenuViewModel = oldViewModel as MainMenuViewModel;
-			if (oldMainMenuViewModel != null)
-			{
-				oldMainMenuViewModel.ActivitiesProperty.ValueChanged -= ActivitiesChanged;
-			}
+			DebugLog.Info("MainMenuView.OnInitialize: bind properties");
 
-			if (ViewModel != null)
-			{
-				ViewModel.ActivitiesProperty.ValueChanged += ActivitiesChanged;
-			}
-
-			base.OnBindingContextChanged(oldViewModel, newViewModel);
-			
-			UpdateControls();
-		}
+			// Bind ViewModel properties to OnChanged methods
+			Binder.Add<List<Activity>>("ActivitiesProperty", ActivitiesChanged);
+		}			
 
 		private void ActivitiesChanged(List<Activity> oldActivties, List<Activity> newActivities)
 		{
@@ -124,8 +114,8 @@ namespace IntelliMedia
 		}
 
 		private Sprite GetIconForActivity(Activity activity)
-		{
-			return activityIcons.Where(i => activity.Uri.StartsWith(i.uri)).Select(i => i.icon).First();
+		{			
+			return activityIcons.Where(i => activity.Uri.StartsWith(i.uri)).Select(i => i.icon).FirstOrDefault();
 		}
 		
 		public void OnClicked(Activity activity)
