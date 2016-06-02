@@ -91,7 +91,7 @@ namespace IntelliMedia
 			OnAppearing();
 			if (immediate || BindingContext.IsRevealed)
 			{
-				OnVisible();
+				GetComponent<Animator>().Play("Visible");
 			}
 			else
 			{
@@ -111,7 +111,7 @@ namespace IntelliMedia
 			OnDisappearing();
 			if (immediate || (BindingContext != null && !BindingContext.IsRevealed))
 			{
-				OnHidden();
+				GetComponent<Animator>().Play("Hidden");
 			}
 			else
 			{

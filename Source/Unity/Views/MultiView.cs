@@ -36,6 +36,7 @@ namespace IntelliMedia
 	public class MultiView<TViewModel> : UnityView<TViewModel> where TViewModel:ViewModel
 	{
 		public string selectorPropertyName;
+		public bool immediateSwitch;
 		public UnityView[] views;
 
 		private UnityView currentView;
@@ -62,7 +63,7 @@ namespace IntelliMedia
 					if (newValue != null)
 					{
 						newValue.BindingContext = this.ViewModel;
-						newValue.Reveal(false);
+						newValue.Reveal(immediateSwitch);
 					}
 				});
 			}
@@ -71,7 +72,7 @@ namespace IntelliMedia
 				if (newValue != null)
 				{
 					newValue.BindingContext = this.ViewModel;
-					newValue.Reveal(false);
+					newValue.Reveal(immediateSwitch);
 				}				
 			}			
 		}

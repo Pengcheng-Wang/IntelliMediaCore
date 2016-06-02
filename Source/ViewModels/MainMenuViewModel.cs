@@ -277,7 +277,7 @@ namespace IntelliMedia
 
         public void Settings()
         {            
-			navigator.Transition(this, typeof(SettingsViewModel));
+			navigator.Transition(this, typeof(MetaTutorIVH.SettingsViewModel));
         }
 	}
 }

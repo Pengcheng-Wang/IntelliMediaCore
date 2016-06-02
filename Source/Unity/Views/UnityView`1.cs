@@ -38,8 +38,8 @@ namespace IntelliMedia
 		{
 			base.OnBindingContextChanged (oldViewModel, newViewModel);
 
-			Binder.Unbind((TViewModel)BindingContext);
-			Binder.Bind(ViewModel);
+			Binder.Unbind((TViewModel)oldViewModel);
+			Binder.Bind((TViewModel)newViewModel);
 		}
 	}
 }

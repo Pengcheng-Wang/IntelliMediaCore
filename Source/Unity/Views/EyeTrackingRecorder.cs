@@ -396,7 +396,7 @@ namespace IntelliMedia
 
         void Update()
         {
-			if (!eyeTrackingService.IsEnabled || !eyeTrackingService.IsCalibrated)
+			if (eyeTrackingService == null || !eyeTrackingService.IsEnabled || !eyeTrackingService.IsCalibrated)
             {
                 return;
             }
