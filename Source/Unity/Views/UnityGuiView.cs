@@ -37,20 +37,8 @@ using UnityEngine.EventSystems;
 namespace IntelliMedia
 {
 	[RequireComponent(typeof(Animator), typeof(CanvasGroup))]
-	public abstract class UnityGuiView<TViewModel> : UnityView where TViewModel:ViewModel
-    {
-		protected readonly PropertyBinder<TViewModel> Binder = new PropertyBinder<TViewModel>();
-				  
-		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
-
-		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)
-		{
-			base.OnBindingContextChanged (oldViewModel, newViewModel);
-
-			Binder.Unbind((TViewModel)BindingContext);
-			Binder.Bind(ViewModel);
-		}
-			
+	public abstract class UnityGuiView<TViewModel> : UnityView<TViewModel> where TViewModel:ViewModel
+    {			
 		protected override void StartAnimatedReveal()
 		{
 			GetComponent<Animator>().SetTrigger("Show");

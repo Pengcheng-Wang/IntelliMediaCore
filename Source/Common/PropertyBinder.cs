@@ -87,6 +87,15 @@ namespace IntelliMedia
 
 		private static BindableProperty<TProperty> GetPropertyValue<TProperty>(string name, TObject viewModel, FieldInfo fieldInfo, PropertyInfo propertyInfo)
 		{
+			if ((fieldInfo != null && !fieldInfo.FieldType.IsSubclassOf(typeof(BindableProperty)))
+				|| (propertyInfo != null && !propertyInfo.PropertyType.IsSubclassOf(typeof(BindableProperty))))
+			{
+				throw new Exception(String.Format("Unable to bind to '{0}.{1}' since it is of type '{2}' and it should be {3}", 
+					typeof(TObject).Name, name,
+					(fieldInfo != null ? fieldInfo.FieldType.Name : propertyInfo.PropertyType.Name),
+					typeof(BindableProperty<TProperty>).Name));
+			}
+
 			object value = null;
 			if (fieldInfo != null)
 			{
@@ -95,7 +104,7 @@ namespace IntelliMedia
 			else
 			{
 				value = propertyInfo.GetValue (viewModel, null);
-			}
+			}				
 			BindableProperty<TProperty> bindableProperty = value as BindableProperty<TProperty>;
 			if (bindableProperty == null)
 			{

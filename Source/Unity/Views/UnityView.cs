@@ -26,13 +26,6 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using Zenject;
-using System.Collections.Generic;
-using System;
-using IntelliMedia;
-using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
@@ -67,7 +60,6 @@ namespace IntelliMedia
 				this.name,
 				(oldViewModel != null ? oldViewModel.GetType().Name : "null"),
 				(newViewModel != null ? newViewModel.GetType().Name : "null"));
-
 		}	
 
 		protected virtual void OnInitialize()
@@ -117,7 +109,7 @@ namespace IntelliMedia
 			}
 
 			OnDisappearing();
-			if (immediate || !BindingContext.IsRevealed)
+			if (immediate || (BindingContext != null && !BindingContext.IsRevealed))
 			{
 				OnHidden();
 			}
@@ -142,24 +134,36 @@ namespace IntelliMedia
 		public virtual void OnAppearing()
 		{
 			gameObject.SetActive(true);
-			BindingContext.OnStartReveal();
+			if (BindingContext != null)
+			{
+				BindingContext.OnStartReveal();
+			}
 		}
 
 		public virtual void OnVisible()
 		{
-			BindingContext.OnFinishReveal();
+			if (BindingContext != null)
+			{
+				BindingContext.OnFinishReveal();
+			}
 			RevealedEvent.Trigger(this);
 		}
 
 		public virtual void OnDisappearing()
 		{
-			BindingContext.OnStartHide();
+			if (BindingContext != null)
+			{
+				BindingContext.OnStartHide();
+			}
 		}
 
 		public virtual void OnHidden()
 		{
 			gameObject.SetActive(false);
-			BindingContext.OnFinishHide();
+			if (BindingContext != null)
+			{
+				BindingContext.OnFinishHide();
+			}
 			HiddenEvent.Trigger(this);
 			if (destroyOnHide)
 			{

@@ -1,5 +1,5 @@
-//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+﻿//---------------------------------------------------------------------------------------
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,50 +25,21 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using System;
 
 namespace IntelliMedia
 {
-	// Need a non-generic class to make type checking easier
-	public class BindableProperty
+	public abstract class UnityView<TViewModel> : UnityView where TViewModel:ViewModel
 	{
+		protected readonly PropertyBinder<TViewModel> Binder = new PropertyBinder<TViewModel>();
+
+		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
+
+		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)
+		{
+			base.OnBindingContextChanged (oldViewModel, newViewModel);
+
+			Binder.Unbind((TViewModel)BindingContext);
+			Binder.Bind(ViewModel);
+		}
 	}
-
-	public class BindableProperty<T> : BindableProperty
-    {
-		public delegate void ValueChangedHandler(T oldValue, T newValue);
-		public ValueChangedHandler ValueChanged;
-
-		private T _value;
-		public T Value
-		{
-			get
-			{
-				return _value;
-			}
-
-			set
-			{
-				if (!object.Equals(_value, value))
-				{
-					T old = _value;
-					_value = value;
-					OnValueChanged(old, _value);
-				}
-			}
-		}
-				
-		private void OnValueChanged(T oldValue, T newValue)
-		{
-			if (ValueChanged != null)
-			{
-				ValueChanged(oldValue, newValue);
-			}
-		}
-
-		public override string ToString ()
-		{
-			return (Value != null ? Value.ToString() : "null");
-		}
-    }		
 }
