@@ -65,7 +65,7 @@ namespace IntelliMedia
 			Transition(from, viewModelFactory.Resolve(toViewModelType));
 		}
 
-		public AsyncTask Reveal(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null)
+		public AsyncTask Reveal(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null, bool immediate = false)
 		{
 			Contract.ArgumentNotNull("vm", vm);
 
@@ -81,7 +81,7 @@ namespace IntelliMedia
 						view = viewFactory.Resolve(vm);
 						view.BindingContext = vm;
 						revealedViews.Add(view);
-						view.Reveal(false, (IView revealedView) =>
+						view.Reveal(immediate, (IView revealedView) =>
 		                {
 							onCompleted(revealedView.BindingContext);
 		                });
@@ -94,6 +94,13 @@ namespace IntelliMedia
 				}
 			});
 		}			
+
+		public AsyncTask Reveal<TViewModel>(bool immediate) where TViewModel : ViewModel
+		{
+			TViewModel vm = viewModelFactory.Resolve<TViewModel>();
+
+			return Reveal(vm, null, immediate);
+		}
 
 		public AsyncTask Reveal<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
 		{
@@ -111,7 +118,7 @@ namespace IntelliMedia
 			return Reveal(vm);
 		}
 
-		public ViewModel Hide(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null)
+		public ViewModel Hide(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null, bool immediate = false)
 		{
 			Contract.ArgumentNotNull("vm", vm);
 
@@ -121,11 +128,16 @@ namespace IntelliMedia
 			
 			if (view != null)
 			{			
-				view.Hide(false, handler);
+				view.Hide(immediate, handler);
 				revealedViews.Remove(view);
 			}
 			
 			return vm;
+		}
+
+		public TViewModel Hide<TViewModel>(bool immediate) where TViewModel : ViewModel
+		{
+			return (TViewModel)Hide(viewModelFactory.Resolve<TViewModel>(), null, immediate);
 		}
 
 		public TViewModel Hide<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel

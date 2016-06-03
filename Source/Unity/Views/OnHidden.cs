@@ -36,7 +36,7 @@ public class OnHidden : StateMachineBehaviour {
 		UnityView view = animator.GetComponent<UnityView>();
 		if (view != null)
 		{
-			//view.OnHidden();
+			view.OnHidden();
 		}
 	}
 
