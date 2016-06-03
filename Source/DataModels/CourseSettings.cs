@@ -42,6 +42,7 @@ namespace IntelliMedia
 		public bool EyeTrackingEnabled { get; set; }
 		public bool TraceDataLoggingEnabled { get; set; }
 
+		public string AgentType { get; set; }
 		public string ModuleId { get; set; }
 		public float SecondsUntilJudgmentQuestionsDisplayed { get; set; }		
 		public bool HighlightAgentBeforeReactionEnabled { get; set; }

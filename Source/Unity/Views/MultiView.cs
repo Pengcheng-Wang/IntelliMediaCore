@@ -43,7 +43,7 @@ namespace IntelliMedia
 		public UnityView CurrentView 
 		{ 
 			get { return currentView; } 
-			private set 
+			protected set 
 			{ 
 				if (value != currentView) 
 				{ 
