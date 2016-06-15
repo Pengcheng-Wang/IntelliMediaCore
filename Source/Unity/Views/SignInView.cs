@@ -29,6 +29,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using Zenject;
+using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
@@ -65,6 +66,6 @@ namespace IntelliMedia
 		public void SignIn()
 		{
 			ViewModel.SignIn(groupField.text, usernameField.text, passwordField.text);
-		}
+		}			
 	}
 }
