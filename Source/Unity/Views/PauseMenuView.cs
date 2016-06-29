@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+// Copyright 2015 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,29 +25,34 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 using Zenject;
-using IntelliMedia;
+using System.Collections.Generic;
 using System;
 using System.Linq;
-using System.Reflection;
 
 namespace IntelliMedia
 {
-	public class StageManagerInstaller : MonoInstaller
+	public class PauseMenuView : UnityGuiView
 	{
-		public StageManager StageManager
+		public PauseMenuViewModel ViewModel { get { return (PauseMenuViewModel)BindingContext; }}
+
+		public void SaveAndExit()
 		{
-			get
-			{
-				return Container.Resolve<StageManager>();
-			}
+			ViewModel.SignOut();
 		}
 
-		public override void InstallBindings()
+		public void Resume()
 		{
-			Container.Bind<ViewFactory>().ToSingle();
-			Container.Bind<ViewModel.Factory>().ToSingle();
-			Container.Bind<StageManager>().ToSingle();
-		}					
+			ViewModel.Resume();
+		}
+
+		public void Settings()
+		{
+			ViewModel.Settings();
+		}
+
 	}
 }
