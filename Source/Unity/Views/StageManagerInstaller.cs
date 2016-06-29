@@ -31,10 +31,18 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace IntelliMediaSample
+namespace IntelliMedia
 {
 	public class StageManagerInstaller : MonoInstaller
 	{
+		public StageManager StageManager
+		{
+			get
+			{
+				return Container.Resolve<StageManager>();
+			}
+		}
+
 		public override void InstallBindings()
 		{
 			Container.Bind<ViewFactory>().ToSingle();
