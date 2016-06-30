@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,38 +25,68 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+
 using UnityEngine;
 using System.Collections;
-using IntelliMedia;
 
-public class OnHidden : StateMachineBehaviour {
+namespace IntelliMedia
+{
+	public class TextureRecorder : MonoBehaviour {
 
-	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-		UnityView view = animator.GetComponent<UnityView>();
-		if (view != null)
+		public RenderTexture renderTexture;	
+		public float frameRate = 30;
+		public bool isRecording;
+
+		private string outputDirectory;
+		private int frame;
+		private float lastProcessTime;
+		private Texture2D outputTexture;
+
+		public void Start()
 		{
-			view.OnHidden();
+			Contract.PropertyNotNull("renderTexture", renderTexture);
+			outputTexture = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
+		}
+
+		public void StartRecording(string directory)
+		{
+			Contract.ArgumentNotNull("directory", directory);
+			outputDirectory = directory;
+
+			frame = 0;
+
+			DebugLog.Info("Start recording frames to: {0}", directory);
+
+			System.IO.Directory.CreateDirectory(outputDirectory);
+			isRecording = true;
+		}
+
+		public void EndRecording()
+		{
+			DebugLog.Info("End recording");
+		
+			isRecording = false;
+		}
+
+		void Update () 
+		{
+			if (!isRecording || (1/frameRate > Time.time - lastProcessTime))
+			{
+				return;
+			}
+
+			WriteTextureToFile();
+			lastProcessTime = Time.time; 
+		}
+
+		private void WriteTextureToFile()
+		{
+			string name = System.IO.Path.Combine(outputDirectory, string.Format("Frame{0:D5}.jpeg", frame++)); 
+			RenderTexture.active = renderTexture;	
+			outputTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+			outputTexture.Apply();
+			byte[] image = outputTexture.EncodeToJPG();	
+			System.IO.File.WriteAllBytes(name, image);
 		}
 	}
-
-	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-	//override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
-	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateIK is called right after Animator.OnAnimatorIK(). Code that sets up animation IK (inverse kinematics) should be implemented here.
-	//override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
 }

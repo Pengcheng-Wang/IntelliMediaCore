@@ -1,5 +1,5 @@
-//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+﻿//---------------------------------------------------------------------------------------
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,27 +25,21 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-    public class CourseSettings
-    {        
-		[RepositoryKey]
-        public string CourseId { get; set; }
+	public abstract class UnityView<TViewModel> : UnityView where TViewModel:ViewModel
+	{
+		protected readonly PropertyBinder<TViewModel> Binder = new PropertyBinder<TViewModel>();
 
-        public List<string> EnabledActivityIds { get; set; }
+		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
 
-        public string PreTestUrl { get; set; }
-        public string PostTestUrl { get; set; }
-		public bool TrialModeEnabled { get; set; }
-		public bool EyeTrackingEnabled { get; set; }
-		public bool TraceDataLoggingEnabled { get; set; }
+		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)
+		{
+			base.OnBindingContextChanged (oldViewModel, newViewModel);
 
-		public string AgentType { get; set; }
-		public string ModuleId { get; set; }
-		public float SecondsUntilJudgmentQuestionsDisplayed { get; set; }		
-		public bool HighlightAgentBeforeReactionEnabled { get; set; }
-    }
+			Binder.Unbind((TViewModel)oldViewModel);
+			Binder.Bind((TViewModel)newViewModel);
+		}
+	}
 }
-

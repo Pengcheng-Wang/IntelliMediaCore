@@ -45,7 +45,7 @@ namespace IntelliMedia
 		{
 			if (IsFinished)
 			{
-				if (IsRevealed || IsRevealInProgress)
+				//if (IsRevealed || IsRevealInProgress)
 				{
 					navigator.Hide(this);
 				}
