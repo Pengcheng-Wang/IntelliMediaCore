@@ -35,10 +35,8 @@ using System.Linq;
 
 namespace IntelliMedia
 {
-	public class HudView : UnityGuiView
+	public class HudView : UnityGuiView<HudViewModel>
 	{
-		public HudViewModel ViewModel { get { return (HudViewModel)BindingContext; }}
-
 		public void PauseMenu()
 		{
 			ViewModel.PauseMenu();

@@ -275,9 +275,9 @@ namespace IntelliMedia
 			}).Start();
 		}
 
-        public void Settings()
-        {            
-			navigator.Transition(this, typeof(MetaTutorIVH.SettingsViewModel));
-        }
+//        public void Settings()
+//        {            
+//			navigator.Transition(this, typeof(MetaTutorIVH.SettingsViewModel));
+//        }
 	}
 }

@@ -137,11 +137,9 @@ namespace IntelliMedia
 			ViewModel.SignOut();
 		}
 
-        public void OnSettingsButtonClicked()
-        {
-            ViewModel.Settings();
-
-        }
-
+//        public void OnSettingsButtonClicked()
+//        {
+//            ViewModel.Settings();
+//        }
 	}
 }

@@ -35,10 +35,8 @@ using System.Linq;
 
 namespace IntelliMedia
 {
-	public class PauseMenuView : UnityGuiView
+	public class PauseMenuView : UnityGuiView<PauseMenuViewModel>
 	{
-		public PauseMenuViewModel ViewModel { get { return (PauseMenuViewModel)BindingContext; }}
-
 		public void SaveAndExit()
 		{
 			ViewModel.SignOut();
