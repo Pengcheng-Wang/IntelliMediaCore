@@ -240,7 +240,7 @@ namespace IntelliMedia
 
 
 		// After Dependency Injection, configure the app
-		[PostInject]
+		[Inject]
 		public void Init(EyeTrackingService eyeTrackingService)
 		{
 			this.eyeTrackingService = eyeTrackingService;

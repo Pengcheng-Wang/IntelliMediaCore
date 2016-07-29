@@ -38,7 +38,7 @@ namespace IntelliMedia
 		private SessionService sessionService;
 
 		// After Dependency Injection
-		[PostInject]
+		[Inject]
 		public void Init(SessionService sessionService)
 		{
 			this.sessionService = sessionService;

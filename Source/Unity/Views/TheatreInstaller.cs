@@ -31,7 +31,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace IntelliMediaSample
+namespace IntelliMedia
 {
 	public class TheatreInstaller : MonoInstaller
 	{
@@ -64,6 +64,8 @@ namespace IntelliMediaSample
 		{
 			base.Start();
 
+			Container.Resolve<StageManager>().Register(this);
+
 			if (viewsAndViewModels != null && viewsAndViewModels.Any(v => v.revealOnStart))
 			{
 				foreach(ViewViewModel vvm in viewsAndViewModels.Where(v => v.revealOnStart))
@@ -75,6 +77,11 @@ namespace IntelliMediaSample
 			{
 				DebugLog.Warning("TheatreInstaller: No ViewModel's RevealOnStart set.");
 			}
+		}
+
+		public void OnDestroy()
+		{
+			Container.Resolve<StageManager>().Unregister(this);	
 		}
 
 		void InstallBindingsByName(string groupName, string[] classNames)
@@ -90,12 +97,15 @@ namespace IntelliMediaSample
 			{
 				Type type = TypeFinder.ClassNameToType (className);
 				DebugLog.Info ("   Bind {0} to single", type.Name);
-				Container.Bind (type).ToSingle ();
+				Container.Bind (type).AsSingle ();
 			}
 		}
 
 		void InstallMvvmBindings()
 		{
+			Container.Bind<ViewFactory>().AsSingle();
+			Container.Bind<ViewModel.Factory>().AsSingle();
+
 			if (viewsAndViewModels.Length == 0)
 			{
 				DebugLog.Info("No View or ViewModels to install");
@@ -113,12 +123,12 @@ namespace IntelliMediaSample
 				if (vvm.singleton)
 				{
 					DebugLog.Info ("   Bind {0} to single", vmType.Name);
-					Container.Bind(vmType).ToSingle();
+					Container.Bind(vmType).AsSingle();
 				}
 				else
 				{
 					DebugLog.Info ("   Bind {0} to transient", vmType.Name);
-					Container.Bind(vmType).ToTransient();
+					Container.Bind(vmType).AsTransient();
 				}
 
 				if (vvm.view == null)
@@ -137,12 +147,12 @@ namespace IntelliMediaSample
 				if (vvm.viewIsPrefab)
 				{
 					DebugLog.Info ("Bind {0} to transient prefab", viewType.Name);
-					Container.Bind(viewType).ToTransientPrefab(vvm.view.gameObject);
+					Container.Bind(viewType).FromPrefab(vvm.view.gameObject);
 				}
 				else
 				{
 					DebugLog.Info ("Bind {0} to instance", viewType.Name);
-					Container.Bind(viewType).ToInstance(vvm.view);
+					Container.Bind(viewType).FromInstance(vvm.view);
 				}
 				Container.Resolve<ViewFactory> ().Register (vmType, viewType);
 				if (!String.IsNullOrEmpty (vvm.activityUrn))
@@ -151,5 +161,8 @@ namespace IntelliMediaSample
 				}
 			}
 		}
+
+		public ViewModel.Factory ViewModelFactory { get { return Container.Resolve<ViewModel.Factory>(); }}
+		public ViewFactory ViewFactory { get { return Container.Resolve<ViewFactory>(); }}
 	}
 }

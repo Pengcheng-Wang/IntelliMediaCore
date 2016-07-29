@@ -45,9 +45,7 @@ namespace IntelliMedia
 
 		public override void InstallBindings()
 		{
-			Container.Bind<ViewFactory>().ToSingle();
-			Container.Bind<ViewModel.Factory>().ToSingle();
-			Container.Bind<StageManager>().ToSingle();
+			Container.Bind<StageManager>().AsSingle();
 		}					
 	}
 }

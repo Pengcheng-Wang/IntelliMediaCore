@@ -41,7 +41,7 @@ namespace IntelliMedia
 		private SessionService sessionService;
 
 		// After Dependency Injection
-		[PostInject]
+		[Inject]
 		public void Init(AppSettings appSettings)
 		{
 			appSettings.WriteTraceDataToLocalFile = writeTraceDataToLocalFile;

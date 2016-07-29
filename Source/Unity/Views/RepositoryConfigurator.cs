@@ -47,7 +47,7 @@ namespace IntelliMedia
 		public ServerType server;
 
 		// After Dependency Injection
-		[PostInject]
+		[Inject]
 		public void Init(AppSettings appSettings)
 		{
 			switch (server)
