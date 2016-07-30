@@ -41,22 +41,17 @@ namespace IntelliMedia
             this.container = container;
         }
 
-        public IView Resolve(ViewModel viewModel)
+        public IView Resolve(Type viewModelType)
         {
-            Contract.ArgumentNotNull("viewModel", viewModel);
+			Contract.ArgumentNotNull("viewModel", viewModelType);
 
-			DebugLog.Info("ViewFactory.Resolve: '{0}'", viewModel.GetType().Name);
-
-            if (!modelToView.ContainsKey(viewModel.GetType()))
+			IView view = null;
+			if (modelToView.ContainsKey(viewModelType))
             {
-                throw new Exception(String.Format("View not registered for '{0}'", viewModel.GetType().Name));
-            }
+				Type viewType = modelToView[viewModelType];
 
-			Type viewType = modelToView[viewModel.GetType()];
-
-			IView view = (IView)container.Resolve(viewType);
-
-			DebugLog.Info("ViewFactory: Resolved to View: '{0}'", view.GetType().Name);
+				view = (IView)container.TryResolve(viewType);
+			}
 
             return view;
         }

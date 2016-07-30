@@ -35,16 +35,16 @@ namespace IntelliMedia
 	public class ActivityLauncher
 	{
 		private ActivityService activityService;
-		private ViewModel.Factory viewModelFactory;
+		private ActivityViewModel activityViewModel;
 		private Dictionary<string, Type> urnToViewModelType = new Dictionary<string, Type>();
 		private LogEntry startedEntry;
 
 		public ActivityLauncher(
-			ActivityService activityService, 
-			ViewModel.Factory viewModelFactory)
+			ActivityService activityService)
+			//ActivityViewModel activityViewModel)
 		{
 			this.activityService = activityService;
-			this.viewModelFactory = viewModelFactory;
+			//this.activityViewModel = activityViewModel;
 		}
 		
 		public AsyncTask Start(Student student, Activity activity, bool resetActivityState = false)
@@ -64,11 +64,11 @@ namespace IntelliMedia
 					activityState.RecordLaunch();
 					activityState.ModifiedDate = DateTime.Now;
 
-					onCompleted(viewModelFactory.Resolve<ActivityViewModel>(Resolve(activity.Uri), vm =>
-					{
-						vm.Activity = activity;
-						vm.ActivityState = activityState;
-					}));
+//					onCompleted(viewModelFactory.Resolve<ActivityViewModel>(Resolve(activity.Uri), vm =>
+//					{
+//						vm.Activity = activity;
+//						vm.ActivityState = activityState;
+//					}));
 
 				});
 		}

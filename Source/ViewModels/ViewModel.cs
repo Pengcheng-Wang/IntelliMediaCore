@@ -83,59 +83,10 @@ namespace IntelliMedia
 			{
 				Contract.ArgumentNotNull("viewModelType", viewModelType);
 
-				ViewModel vm = (ViewModel)container.Resolve(viewModelType);
-				if (vm == null)
-				{
-					throw new Exception(String.Format("Unable to resolve '{0}' in IoC container", viewModelType.Name));
-				}
+				ViewModel vm = (ViewModel)container.TryResolve(viewModelType);
 				
 				return vm;	
-			}
-
-			public ViewModel Resolve(string className)
-			{
-				Contract.ArgumentNotNull("className", className);
-				
-				if (string.IsNullOrEmpty(className))
-				{
-					throw new Exception("Class name cannot be empty or null");
-				}			
-
-				return Resolve(Type.GetType(className));
-			}
-
-			public TViewModel Resolve<TViewModel>(Type viewModelType, Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
-			{
-				TViewModel vm = Resolve(viewModelType) as TViewModel;
-				if (vm == null)
-				{
-					throw new Exception(String.Format("Unable to resolve '{0}' in IoC container", typeof(TViewModel).Name));
-				}
-				
-				if (setStateAction != null)
-				{
-					vm.SetState(setStateAction);
-				}
-				
-				return vm;	
-			}
-
-			public TViewModel Resolve<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
-			{
-				TViewModel vm = (TViewModel)container.Resolve(typeof(TViewModel));
-				if (vm == null)
-				{
-					throw new Exception(String.Format("Unable to resolve '{0}' in IoC container", typeof(TViewModel).Name));
-				}
-
-				if (setStateAction != null)
-				{
-					vm.SetState(setStateAction);
-				}
-
-				return vm;				
-			}
+			}				
 		}
-
 	}
 }

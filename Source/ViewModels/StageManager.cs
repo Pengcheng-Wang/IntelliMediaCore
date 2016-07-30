@@ -40,16 +40,43 @@ namespace IntelliMedia
 
 		public void Register(TheatreInstaller installer)
 		{
+			DebugLog.Info("StageManager registered: {0}", installer.name);
 			installers.Add(installer);
 		}
 
 		public void Unregister(TheatreInstaller installer)
 		{
+			DebugLog.Info("StageManager unregistered: {0}", installer.name);
 			installers.Remove(installer);
 		}
 
-		private ViewModel.Factory ViewModelFactory { get { return installers[0].ViewModelFactory; }}
-		private ViewFactory ViewFactory { get { return installers[0].ViewFactory; }}
+		private ViewModel ResolveViewModel(Type toViewModelType)
+		{ 
+			foreach(TheatreInstaller installer in installers)
+			{
+				ViewModel vm = installer.ViewModelFactory.Resolve(toViewModelType);
+				if (vm != null)
+				{
+					return vm;
+				}
+			}
+
+			return null;
+		}
+
+		private IView ResolveView(Type viewType)
+		{ 
+			foreach(TheatreInstaller installer in installers)
+			{			
+				IView vm = installer.ViewFactory.Resolve(viewType);
+				if (vm != null)
+				{
+					return vm;
+				}
+			}
+
+			return null;
+		}
 
 		public void Transition(ViewModel from, ViewModel to)
 		{
@@ -68,7 +95,7 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("toViewModelType", toViewModelType);
 
-			Transition(from, ViewModelFactory.Resolve(toViewModelType));
+			Transition(from, ResolveViewModel(toViewModelType));
 		}
 
 		public AsyncTask Reveal(ViewModel vm, VisibilityEvent.OnceEventHandler handler = null)
@@ -84,7 +111,7 @@ namespace IntelliMedia
 					IView view = revealedViews.FirstOrDefault(v => v.BindingContext == vm);
 					if (view == null)
 					{
-						view = ViewFactory.Resolve(vm);
+						view = ResolveView(vm.GetType());
 						view.BindingContext = vm;
 						revealedViews.Add(view);
 						view.Reveal(false, (IView revealedView) =>
@@ -103,7 +130,11 @@ namespace IntelliMedia
 
 		public AsyncTask Reveal<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
 		{
-			TViewModel vm = ViewModelFactory.Resolve<TViewModel>(setStateAction);
+			TViewModel vm = ResolveViewModel(typeof(TViewModel)) as TViewModel;
+			if (vm != null && setStateAction != null)
+			{
+				setStateAction(vm);
+			}
 
 			return Reveal(vm);
 		}
@@ -112,7 +143,7 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("className", className);
 
-			ViewModel vm = ViewModelFactory.Resolve(TypeFinder.ClassNameToType(className));
+			ViewModel vm = ResolveViewModel(TypeFinder.ClassNameToType(className));
 
 			return Reveal(vm);
 		}
@@ -136,12 +167,18 @@ namespace IntelliMedia
 
 		public TViewModel Hide<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
 		{
-			return (TViewModel)Hide(ViewModelFactory.Resolve<TViewModel>(setStateAction));
+			TViewModel vm = ResolveViewModel(typeof(TViewModel)) as TViewModel;
+			if (vm != null && setStateAction != null)
+			{
+				setStateAction(vm);
+			}
+
+			return (TViewModel)Hide(vm);
 		}
 
 		public bool IsRevealed<TViewModel>() where TViewModel : ViewModel
 		{
-			TViewModel vm = ViewModelFactory.Resolve<TViewModel>();
+			TViewModel vm = ResolveViewModel(typeof(TViewModel)) as TViewModel;
 			IView view = revealedViews.FirstOrDefault(v => v.BindingContext == vm);
 			if (view != null && !vm.IsRevealed)
 			{

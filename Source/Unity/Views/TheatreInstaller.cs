@@ -147,14 +147,14 @@ namespace IntelliMedia
 				if (vvm.viewIsPrefab)
 				{
 					DebugLog.Info ("Bind {0} to transient prefab", viewType.Name);
-					Container.Bind(viewType).FromPrefab(vvm.view.gameObject);
+					Container.Bind(viewType).FromPrefab(vvm.view.gameObject).UnderGameObjectGroup(gameObject.name);
 				}
 				else
 				{
 					DebugLog.Info ("Bind {0} to instance", viewType.Name);
 					Container.Bind(viewType).FromInstance(vvm.view);
 				}
-				Container.Resolve<ViewFactory> ().Register (vmType, viewType);
+				Container.Resolve<ViewFactory> ().Register(vmType, viewType);
 				if (!String.IsNullOrEmpty (vvm.activityUrn))
 				{
 					Container.Resolve<ActivityLauncher> ().Register (vvm.activityUrn, vmType);
