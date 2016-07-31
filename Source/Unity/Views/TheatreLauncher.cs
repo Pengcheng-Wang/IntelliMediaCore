@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,35 +26,25 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using Zenject;
-using System.Collections.Generic;
-using System;
-using IntelliMedia;
-using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
-	public class UnitySceneView : UnityView
-    {
-        public string sceneName;
-        public bool IsLoaded { get; private set; }
+	public class TheatreLauncher : MonoBehaviour
+	{
+		private StageManager StageManger { get; set; }
 
-		public override Type ViewModelType { get { return typeof(String); }}
-
-		protected override void StartAnimatedReveal()
+		[Inject]
+		public void Launch(StageManager stageManger)
 		{
-			SceneService.Instance.LoadScene(sceneName, true, (bool success, string error) =>
-			{
-				IsLoaded = true;
-				OnVisible();
-			});
+			DebugLog.Info("Start Theatre -> StageManger");
+			StageManger = stageManger;
 		}
 
-		protected override void StartAnimatedHide()
+		public void Start()
 		{
-			// TODO
+			DebugLog.Info("Start Theatre Scene");
+			StageManger.Reveal<SignInViewModel>().Start();
 		}
 	}
 }

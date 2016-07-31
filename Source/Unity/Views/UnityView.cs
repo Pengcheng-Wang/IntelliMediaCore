@@ -46,6 +46,8 @@ namespace IntelliMedia
 
 		private bool IsInitialized { get; set; }
 
+		public abstract Type ViewModelType { get; }
+
 		public readonly BindableProperty<ViewModel> ViewModelProperty = new BindableProperty<ViewModel>();	
 		public ViewModel BindingContext 
 		{ 

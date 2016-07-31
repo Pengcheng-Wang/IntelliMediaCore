@@ -25,36 +25,48 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using Zenject;
 using System.Collections.Generic;
+using Zenject;
 using System;
-using IntelliMedia;
-using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
-	public class UnitySceneView : UnityView
-    {
-        public string sceneName;
-        public bool IsLoaded { get; private set; }
+	public class ViewModelFactory : IDisposable
+	{
+		public string Name { get; private set; }
 
-		public override Type ViewModelType { get { return typeof(String); }}
+		private readonly StageManager StageManager;
+		private readonly DiContainer Container;
 
-		protected override void StartAnimatedReveal()
+		public ViewModelFactory(string name, DiContainer container, StageManager stageManager)
 		{
-			SceneService.Instance.LoadScene(sceneName, true, (bool success, string error) =>
-			{
-				IsLoaded = true;
-				OnVisible();
-			});
+			this.Name = name;
+			this.Container = container;
+			this.StageManager = stageManager;
+
+			StageManager.Register(this);	
 		}
 
-		protected override void StartAnimatedHide()
+		#region IDisposable implementation
+
+		public void Dispose()
 		{
-			// TODO
+			StageManager.Unregister(this);	
+		}
+
+		#endregion
+
+		public ViewModel Resolve(Type viewModelType)
+		{
+			Contract.ArgumentNotNull("viewModelType", viewModelType);
+
+			if (!viewModelType.IsSubclassOf(typeof(ViewModel)))
+			{
+				throw new Exception(string.Format("Requested type ({0}) is not derived from {1}", 
+					viewModelType.Name, typeof(ViewModel).Name));
+			}
+
+			return Container.TryResolve(viewModelType) as ViewModel;
 		}
 	}
 }

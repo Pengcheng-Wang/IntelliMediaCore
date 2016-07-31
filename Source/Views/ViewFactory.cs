@@ -33,40 +33,39 @@ namespace IntelliMedia
 {
     public class ViewFactory
     {
-        DiContainer container;
-        Dictionary<Type, Type> modelToView = new Dictionary<Type, Type>();
+		public string Name { get; private set; }
 
-        public ViewFactory(DiContainer container)
+		private readonly DiContainer Container;
+		private readonly Dictionary<Type, Type> ModelToView;
+		private readonly StageManager StageManager;
+
+		public ViewFactory(string name, DiContainer container, Dictionary<Type, Type> modelToView, StageManager stageManager)
         {
-            this.container = container;
-        }
+			this.Name = name;
+            this.Container = container;
+			this.ModelToView = modelToView;
+			this.StageManager = stageManager;
 
-        public IView Resolve(Type viewModelType)
+			StageManager.Register(this);	
+		}
+
+		public void Dispose()
+		{
+			StageManager.Unregister(this);	
+		}
+
+		public IView ResolveForViewModel(Type viewModelType)
         {
 			Contract.ArgumentNotNull("viewModel", viewModelType);
 
 			IView view = null;
-			if (modelToView.ContainsKey(viewModelType))
+			if (ModelToView.ContainsKey(viewModelType))
             {
-				Type viewType = modelToView[viewModelType];
-
-				view = (IView)container.TryResolve(viewType);
+				Type viewType = ModelToView[viewModelType];
+				view = Container.TryResolve(viewType) as IView;
 			}
 
             return view;
-        }
-
-        public void Register(Type viewModelType, Type viewType)
-        {
-            Contract.ArgumentNotNull("viewModelType", viewModelType);
-            Contract.ArgumentNotNull("viewType", viewType);
-
-            modelToView[viewModelType] = viewType;
-        }
-
-        public void Register<TViewModel, TView>() where TViewModel : ViewModel where TView : IView
-        {
-            modelToView[typeof(TViewModel)] = typeof(TView);
         }
     }
 }

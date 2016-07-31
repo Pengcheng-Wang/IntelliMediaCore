@@ -41,6 +41,7 @@ namespace IntelliMedia
     {
 		protected readonly PropertyBinder<TViewModel> Binder = new PropertyBinder<TViewModel>();
 				  
+		public override Type ViewModelType { get { return typeof(TViewModel); }}
 		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)

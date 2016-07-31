@@ -68,25 +68,6 @@ namespace IntelliMedia
 		{
 			IsHideInProgress = false;
 			IsRevealed = false;
-		}
-
-		public class Factory
-		{
-			DiContainer container;
-			
-			public Factory(DiContainer container)
-			{
-				this.container = container;
-			}
-
-			public ViewModel Resolve(Type viewModelType)
-			{
-				Contract.ArgumentNotNull("viewModelType", viewModelType);
-
-				ViewModel vm = (ViewModel)container.TryResolve(viewModelType);
-				
-				return vm;	
-			}				
-		}
+		}			
 	}
 }

@@ -34,48 +34,65 @@ namespace IntelliMedia
 {
 	public class StageManager
 	{
-		private List<TheatreInstaller> installers = new List<TheatreInstaller>();
+		private List<ViewModelFactory> viewModelFactories = new List<ViewModelFactory>();
+		private List<ViewFactory> viewFactories = new List<ViewFactory>();
 
 		private HashSet<IView> revealedViews = new HashSet<IView>();
 
-		public void Register(TheatreInstaller installer)
+		public void Register(ViewModelFactory factory)
 		{
-			DebugLog.Info("StageManager registered: {0}", installer.name);
-			installers.Add(installer);
+			DebugLog.Info("StageManager registered ViewModel factory: {0}", factory.Name);
+			viewModelFactories.Add(factory);
 		}
 
-		public void Unregister(TheatreInstaller installer)
+		public void Unregister(ViewModelFactory factory)
 		{
-			DebugLog.Info("StageManager unregistered: {0}", installer.name);
-			installers.Remove(installer);
+			DebugLog.Info("StageManager unregistered ViewModel factory: {0}", factory.Name);
+			viewModelFactories.Remove(factory);
 		}
 
-		private ViewModel ResolveViewModel(Type toViewModelType)
+		public void Register(ViewFactory factory)
+		{
+			DebugLog.Info("StageManager registered View factory: {0}", factory.Name);
+			viewFactories.Add(factory);
+		}
+
+		public void Unregister(ViewFactory factory)
+		{
+			DebugLog.Info("StageManager unregistered View factory: {0}", factory.Name);
+			viewFactories.Remove(factory);
+		}
+
+		private ViewModel ResolveViewModel(Type viewModelType)
 		{ 
-			foreach(TheatreInstaller installer in installers)
+			Contract.ArgumentNotNull("viewModelType", viewModelType);
+
+			foreach(ViewModelFactory factory in viewModelFactories)
 			{
-				ViewModel vm = installer.ViewModelFactory.Resolve(toViewModelType);
+				ViewModel vm = factory.Resolve(viewModelType);
 				if (vm != null)
 				{
 					return vm;
 				}
 			}
 
-			return null;
+			throw new Exception("Unable to resolve ViewModel: " + viewModelType.Name);
 		}
 
-		private IView ResolveView(Type viewType)
+		private IView ResolveViewForViewModel(Type viewModelType)
 		{ 
-			foreach(TheatreInstaller installer in installers)
-			{			
-				IView vm = installer.ViewFactory.Resolve(viewType);
-				if (vm != null)
+			Contract.ArgumentNotNull("viewModelType", viewModelType);
+
+			foreach(ViewFactory factory in viewFactories)
+			{
+				IView view = factory.ResolveForViewModel(viewModelType);
+				if (view != null)
 				{
-					return vm;
+					return view;
 				}
 			}
 
-			return null;
+			throw new Exception("Unable to resolve View for: " + viewModelType.Name);
 		}
 
 		public void Transition(ViewModel from, ViewModel to)
@@ -111,7 +128,7 @@ namespace IntelliMedia
 					IView view = revealedViews.FirstOrDefault(v => v.BindingContext == vm);
 					if (view == null)
 					{
-						view = ResolveView(vm.GetType());
+						view = ResolveViewForViewModel(vm.GetType());
 						view.BindingContext = vm;
 						revealedViews.Add(view);
 						view.Reveal(false, (IView revealedView) =>

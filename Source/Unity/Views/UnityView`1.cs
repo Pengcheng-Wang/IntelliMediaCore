@@ -25,6 +25,7 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using System;
 
 namespace IntelliMedia
 {
@@ -32,6 +33,7 @@ namespace IntelliMedia
 	{
 		protected readonly PropertyBinder<TViewModel> Binder = new PropertyBinder<TViewModel>();
 
+		public override Type ViewModelType { get { return typeof(TViewModel); }}
 		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
 
 		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)
