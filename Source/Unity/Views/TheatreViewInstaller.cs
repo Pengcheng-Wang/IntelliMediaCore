@@ -53,7 +53,7 @@ namespace IntelliMedia
 			InstallViewPrefabBindings();
 			InstallViewBindings();
 
-			Container.BindAllInterfacesAndSelf<ViewFactory>().FromNew().AsSingle().WithArguments(gameObject.name, Container, modelToView).NonLazy();
+			Container.BindAllInterfacesAndSelf<ViewFactory>().FromNew().WithArguments(gameObject.name, Container, modelToView).NonLazy();
 
 			if (TotalBindings == 0)
 			{
