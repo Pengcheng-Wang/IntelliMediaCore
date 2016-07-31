@@ -63,7 +63,7 @@ namespace IntelliMedia
 			viewFactories.Remove(factory);
 		}
 
-		private ViewModel ResolveViewModel(Type viewModelType)
+		public ViewModel ResolveViewModel(Type viewModelType)
 		{ 
 			Contract.ArgumentNotNull("viewModelType", viewModelType);
 
@@ -131,11 +131,15 @@ namespace IntelliMedia
 						view = ResolveViewForViewModel(vm.GetType());
 						view.BindingContext = vm;
 						revealedViews.Add(view);
-						view.Reveal(false, (IView revealedView) =>
+						view.Reveal(true, (IView revealedView) =>
 		                {
 							onCompleted(revealedView.BindingContext);
 		                });
 		            }
+					else
+					{
+						onCompleted(view.BindingContext);
+					}
 				}
 				catch(Exception e)
 				{
@@ -175,8 +179,12 @@ namespace IntelliMedia
 			
 			if (view != null)
 			{			
-				view.Hide(false, handler);
+				view.Hide(true, handler);
 				revealedViews.Remove(view);
+			}
+			else
+			{
+				handler(null);
 			}
 			
 			return vm;

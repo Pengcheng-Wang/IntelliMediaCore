@@ -223,6 +223,8 @@ namespace IntelliMedia
                    {
                        busyIndicator.Dispose();
 					}).Start();
+
+					onRevealed(true);
 				}).Start();
 			}
 			catch (Exception e)

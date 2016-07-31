@@ -71,7 +71,7 @@ namespace IntelliMedia
 			StringBuilder views = new StringBuilder();
 			foreach(UnityView view in this.transform.GetComponentsInChildren<UnityView>(true))
 			{
-				Container.Bind(view.GetType()).FromInstance(view);
+				Container.Bind(view.GetType()).FromInstance(view).AsSingle();
 				++TotalBindings;
 				modelToView[view.ViewModelType] = view.GetType();
 				views.AppendFormat("{0}, ", view.name);
@@ -98,7 +98,7 @@ namespace IntelliMedia
 					vvm.prefab.gameObject.SetActive(false);
 				}
 					
-				Container.Bind(viewType).FromPrefab(vvm.prefab.gameObject).UnderGameObjectGroup(gameObject.name);
+				Container.Bind(viewType).FromPrefab(vvm.prefab.gameObject).UnderGameObjectGroup(gameObject.name).AsSingle();
 				++TotalBindings;
 				modelToView[vvm.prefab.ViewModelType] = vvm.prefab.GetType();
 				prefabs.AppendFormat("{0}, ", viewType.Name);

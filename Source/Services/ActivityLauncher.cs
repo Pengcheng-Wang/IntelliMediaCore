@@ -34,17 +34,21 @@ namespace IntelliMedia
 {
 	public class ActivityLauncher
 	{
+		private StageManager stageManager;
+		private ActivityMapping activityMapping;
 		private ActivityService activityService;
 		private ActivityViewModel activityViewModel;
 		private Dictionary<string, Type> urnToViewModelType = new Dictionary<string, Type>();
 		private LogEntry startedEntry;
 
 		public ActivityLauncher(
+			StageManager stageManager,
+			ActivityMapping activityMapping,
 			ActivityService activityService)
-			//ActivityViewModel activityViewModel)
 		{
+			this.stageManager = stageManager;
+			this.activityMapping = activityMapping;
 			this.activityService = activityService;
-			//this.activityViewModel = activityViewModel;
 		}
 		
 		public AsyncTask Start(Student student, Activity activity, bool resetActivityState = false)
@@ -64,29 +68,37 @@ namespace IntelliMedia
 					activityState.RecordLaunch();
 					activityState.ModifiedDate = DateTime.Now;
 
-//					onCompleted(viewModelFactory.Resolve<ActivityViewModel>(Resolve(activity.Uri), vm =>
-//					{
-//						vm.Activity = activity;
-//						vm.ActivityState = activityState;
-//					}));
+					ActivityViewModel vm = Resolve(activity.Uri);
+					vm.Activity = activity;
+					vm.ActivityState = activityState;
 
+					onCompleted(vm);
 				});
 		}
 			
-		public Type Resolve(string activityUrn)
+		public ActivityViewModel Resolve(string activityUrn)
 		{
 			Contract.ArgumentNotNull("activityUrn", activityUrn);
 
-			foreach(string registeredUrnPattern in urnToViewModelType.Keys)
+			string viewModelTypeName = activityMapping.FindViewModelByUrn(activityUrn);
+			if (string.IsNullOrEmpty(viewModelTypeName))
 			{
-				Regex regex = new Regex(registeredUrnPattern);
-				if (regex.IsMatch(activityUrn))
-				{
-					return urnToViewModelType[registeredUrnPattern];
-				}
+				throw new Exception(String.Format("Activity URN not defined in ActivityMapping for '{0}'", activityUrn));
 			}
 
-			throw new Exception(String.Format("Activity URI not registered for '{0}'", activityUrn));
+			Type viewModelType = TypeFinder.ClassNameToType(viewModelTypeName);
+			if (viewModelType == null)
+			{
+				throw new Exception(String.Format("Unable to find class with type name '{0}'", viewModelTypeName));
+			}
+
+			ActivityViewModel viewModel = stageManager.ResolveViewModel(viewModelType) as ActivityViewModel;
+			if (viewModel == null)
+			{
+				throw new Exception(String.Format("Unable to resolve '{0}'. Confirm that TheatreInstaller has created binding.", viewModelTypeName));
+			}
+
+			return viewModel;
 		}
 		
 		public void Register(string urn, Type viewModel)
