@@ -35,7 +35,7 @@ namespace IntelliMedia
 	public class StageManager
 	{
 		private List<ViewModelFactory> viewModelFactories = new List<ViewModelFactory>();
-		private List<ViewFactory> viewFactories = new List<ViewFactory>();
+		private List<IViewResolver> viewFactories = new List<IViewResolver>();
 
 		private HashSet<IView> revealedViews = new HashSet<IView>();
 
@@ -51,13 +51,13 @@ namespace IntelliMedia
 			viewModelFactories.Remove(factory);
 		}
 
-		public void Register(ViewFactory factory)
+		public void Register(IViewResolver factory)
 		{
 			DebugLog.Info("StageManager registered View factory: {0}", factory.Name);
 			viewFactories.Add(factory);
 		}
 
-		public void Unregister(ViewFactory factory)
+		public void Unregister(IViewResolver factory)
 		{
 			DebugLog.Info("StageManager unregistered View factory: {0}", factory.Name);
 			viewFactories.Remove(factory);
@@ -83,9 +83,9 @@ namespace IntelliMedia
 		{ 
 			Contract.ArgumentNotNull("viewModelType", viewModelType);
 
-			foreach(ViewFactory factory in viewFactories)
+			foreach(IViewResolver factory in viewFactories)
 			{
-				IView view = factory.ResolveForViewModel(viewModelType);
+				IView view = factory.Resolve(viewModelType);
 				if (view != null)
 				{
 					return view;
@@ -130,15 +130,23 @@ namespace IntelliMedia
 					{
 						view = ResolveViewForViewModel(vm.GetType());
 						view.BindingContext = vm;
-						revealedViews.Add(view);
 						view.Reveal(true, (IView revealedView) =>
 		                {
+							revealedViews.Add(revealedView);
 							onCompleted(revealedView.BindingContext);
+							if (handler != null)
+							{
+								handler(revealedView);
+							}
 		                });
 		            }
 					else
 					{
 						onCompleted(view.BindingContext);
+						if (handler != null)
+						{
+							handler(view);
+						}
 					}
 				}
 				catch(Exception e)
@@ -179,8 +187,14 @@ namespace IntelliMedia
 			
 			if (view != null)
 			{			
-				view.Hide(true, handler);
-				revealedViews.Remove(view);
+				view.Hide(true, (IView hiddenView) =>
+				{
+					revealedViews.Remove(hiddenView);
+					if (handler != null)
+					{
+						handler(hiddenView);
+					}
+				});
 			}
 			else
 			{

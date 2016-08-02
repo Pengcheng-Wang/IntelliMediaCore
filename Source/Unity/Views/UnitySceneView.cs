@@ -35,26 +35,64 @@ using IntelliMedia;
 using UnityEngine.EventSystems;
 
 namespace IntelliMedia
-{
-	public class UnitySceneView : UnityView
-    {
-        public string sceneName;
-        public bool IsLoaded { get; private set; }
+{	
+	public class UnityProxyView : IView
+	{
+		private StageManager stageManager;
+		public string SceneName { get; set; }
+		public string[] Capabilities { get; set; }
 
-		public override Type ViewModelType { get { return typeof(String); }}
-
-		protected override void StartAnimatedReveal()
+		public UnityProxyView(StageManager stageManager)
 		{
-			SceneService.Instance.LoadScene(sceneName, true, (bool success, string error) =>
-			{
-				IsLoaded = true;
-				OnVisible();
-			});
+			Contract.ArgumentNotNull("stageManager", stageManager);
+			this.stageManager = stageManager;
 		}
 
-		protected override void StartAnimatedHide()
+		#region IView implementation
+
+		public void Reveal(bool immediate = false, OnceEvent<IView>.OnceEventHandler handler = null)
 		{
-			// TODO
+			SceneService.Instance.LoadScene(SceneName, false, (bool success, string error) =>
+			{
+				if (success)
+				{
+					stageManager.Hide(BindingContext, (IView sceneView) =>
+					{
+						stageManager.Reveal(BindingContext, (IView view) =>
+						{
+							if (handler != null)
+							{
+								handler(view);
+							}
+						}).Start();						
+					});
+				}
+				else
+				{
+					DebugLog.Error("Unable to load '{0}' scene. {1}", SceneName, error);
+				}
+			});
+
+			if (handler != null)
+			{
+				handler(this);
+			}
+		}
+
+		public void Hide (bool immediate = false, OnceEvent<IView>.OnceEventHandler handler = null)
+		{
+			if (handler != null)
+			{
+				handler(this);
+			}
+		}
+
+		public ViewModel BindingContext { get; set; }
+
+		#endregion
+
+		public class Factory : Factory<UnityProxyView>
+		{
 		}
 	}
 }

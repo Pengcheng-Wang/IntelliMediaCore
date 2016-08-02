@@ -45,6 +45,7 @@ namespace IntelliMedia
 
 		public override void InstallBindings()
 		{
+			//Container.BindFactory<UnityProxyView, UnityProxyView.Factory>();
 			Container.Bind<StageManager>().AsSingle();
 		}					
 	}

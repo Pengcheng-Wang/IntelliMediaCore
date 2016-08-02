@@ -31,45 +31,10 @@ using Zenject;
 
 namespace IntelliMedia
 {
-	public class ViewFactory : IViewResolver 
-    {
-		public string Name { get; private set; }
-
-		private readonly DiContainer Container;
-		private readonly Dictionary<Type, Type> ModelToView;
-		private readonly StageManager StageManager;
-
-		public ViewFactory(string name, DiContainer container, Dictionary<Type, Type> modelToView, StageManager stageManager)
-        {
-			this.Name = name;
-            this.Container = container;
-			this.ModelToView = modelToView;
-			this.StageManager = stageManager;
-
-			StageManager.Register(this);	
-		}
-
-		public void Dispose()
-		{
-			StageManager.Unregister(this);	
-		}
-
-		#region IViewResolver implementation
-
-		public IView Resolve(Type viewModelType, string[] capabilities = null)
-		{
-
-				Contract.ArgumentNotNull("viewModel", viewModelType);
-
-				IView view = null;
-				if (ModelToView.ContainsKey(viewModelType))
-				{
-					Type viewType = ModelToView[viewModelType];
-					view = Container.TryResolve(viewType) as IView;
-				}
-				return view;
-		}
-
-		#endregion
-    }
+	public interface IViewResolver
+	{
+		string Name { get; }
+		IView Resolve(Type viewModelType, string[] capabilities = null);
+	}
 }
+

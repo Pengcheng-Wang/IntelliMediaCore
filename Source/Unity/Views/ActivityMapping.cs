@@ -38,6 +38,7 @@ namespace IntelliMedia
 		{
 			public string urn;
 			public string viewModel;
+			public string[] viewCapabilities;
 		}
 		public ActivityInfo[] activities;
 

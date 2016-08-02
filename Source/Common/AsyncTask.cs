@@ -182,6 +182,24 @@ namespace IntelliMedia
 				onFinally();
 			}
 		}
+
+		public class AsyncTaskQueue
+		{
+			Queue<AsyncTask> taskQueue;
+
+			public AsyncTaskQueue(IEnumerable<AsyncTask> tasks)
+			{
+				taskQueue = new Queue<AsyncTask>(tasks);
+			}
+		}
+
+		public static AsyncTask Until(IEnumerable<AsyncTask> tasks, Func<object, bool> condition)
+		{
+			return new AsyncTask((prevTask, onCompleted, onError) =>
+			{
+				AsyncTaskQueue queue = new AsyncTaskQueue(tasks);
+			});
+		}
 	}
 }
 

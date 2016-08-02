@@ -100,10 +100,5 @@ namespace IntelliMedia
 
 			return viewModel;
 		}
-		
-		public void Register(string urn, Type viewModel)
-		{
-			urnToViewModelType[urn] = viewModel;
-		}
 	}
 }

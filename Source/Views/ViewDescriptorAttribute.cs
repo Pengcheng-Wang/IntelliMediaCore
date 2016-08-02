@@ -26,50 +26,36 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
-using Zenject;
+using System.Linq;
 
 namespace IntelliMedia
 {
-	public class ViewFactory : IViewResolver 
-    {
-		public string Name { get; private set; }
+	[AttributeUsage(AttributeTargets.Class)]
+	public class ViewDescriptorAttribute : Attribute
+	{
+		public Type ViewModelType { get; private set; }
+		public string[] Capabilities { get; private set; }
 
-		private readonly DiContainer Container;
-		private readonly Dictionary<Type, Type> ModelToView;
-		private readonly StageManager StageManager;
-
-		public ViewFactory(string name, DiContainer container, Dictionary<Type, Type> modelToView, StageManager stageManager)
-        {
-			this.Name = name;
-            this.Container = container;
-			this.ModelToView = modelToView;
-			this.StageManager = stageManager;
-
-			StageManager.Register(this);	
-		}
-
-		public void Dispose()
+		public ViewDescriptorAttribute(Type viewModelType, params string[] capabilities)
 		{
-			StageManager.Unregister(this);	
+			this.ViewModelType = viewModelType;
+			this.Capabilities = capabilities;
 		}
 
-		#region IViewResolver implementation
-
-		public IView Resolve(Type viewModelType, string[] capabilities = null)
+		public static bool HasCapabilities(string[] required, string[] viewCapabilities)
 		{
+			if (required == null || required.Length == 0)
+			{
+				return true;
+			}
 
-				Contract.ArgumentNotNull("viewModel", viewModelType);
+			if (viewCapabilities == null || viewCapabilities.Length == 0)
+			{
+				return false;
+			}
 
-				IView view = null;
-				if (ModelToView.ContainsKey(viewModelType))
-				{
-					Type viewType = ModelToView[viewModelType];
-					view = Container.TryResolve(viewType) as IView;
-				}
-				return view;
+			return !required.Except(viewCapabilities).Any();
 		}
-
-		#endregion
-    }
+	}
 }
+

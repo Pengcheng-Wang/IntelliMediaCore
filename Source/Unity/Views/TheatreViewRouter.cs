@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,51 +25,68 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
 using Zenject;
+using IntelliMedia;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
 
 namespace IntelliMedia
 {
-	public class ViewFactory : IViewResolver 
-    {
-		public string Name { get; private set; }
+	public class TheatreViewRouter : MonoBehaviour, IViewResolver
+	{
+		[Serializable]
+		public class ViewInfo
+		{
+			public string viewModelTypeName;
+			public string sceneName;
+			public string[] viewCapabilities;
+		}
+		public ViewInfo[] routes;
 
-		private readonly DiContainer Container;
-		private readonly Dictionary<Type, Type> ModelToView;
-		private readonly StageManager StageManager;
+		private StageManager stageManager;
 
-		public ViewFactory(string name, DiContainer container, Dictionary<Type, Type> modelToView, StageManager stageManager)
-        {
-			this.Name = name;
-            this.Container = container;
-			this.ModelToView = modelToView;
-			this.StageManager = stageManager;
-
-			StageManager.Register(this);	
+		[Inject]
+		public void Initialize(StageManager stageManager)
+		{
+			this.stageManager = stageManager;
 		}
 
-		public void Dispose()
+		public void Start()
+		{	
+			stageManager.Register(this);
+		}			
+
+		public void OnDestroy()
 		{
-			StageManager.Unregister(this);	
+			stageManager.Unregister(this);
 		}
 
 		#region IViewResolver implementation
 
+		public string Name { get { return gameObject.name; }}
+
 		public IView Resolve(Type viewModelType, string[] capabilities = null)
 		{
 
-				Contract.ArgumentNotNull("viewModel", viewModelType);
-
-				IView view = null;
-				if (ModelToView.ContainsKey(viewModelType))
+				ViewInfo viewInfo = routes.FirstOrDefault(v => String.Compare(v.viewModelTypeName, viewModelType.Name) == 0
+					&& ViewDescriptorAttribute.HasCapabilities(capabilities, v.viewCapabilities));
+				if (viewInfo != null)
 				{
-					Type viewType = ModelToView[viewModelType];
-					view = Container.TryResolve(viewType) as IView;
+					UnityProxyView proxyView = new UnityProxyView(stageManager);
+					proxyView.SceneName = viewInfo.sceneName;
+					proxyView.Capabilities = viewInfo.viewCapabilities;
+					return proxyView;
 				}
-				return view;
+				else
+				{
+				return null;
+				}
 		}
 
-		#endregion
-    }
+		#endregion			
+	}
 }
