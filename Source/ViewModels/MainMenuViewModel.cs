@@ -203,26 +203,25 @@ namespace IntelliMedia
 				{
 					ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
                     ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Starting...");
-                    activityLauncher.Start(sessionState.Student, activity, false)
-					.Then((prevResult, onCompleted, onError) =>
-                    {
-						navigator.Transition(this, prevResult.ResultAs<ActivityViewModel>());
-						onCompleted(true);
-                    })
-                    .Catch((Exception e) =>
-                   {
-                       navigator.Reveal<AlertViewModel>(alert =>
-                        {
-                            alert.Title = "Unable to start activity";
-                            alert.Message = e.Message;
-                            alert.Error = e;
-                            alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-						}).Start();
+					new AsyncTry(activityLauncher.Start(sessionState.Student, activity, false))
+						.Then<ActivityViewModel>((activityViewModel) =>
+	                    {
+							navigator.Transition(this, activityViewModel);
+	                    })
+	                    .Catch((Exception e) =>
+	                   {
+	                       navigator.Reveal<AlertViewModel>(alert =>
+	                        {
+	                            alert.Title = "Unable to start activity";
+	                            alert.Message = e.Message;
+	                            alert.Error = e;
+	                            alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
+							}).Start();
 
-                   }).Finally(() =>
-                   {
-                       busyIndicator.Dispose();
-					}).Start();
+	                   }).Finally(() =>
+	                   {
+	                       busyIndicator.Dispose();
+						}).Start();
 
 					onRevealed(true);
 				}).Start();

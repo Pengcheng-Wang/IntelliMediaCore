@@ -38,7 +38,6 @@ namespace IntelliMedia
 		private ActivityMapping activityMapping;
 		private ActivityService activityService;
 		private ActivityViewModel activityViewModel;
-		private Dictionary<string, Type> urnToViewModelType = new Dictionary<string, Type>();
 		private LogEntry startedEntry;
 
 		public ActivityLauncher(
@@ -51,14 +50,13 @@ namespace IntelliMedia
 			this.activityService = activityService;
 		}
 		
-		public AsyncTask Start(Student student, Activity activity, bool resetActivityState = false)
+		public IAsyncTask Start(Student student, Activity activity, bool resetActivityState = false)
 		{
 			DebugLog.Info("ActivityLauncher: Start  '{0}' ({1})", activity.Name, activity.Uri);
 
-			return activityService.LoadActivityState(student.Id, activity.Id, true)
-				.Then((prevResult, onCompleted, onError) =>
+			return new AsyncTry(activityService.LoadActivityState(student.Id, activity.Id, true))
+				.Then<ActivityState>((activityState) =>
 				{
-					ActivityState activityState = prevResult.ResultAs<ActivityState>();
 					if (resetActivityState || !activityState.CanResume)
 					{
 						// Generate a new trace ID for restarts or new games that don't have saved state
@@ -72,7 +70,7 @@ namespace IntelliMedia
 					vm.Activity = activity;
 					vm.ActivityState = activityState;
 
-					onCompleted(vm);
+					return vm;
 				});
 		}
 			

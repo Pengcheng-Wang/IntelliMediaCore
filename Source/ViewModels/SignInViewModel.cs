@@ -81,26 +81,29 @@ namespace IntelliMedia
                 {
 					ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
                     ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Signing in...");
-                    // TODO rgtaylor 2015-12-10 Replace hardcoded 'domain'
-                    authenticator.SignIn(group, username, password)
-						.Then((prevResult, onCompleted, onError) =>
+
+					new AsyncTry(authenticator.SignIn(group, username, password))
+						.Then<Student>((student) =>
 	                    {
 							DebugLog.Info("Signed in {0}", username);
-							sessionState.Student = prevResult.ResultAs<Student>();
-							sessionService.StartSession(sessionState.Student).Start(onCompleted, onError);
+							sessionState.Student = student;
+							return sessionService.StartSession(sessionState.Student);
 	                    })
-						.Then((prevResult, onCompleted, onError) =>
+						.Then<Session>((session) =>
 	                    {
 							DebugLog.Info("Session started");
-							sessionState.Session = prevResult.ResultAs<Session>();
-							courseSettingsService.LoadSettings(sessionState.Student.Id).Start(onCompleted, onError);
+							sessionState.Session = session;
+							return courseSettingsService.LoadSettings(sessionState.Student.Id);
 	                    })
-						.Then((prevResult, onCompleted, onError) =>
+						.Then<CourseSettings>((settings) =>
 	                    {
-							DebugLog.Info("Settings loaded");
-							sessionState.CourseSettings = prevResult.ResultAs<CourseSettings>();
-	                        navigator.Transition(this, typeof(MainMenuViewModel));
-							onCompleted(true);
+							return new AsyncTask((prevTask, onComplete, onError) =>
+							{
+								DebugLog.Info("Settings loaded");
+								sessionState.CourseSettings = settings;
+	                        	navigator.Transition(this, typeof(MainMenuViewModel));
+								onComplete(true);
+							});
 
 	                    }).Catch((Exception e) =>
 	                    {

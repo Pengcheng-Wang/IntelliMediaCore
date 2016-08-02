@@ -30,12 +30,10 @@ using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-	public delegate void CompletedHandler(object result);
 	public delegate void ActionHandler(AsyncTask previousTask, CompletedHandler onComplete, ErrorHandler onError);
-	public delegate void ErrorHandler(Exception e);
 	public delegate void FinallyHandler();
 
-	public class AsyncTask
+	public class AsyncTask : IAsyncTask
 	{
 		private ActionHandler onAction;
 		private CompletedHandler onCompleted;
@@ -51,6 +49,14 @@ namespace IntelliMedia
 		{
 			onAction = actionHandler;
 		}			
+
+		public static AsyncTask WithResult(object result)
+		{
+			return new AsyncTask((prevResult, onCompleted, onError) =>
+			{
+				onCompleted(result);
+			});
+		}
 
 		public T ResultAs<T>()
 		{
@@ -143,12 +149,12 @@ namespace IntelliMedia
 
 		private void Completed(object result)
 		{
+			Result = result;
 			if (onCompleted != null) 
 			{
 				onCompleted(result);
 			}
-
-			Result = result;
+				
 			if (Result is AsyncTask) 
 			{
 				nextTasks.Insert(0, (AsyncTask)Result);
