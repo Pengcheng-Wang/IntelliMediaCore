@@ -143,7 +143,7 @@ namespace IntelliMedia
 			}
 		}
 			
-		#if UNITY_WEBGL
+		#if UNITY_WEBGL || UNITY_IOS
 		public class MovieTexture : Texture
 		{
 			public void Stop() {}
@@ -443,7 +443,7 @@ namespace IntelliMedia
 					IsBuffering = true;
 					DebugLog.Info("Load video: {0}", videoUrl);
 					www = new WWW(videoUrl);
-					#if !UNITY_WEBGL
+					#if !UNITY_WEBGL && !UNITY_IOS
 					videoPlaylist[videoIndex].MovieTexture = www.movie;
 					#endif
 					yield return www;
