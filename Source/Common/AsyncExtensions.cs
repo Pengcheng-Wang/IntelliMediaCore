@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+// Copyright 2015 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,66 +25,17 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using Zenject;
-using IntelliMedia;
 using System;
-using System.Linq;
-using System.Reflection;
+using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-	public class TheatreInstaller : MonoInstaller
+	public static class AsyncExtensions
 	{
-		public string[] services;
-		public string[] repositories;
-		public string[] models;
-		public string[] viewModels;
-
-		private ViewModelFactory ViewModelFactory { get; set; }
-		private int TotalBindings { get; set; }
-
-		public override void InstallBindings()
-		{	
-			InstallBindingsByName("Services", services);	
-			InstallBindingsByName("Repositories", repositories);	
-			InstallBindingsByName("Models", models);	
-			InstallBindingsByName("ViewModels", viewModels);
-
-			Container.Bind<ViewModelFactory>().FromNew().AsSingle().WithArguments(gameObject.name, Container).NonLazy();
-
-			if (TotalBindings == 0)
-			{
-				DebugLog.Warning("{0} doesn't specify any classes for binding.", this.gameObject.name);
-			}				
-		}
-
-		public void OnDestroy()
+		public static IAsyncTask ForEach(this IEnumerable<IAsyncTask> tasks, AsyncResultCondition breakCondition)
 		{
-			if (Container != null)
-			{
-				ViewModelFactory factory = Container.TryResolve<ViewModelFactory>();
-				if (factory != null)
-				{
-					factory.Dispose();
-				}
-			}
-		}
-
-		void InstallBindingsByName(string groupName, string[] classNames)
-		{
-			if (classNames == null || classNames.Length == 0)
-			{
-				return;
-			}
-				
-			foreach (string className in classNames)
-			{
-				Type type = TypeFinder.ClassNameToType (className);
-				Container.Bind (type).AsSingle ();
-				++TotalBindings;
-			}
-			DebugLog.Info ("{0}: Installed {1} bindings: {2}", 
-				gameObject.name, groupName, string.Join(", ", classNames));
+			return new AsyncForEach(tasks, breakCondition);
 		}
 	}
 }
+

@@ -63,20 +63,19 @@ namespace IntelliMedia
 			viewFactories.Remove(factory);
 		}
 
-		public ViewModel ResolveViewModel(Type viewModelType)
+		public IAsyncTask ResolveViewModel(Type viewModelType)
 		{ 
 			Contract.ArgumentNotNull("viewModelType", viewModelType);
 
-			foreach(ViewModelFactory factory in viewModelFactories)
-			{
-				ViewModel vm = factory.Resolve(viewModelType);
-				if (vm != null)
+			return new AsyncTry(viewModelFactories.Select(r => r.TryResolve(viewModelType)).ForEach((result) => result != null))
+				.Then<object>((result) =>
 				{
-					return vm;
-				}
-			}
-
-			throw new Exception("Unable to resolve ViewModel: " + viewModelType.Name);
+					if (!viewModelType.IsInstanceOfType(result))
+					{
+						throw new Exception(string.Format("Unable to resolve '{0}' class", viewModelType.Name));
+					}
+					return result;
+				});
 		}
 
 		private IView ResolveViewForViewModel(Type viewModelType)
@@ -112,7 +111,10 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("toViewModelType", toViewModelType);
 
-			Transition(from, ResolveViewModel(toViewModelType));
+			ResolveViewModel(toViewModelType).Start((result) => 
+			{
+				Transition(from, (ViewModel)result);
+			});
 		}
 
 		public IAsyncTask Reveal(ViewModel vm)
@@ -141,23 +143,21 @@ namespace IntelliMedia
 
 		public IAsyncTask Reveal<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
 		{
-			TViewModel vm = ResolveViewModel(typeof(TViewModel)) as TViewModel;
-			if (vm != null && setStateAction != null)
-			{
-				setStateAction(vm);
-			}
-
-			return Reveal(vm);
-		}
-
-		public IAsyncTask Reveal(string className)
-		{
-			Contract.ArgumentNotNull("className", className);
-
-			ViewModel vm = ResolveViewModel(TypeFinder.ClassNameToType(className));
-
-			return Reveal(vm);
-		}
+			return new AsyncTry(ResolveViewModel(typeof(TViewModel)))
+				.Then<TViewModel>((vm) =>
+				{					
+					if (setStateAction != null)
+					{
+						setStateAction(vm);
+					}
+					return vm;
+				})
+				.Then<TViewModel>((vm) => Reveal(vm))
+				.Catch((e) =>
+				{
+					DebugLog.Error("Unable to reval '{0}'. {1}", typeof(TViewModel).Name, e.Message);
+				});
+		}			
 
 		public IAsyncTask Hide(ViewModel vm)
 		{
@@ -179,22 +179,6 @@ namespace IntelliMedia
 			{
 				return AsyncTask.WithResult(null);
 			}
-		}
-
-		public bool IsRevealed<TViewModel>() where TViewModel : ViewModel
-		{
-			TViewModel vm = ResolveViewModel(typeof(TViewModel)) as TViewModel;
-			IView view = revealedViews.FirstOrDefault(v => v.BindingContext == vm);
-			if (view != null && !vm.IsRevealed)
-			{
-				/*
-				throw new Exception(String.Format("Stage mismatch: '{0}' is in revealed list, but {1}.IsRevealed=false",
-				                                  view.GetType().Name,
-				                                  typeof(TViewModel).Name));
-				                                  */
-			} 
-
-			return view != null;
 		}
 	}
 }

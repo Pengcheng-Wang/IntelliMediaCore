@@ -54,6 +54,7 @@ namespace IntelliMedia
 		{
 			DebugLog.Info("ActivityLauncher: Start  '{0}' ({1})", activity.Name, activity.Uri);
 
+			ActivityState currentState = null;
 			return new AsyncTry(activityService.LoadActivityState(student.Id, activity.Id, true))
 				.Then<ActivityState>((activityState) =>
 				{
@@ -65,16 +66,20 @@ namespace IntelliMedia
 
 					activityState.RecordLaunch();
 					activityState.ModifiedDate = DateTime.Now;
+					currentState = activityState;
 
-					ActivityViewModel vm = Resolve(activity.Uri);
+					return Resolve(activity.Uri);
+				})
+				.Then<ActivityViewModel>((vm) =>
+				{
 					vm.Activity = activity;
-					vm.ActivityState = activityState;
+					vm.ActivityState = currentState;
 
 					return vm;
 				});
 		}
 			
-		public ActivityViewModel Resolve(string activityUrn)
+		public IAsyncTask Resolve(string activityUrn)
 		{
 			Contract.ArgumentNotNull("activityUrn", activityUrn);
 
@@ -90,13 +95,7 @@ namespace IntelliMedia
 				throw new Exception(String.Format("Unable to find class with type name '{0}'", viewModelTypeName));
 			}
 
-			ActivityViewModel viewModel = stageManager.ResolveViewModel(viewModelType) as ActivityViewModel;
-			if (viewModel == null)
-			{
-				throw new Exception(String.Format("Unable to resolve '{0}'. Confirm that TheatreInstaller has created binding.", viewModelTypeName));
-			}
-
-			return viewModel;
+			return stageManager.ResolveViewModel(viewModelType);
 		}
 	}
 }

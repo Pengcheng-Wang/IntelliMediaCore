@@ -49,7 +49,7 @@ namespace IntelliMedia
 			Contract.ArgumentNotNull("task", task);
 
 			tasks.Add(task);
-		}						
+		}	
 			
 		public AsyncTry Then<T>(HandlerReturnsAsync<T> taskHandler)
 		{
@@ -161,12 +161,16 @@ namespace IntelliMedia
 				
 		private void Error(Exception e)
 		{
-			if (onError != null) 
+			if (onError != null)
 			{
 				onError(e);
+				Finished();
 			}
-
-			Finished();
+			else
+			{
+				Finished();
+				throw e;
+			}					
 		}
 
 		private void Finished()

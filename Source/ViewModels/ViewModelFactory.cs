@@ -56,17 +56,41 @@ namespace IntelliMedia
 
 		#endregion
 
-		public ViewModel Resolve(Type viewModelType)
+		public IAsyncTask TryResolve<T>() where T:class
 		{
-			Contract.ArgumentNotNull("viewModelType", viewModelType);
-
-			if (!viewModelType.IsSubclassOf(typeof(ViewModel)))
+			return new AsyncTask((onCompleted, onError) =>
 			{
-				throw new Exception(string.Format("Requested type ({0}) is not derived from {1}", 
-					viewModelType.Name, typeof(ViewModel).Name));
-			}
+				onCompleted(Container.TryResolve<T>());
+			});
+		}
 
-			return Container.TryResolve(viewModelType) as ViewModel;
+		public IAsyncTask Resolve<T>() where T:class
+		{
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				onCompleted(Container.Resolve<T>());
+			});
+		}
+
+		public IAsyncTask TryResolve(Type type)
+		{
+			Contract.ArgumentNotNull("type", type);
+
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				onCompleted(Container.TryResolve(type));
+			});
+		}
+
+		public IAsyncTask Resolve(Type type)
+		{
+			Contract.ArgumentNotNull("type", type);
+
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				onCompleted(Container.Resolve(type));
+			});
 		}
 	}
 }
+ 
