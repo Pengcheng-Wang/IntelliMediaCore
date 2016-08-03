@@ -43,7 +43,7 @@ namespace IntelliMedia
 		
 		public AsyncTask LoadActivities(string courseId)
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
 				try
 				{
@@ -77,7 +77,7 @@ namespace IntelliMedia
 
 		public AsyncTask LoadActivityStates(string studentId, IEnumerable<string> activityIds)
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
 				try
 				{
@@ -111,7 +111,7 @@ namespace IntelliMedia
 
 		public AsyncTask LoadActivityState(string studentId, string activityId, bool createNewIfDoesNotExit = false)
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
 				try
 				{
@@ -179,43 +179,36 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("activityState", activityState);
 
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
-				try
+				Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+				Uri restUri = new Uri(serverUri, "rest/");
+				
+				ActivityStateRepository repo = new ActivityStateRepository(restUri);
+				if (repo == null)
 				{
-					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-					Uri restUri = new Uri(serverUri, "rest/");
-					
-					ActivityStateRepository repo = new ActivityStateRepository(restUri);
-					if (repo == null)
+					throw new Exception("ActivityStateRepository is not initialized.");
+				}
+				
+				// Load ActivityState (if it exists)
+				repo.Update(activityState, (ActivityStateRepository.Response response) =>
+				{
+					try
 					{
-						throw new Exception("ActivityStateRepository is not initialized.");
+						if (response.Success)
+						{
+							onCompleted(response.Item);
+						}
+						else
+						{
+							onError(new Exception(response.Error));							
+						}
 					}
-					
-					// Load ActivityState (if it exists)
-					repo.Update(activityState, (ActivityStateRepository.Response response) =>
+					catch (Exception e)
 					{
-						try
-						{
-							if (response.Success)
-							{
-								onCompleted(response.Item);
-							}
-							else
-							{
-								onError(new Exception(response.Error));							
-							}
-						}
-						catch (Exception e)
-						{
-							onError(e);
-						}
-					});                   
-				}
-				catch (Exception e)
-				{
-					onError(e);
-				}
+						onError(e);
+					}
+				});                   
 			});
 		}
 	}

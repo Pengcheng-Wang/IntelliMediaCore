@@ -93,63 +93,49 @@ namespace IntelliMedia
 
 		private void RefreshActivityList()
 		{
-			try
-			{
-				Username = sessionState.Student.Username;
+			Username = sessionState.Student.Username;
 
-				Contract.PropertyNotNull("sessionState.CourseSettings", sessionState.CourseSettings);
-				
-				DebugLog.Info("RefreshActivityList");
-				navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
+			Contract.PropertyNotNull("sessionState.CourseSettings", sessionState.CourseSettings);
+			
+			DebugLog.Info("RefreshActivityList");
+			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
 				{
-					ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
-                    ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Loading...");
-                    activityService.LoadActivities(sessionState.CourseSettings.CourseId)
-					.Then((prevResult, onCompleted, onError) =>
+                    busyIndicator = progressIndicatorViewModel.Begin("Loading...");
+					return activityService.LoadActivities(sessionState.CourseSettings.CourseId);
+				})
+				.Then<List<Activity>>((activities) =>
+                {
+					DebugLog.Info("Activities loaded");	
+					Activities = activities;
+					for (int index = 0; index < Activities.Count; ++index)
+					{
+						DebugLog.Info("[{0}] {1}", index, Activities[index].Name);
+					}
+					IEnumerable<string> activityIds = Activities.Select(a => a.Id);
+					return activityService.LoadActivityStates(sessionState.Student.Id, activityIds);
+                })
+				.Then<List<ActivityState>>((activityStates) =>
+                {
+					DebugLog.Info("Activity States loaded");	
+					ActivityStates = activityStates;
+                })
+                .Catch((Exception e) =>
+                {
+					DebugLog.Error("Can't load activitues: {0}", e.Message);	
+                    navigator.Reveal<AlertViewModel>(alert =>
                     {
-						DebugLog.Info("Activities loaded");	
-						Activities = prevResult.ResultAs<List<Activity>>();
-						for (int index = 0; index < Activities.Count; ++index)
-						{
-							DebugLog.Info("[{0}] {1}", index, Activities[index].Name);
-						}
-						IEnumerable<string> activityIds = Activities.Select(a => a.Id);
-						activityService.LoadActivityStates(sessionState.Student.Id, activityIds).Start(onCompleted, onError);
-                    })
-					.Then((prevResult, onCompleted, onError) =>
-                    {
-						DebugLog.Info("Activity States loaded");	
-						ActivityStates = prevResult.ResultAs<List<ActivityState>>();
-						onCompleted(true);
-                    })
-                    .Catch((Exception e) =>
-                    {
-						DebugLog.Error("Can't load activitues: {0}", e.Message);	
-                        navigator.Reveal<AlertViewModel>(alert =>
-                        {
-                             alert.Title = "Unable to load activity information.";
-                             alert.Message = e.Message;
-                             alert.Error = e;
-                             alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-						}).Start();
-
-                    }).Finally(() =>
-                    {
-                        busyIndicator.Dispose();
+                         alert.Title = "Unable to load activity information.";
+                         alert.Message = e.Message;
+                         alert.Error = e;
+                         alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
 					}).Start();
 
-					onRevealed(true);
+                }).Finally(() =>
+                {
+                    busyIndicator.Dispose();
 				}).Start();
-			}
-			catch (Exception e)
-			{
-				navigator.Reveal<AlertViewModel>(alert => 
-				{
-					alert.Title = "Unable load activity information";
-					alert.Message = e.Message;
-					alert.Error = e;
-				}).Start();
-			}
 		}
 
 		public void StartActivity(Activity activity)
@@ -193,87 +179,76 @@ namespace IntelliMedia
 
 		private void TransitionToActivity(Activity activity)
 		{
-			try
-			{
-				Contract.ArgumentNotNull("activity", activity);
-				
-				DebugLog.Info("Started Activity {0}", activity.Name);
+			Contract.ArgumentNotNull("activity", activity);
+			
+			DebugLog.Info("Started Activity {0}", activity.Name);
 
-				navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
+			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
 				{
-					ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
-                    ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Starting...");
-					new AsyncTry(activityLauncher.Start(sessionState.Student, activity, false))
-						.Then<ActivityViewModel>((activityViewModel) =>
-	                    {
-							navigator.Transition(this, activityViewModel);
-	                    })
-	                    .Catch((Exception e) =>
-	                   {
-	                       navigator.Reveal<AlertViewModel>(alert =>
-	                        {
-	                            alert.Title = "Unable to start activity";
-	                            alert.Message = e.Message;
-	                            alert.Error = e;
-	                            alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-							}).Start();
+                	busyIndicator = progressIndicatorViewModel.Begin("Starting...");
+					return activityLauncher.Start(sessionState.Student, activity, false);
+				})
+				.Then<ActivityViewModel>((activityViewModel) =>
+                {
+					navigator.Transition(this, activityViewModel);
+                })
+                .Catch((Exception e) =>
+               	{
+                   navigator.Reveal<AlertViewModel>(alert =>
+                    {
+                        alert.Title = "Unable to start activity";
+                        alert.Message = e.Message;
+                        alert.Error = e;
+                        alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
+					}).Start();
 
-	                   }).Finally(() =>
-	                   {
-	                       busyIndicator.Dispose();
-						}).Start();
-
-					onRevealed(true);
+               	}).Finally(() =>
+               	{
+					if (busyIndicator != null)
+					{
+                   		busyIndicator.Dispose();
+					}
 				}).Start();
-			}
-			catch (Exception e)
-			{
-				navigator.Reveal<AlertViewModel>(alert => 
-				                                 {
-					alert.Title = "Unable to start activity";
-					alert.Message = e.Message;
-					alert.Error = e;
-				}).Start();
-			}
 		}
 
 		public void SignOut()
 		{
 			DebugLog.Info("SignOut...");
-			navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
-			{
-				ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
-				ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
-				// TODO rgtaylor 2015-12-10 Replace hardcoded 'domain'
-				sessionService.EndSession()
-					.Then((prevResult, onCompleted, onError) =>
+			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+				{
+					busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
+					return sessionService.EndSession();
+				})
+				.Then<bool>((success) =>
+				{
+					DebugLog.Info("Session ended");
+					return authenticator.SignOut();
+				})
+				.Then<bool>((success) =>
+				{
+					DebugLog.Info("Signed out");
+					navigator.Transition(this, typeof(SignInViewModel));
+				}).Catch((Exception e) =>
+				{
+					navigator.Reveal<AlertViewModel>(alert =>
 					{
-						DebugLog.Info("Session ended");
-						authenticator.SignOut().Start(onCompleted, onError);
-					})
-					.Then((prevResult, onCompleted, onError) =>
-					{
-						DebugLog.Info("Signed out");
-						navigator.Transition(this, typeof(SignInViewModel));
-						onCompleted(true);
-					}).Catch((Exception e) =>
-					{
-						navigator.Reveal<AlertViewModel>(alert =>
-						{
-							alert.Title = "Unable to sign out";
-							alert.Message = e.Message;
-							alert.Error = e;
-							alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-						}).Start();
-
-					}).Finally(() =>
-					{
-						busyIndicator.Dispose();
+						alert.Title = "Unable to sign out";
+						alert.Message = e.Message;
+						alert.Error = e;
+						alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
 					}).Start();
 
-				onRevealed(true);
-
-			}).Start();
+				}).Finally(() =>
+				{
+					if (busyIndicator != null)
+					{
+						busyIndicator.Dispose();
+					}
+				}).Start();
 		}
 
 //        public void Settings()

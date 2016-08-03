@@ -110,33 +110,31 @@ namespace IntelliMedia
 		protected void SaveActivityStateAndTransition<ToViewModel>()
 		{												
 			DebugLog.Info("Save state");
-			navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
-			{
-				ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
-                ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Saving...");
-                activityService.SaveActivityState(ActivityState)
-					.Then((prevResult, onCompleted, onError) =>
+			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+				{
+	                busyIndicator = progressIndicatorViewModel.Begin("Saving...");
+					return activityService.SaveActivityState(ActivityState);
+				})
+				.Then<ActivityState>((activityState) => navigator.Transition(this, typeof(ToViewModel)))
+                .Catch((Exception e) =>
+                {
+                   navigator.Reveal<AlertViewModel>(alert =>
                     {
-                        navigator.Transition(this, typeof(ToViewModel));
-						onCompleted(true);
-                    })
-                    .Catch((Exception e) =>
-                    {
-                       navigator.Reveal<AlertViewModel>(alert =>
-	                    {
-	                        alert.Title = "Unable to save";
-	                        alert.Message = e.Message;
-	                        alert.Error = e;
-	                        alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-						}).Start();
-
-                    }).Finally(() =>
-                    {
-                       busyIndicator.Dispose();
+                        alert.Title = "Unable to save";
+                        alert.Message = e.Message;
+                        alert.Error = e;
+                        alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
 					}).Start();
 
-				onRevealed(true);
-			}).Start();
+                }).Finally(() =>
+                {
+					if (busyIndicator != null)
+					{
+                   		busyIndicator.Dispose();
+					}
+				}).Start();
 		}
 	}
 }

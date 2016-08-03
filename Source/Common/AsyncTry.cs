@@ -30,17 +30,16 @@ using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-	public delegate AsyncTask HandlerReturnsAsync<TResult>(TResult result);
+	public delegate IAsyncTask HandlerReturnsAsync<TResult>(TResult result);
 	public delegate object HandlerReturnsResult<TResult>(TResult result);
 	public delegate void HandlerReturnsVoid<TResult>(TResult result);
-	public delegate AsyncTask TaskHandler(object result);
+	public delegate IAsyncTask TaskHandler(object result);
 
 	public class AsyncTry : IAsyncTask
 	{		
-		private ActionHandler onAction;
 		private CompletedHandler onCompleted;
 		private ErrorHandler onError;	
-		private FinallyHandler onFinally;
+		private Action onFinally;
 		private List<IAsyncTask> tasks = new List<IAsyncTask>();
 		private List<TaskHandler> handlers = new List<TaskHandler>();
 		private int currentTaskIndex;
@@ -81,7 +80,7 @@ namespace IntelliMedia
 			});
 
 			return this;
-		}	
+		}
 
 		public AsyncTry Catch(ErrorHandler errorHandler)
 		{
@@ -92,7 +91,7 @@ namespace IntelliMedia
 			return this;
 		}
 
-		public AsyncTry Finally(FinallyHandler finallyHandler)
+		public AsyncTry Finally(Action finallyHandler)
 		{
 			Contract.ArgumentNotNull("finallyHandler", finallyHandler);
 

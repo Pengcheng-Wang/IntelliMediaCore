@@ -45,7 +45,7 @@ namespace IntelliMedia
 		
 		public AsyncTask SignIn(string domain, string username, string password)
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
 				try
 				{
@@ -80,18 +80,11 @@ namespace IntelliMedia
 		
 		public AsyncTask SignOut()
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
-				try
-				{
-					// TODO Release token
-					Token = null;
-					onCompleted(true);
-				}
-				catch (Exception e)
-				{
-					onError(e);
-				}
+				// TODO Release token
+				Token = null;
+				onCompleted(true);
 			});
 		}
 	}

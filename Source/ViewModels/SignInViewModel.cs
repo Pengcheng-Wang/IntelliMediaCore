@@ -77,52 +77,52 @@ namespace IntelliMedia
 				sessionState.Session = null;
 
 				DebugLog.Info("SignIn {0}...", username);
-				navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
-                {
-					ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
-                    ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Signing in...");
+				ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+				new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+					.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+                	{
+                    	busyIndicator = progressIndicatorViewModel.Begin("Signing in...");
+						return authenticator.SignIn(group, username, password);
+					})
+					.Then<Student>((student) =>
+                    {
+						DebugLog.Info("Signed in {0}", username);
+						sessionState.Student = student;
+						return sessionService.StartSession(sessionState.Student);
+                    })
+					.Then<Session>((session) =>
+                    {
+						DebugLog.Info("Session started");
+						sessionState.Session = session;
+						return courseSettingsService.LoadSettings(sessionState.Student.Id);
+                    })
+					.Then<CourseSettings>((settings) =>
+                    {
+						return new AsyncTask((onComplete, onError) =>
+						{
+							DebugLog.Info("Settings loaded");
+							sessionState.CourseSettings = settings;
+                        	navigator.Transition(this, typeof(MainMenuViewModel));
+							onComplete(true);
+						});
 
-					new AsyncTry(authenticator.SignIn(group, username, password))
-						.Then<Student>((student) =>
-	                    {
-							DebugLog.Info("Signed in {0}", username);
-							sessionState.Student = student;
-							return sessionService.StartSession(sessionState.Student);
-	                    })
-						.Then<Session>((session) =>
-	                    {
-							DebugLog.Info("Session started");
-							sessionState.Session = session;
-							return courseSettingsService.LoadSettings(sessionState.Student.Id);
-	                    })
-						.Then<CourseSettings>((settings) =>
-	                    {
-							return new AsyncTask((prevTask, onComplete, onError) =>
-							{
-								DebugLog.Info("Settings loaded");
-								sessionState.CourseSettings = settings;
-	                        	navigator.Transition(this, typeof(MainMenuViewModel));
-								onComplete(true);
-							});
-
-	                    }).Catch((Exception e) =>
-	                    {
-	                        navigator.Reveal<AlertViewModel>(alert =>
-	                        {
-	                            alert.Title = "Unable to sign in";
-	                            alert.Message = e.Message;
-	                            alert.Error = e;
-	                            alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-							}).Start();
-
-	                    }).Finally(() =>
-	                    {
-	                        busyIndicator.Dispose();
+                    }).Catch((Exception e) =>
+                    {
+                        navigator.Reveal<AlertViewModel>(alert =>
+                        {
+                            alert.Title = "Unable to sign in";
+                            alert.Message = e.Message;
+                            alert.Error = e;
+                            alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
 						}).Start();
 
-					onRevealed(true);
-
-				}).Start();
+                    }).Finally(() =>
+                    {
+						if (busyIndicator != null)
+						{
+                        	busyIndicator.Dispose();
+						}
+					}).Start();
 			}
 			catch (Exception e)
 			{

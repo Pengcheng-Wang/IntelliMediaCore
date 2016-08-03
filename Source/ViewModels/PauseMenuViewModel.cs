@@ -84,39 +84,39 @@ namespace IntelliMedia
 		public void SignOut()
 		{
 			DebugLog.Info("SignOut...");
-			navigator.Reveal<ProgressIndicatorViewModel>().Then((vm, onRevealed, onRevealError) =>
+			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
 				{
-					ProgressIndicatorViewModel progressIndicatorViewModel = vm.ResultAs<ProgressIndicatorViewModel>();
-					ProgressIndicatorViewModel.ProgressInfo busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
-					// TODO rgtaylor 2015-12-10 Replace hardcoded 'domain'
-					sessionService.EndSession()
-						.Then((prevResult, onCompleted, onError) =>
-							{
-								DebugLog.Info("Session ended");
-								authenticator.SignOut().Start(onCompleted, onError);
-							})
-						.Then((prevResult, onCompleted, onError) =>
-							{
-								DebugLog.Info("Signed out");
-								navigator.Transition(this, typeof(SignInViewModel));
-								onCompleted(true);
-							}).Catch((Exception e) =>
-								{
-									navigator.Reveal<AlertViewModel>(alert =>
-										{
-											alert.Title = "Unable to sign out";
-											alert.Message = e.Message;
-											alert.Error = e;
-											alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-										}).Start();
-
-								}).Finally(() =>
-									{
-										busyIndicator.Dispose();
-									}).Start();
-
-					onRevealed(true);
-
+					busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
+					return sessionService.EndSession();
+				})
+				.Then<bool>((success) =>
+				{
+					DebugLog.Info("Session ended");
+					return authenticator.SignOut();
+				})
+				.Then<bool>((success) =>
+				{
+					DebugLog.Info("Signed out");
+					navigator.Transition(this, typeof(SignInViewModel));
+				})
+				.Catch((Exception e) =>
+				{
+					navigator.Reveal<AlertViewModel>(alert =>
+					{
+						alert.Title = "Unable to sign out";
+						alert.Message = e.Message;
+						alert.Error = e;
+						alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
+					}).Start();
+				})
+				.Finally(() =>
+				{
+					if (busyIndicator != null)
+					{
+						busyIndicator.Dispose();
+					}
 				}).Start();
 		}
 

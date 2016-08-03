@@ -119,7 +119,7 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("vm", vm);
 
-			return new AsyncTask((prevResult, onCompleted, onError) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
 				try
 				{

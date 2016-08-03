@@ -44,85 +44,71 @@ namespace IntelliMedia
 
 		public AsyncTask StartSession(Student student)
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
-			{
-				try
-				{			
-					if (IsSessionStarted)
-					{
-						throw new Exception("Attempting to start session without ending previous session");
-					}
-
-					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-					Uri restUri = new Uri(serverUri, "rest/");
-
-					SessionRepository repo = new SessionRepository(restUri);
-					if (repo == null)
-					{
-						throw new Exception("SessionRepository is not initialized.");
-					}
-
-					// Get session info
-					repo.GetByKey(student.SessionGuid, (response) =>
-					{
-						if (response.Success)
-						{
-							// Update session info
-							Session session = response.Item;
-							UpdatePlatformInfo(session);
-							StartLogging(student, session);
-							repo.Update(session, (SessionRepository.Response updateResponse) =>
-							{
-								if (updateResponse.Success)
-								{
-									onCompleted(updateResponse.Item);
-								}
-								else
-								{
-									onError(new Exception(updateResponse.Error));
-								}
-							});
-						}
-						else
-						{
-							onError(new Exception(response.Error));
-						}
-					});
-				}
-				catch (Exception e)
+			return new AsyncTask((onCompleted, onError) =>
+			{		
+				if (IsSessionStarted)
 				{
-					onError(e);
+					throw new Exception("Attempting to start session without ending previous session");
 				}
+
+				Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+				Uri restUri = new Uri(serverUri, "rest/");
+
+				SessionRepository repo = new SessionRepository(restUri);
+				if (repo == null)
+				{
+					throw new Exception("SessionRepository is not initialized.");
+				}
+
+				// Get session info
+				repo.GetByKey(student.SessionGuid, (response) =>
+				{
+					if (response.Success)
+					{
+						// Update session info
+						Session session = response.Item;
+						UpdatePlatformInfo(session);
+						StartLogging(student, session);
+						repo.Update(session, (SessionRepository.Response updateResponse) =>
+						{
+							if (updateResponse.Success)
+							{
+								onCompleted(updateResponse.Item);
+							}
+							else
+							{
+								onError(new Exception(updateResponse.Error));
+							}
+						});
+					}
+					else
+					{
+						onError(new Exception(response.Error));
+					}
+				});
 			});
 		}
 
 		public AsyncTask EndSession()
 		{
-			return new AsyncTask((prevResult, onCompleted, onError) =>
-			{
-				try
-				{					
-					if (!IsSessionStarted)
-					{
-						throw new Exception("Attempting to end session that has not been started");
-					}
-
-					EndLogging((bool success, string error) =>
-					{
-						if (success)
-						{
-							onCompleted(true);
-						}
-						else
-						{
-							onError(new Exception(error));
-						}						
-					});
-				}
-				catch (Exception e)
+			return new AsyncTask((onCompleted, onError) =>
+			{					
+				if (!IsSessionStarted)
 				{
-					onError(e);
+					throw new Exception("Attempting to end session that has not been started");
 				}
+
+				EndLogging((bool success, string error) =>
+				{
+					if (success)
+					{
+						onCompleted(true);
+					}
+					else
+					{
+						onError(new Exception(error));
+					}						
+				});
 			});
 		}
 
