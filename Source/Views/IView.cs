@@ -31,7 +31,7 @@ namespace IntelliMedia
 	{
 		ViewModel BindingContext { get; set; }
 
-        void Reveal(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null);
-        void Hide(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null);
+        IAsyncTask Reveal(bool immediate = false);
+		IAsyncTask Hide(bool immediate = false);
 	}
 }

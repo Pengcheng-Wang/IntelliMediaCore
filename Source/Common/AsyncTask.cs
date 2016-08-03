@@ -33,7 +33,7 @@ namespace IntelliMedia
 	public class AsyncTask : IAsyncTask
 	{
 		public delegate void TaskHandler(CompletedHandler onCompleted, ErrorHandler onError);
-		private TaskHandler task;
+		protected TaskHandler task;
 
 		public object Result { get; private set; }
 
@@ -41,9 +41,17 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("taskHandler", taskHandler);
 			task = taskHandler;
-		}			
+		}	
 
-		public void Start(CompletedHandler completedHandler = null, ErrorHandler errorHandler = null)
+		public static AsyncTask WithResult(object result)
+		{
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				onCompleted(result);
+			});
+		}	
+
+		public virtual void Start(CompletedHandler completedHandler = null, ErrorHandler errorHandler = null)
 		{
 			try
 			{
@@ -66,7 +74,7 @@ namespace IntelliMedia
 			}	
 		}
 
-		private static void HandleError(ErrorHandler errorHandler, Exception e)
+		protected static void HandleError(ErrorHandler errorHandler, Exception e)
 		{
 			if (errorHandler != null)
 			{
@@ -76,15 +84,7 @@ namespace IntelliMedia
 			{
 				throw e;
 			}			
-		}
-
-		public static AsyncTask WithResult(object result)
-		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				onCompleted(result);
-			});
-		}	
+		}			
 	}
 }
 

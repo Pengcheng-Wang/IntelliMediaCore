@@ -38,8 +38,8 @@ namespace IntelliMedia
 {
 	public abstract class UnityView : MonoBehaviour, IView
 	{
-		public VisibilityEvent RevealedEvent = new VisibilityEvent();
-		public VisibilityEvent HiddenEvent = new VisibilityEvent();
+		public OnceEvent<IView> RevealedEvent = new OnceEvent<IView>();
+		public OnceEvent<IView> HiddenEvent = new OnceEvent<IView>();
 
 		public bool modal;
 		public bool destroyOnHide;
@@ -89,44 +89,42 @@ namespace IntelliMedia
 			ViewModelProperty.ValueChanged = null;
 		}
 
-		public void Reveal(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
+		public IAsyncTask Reveal(bool immediate = false)
 		{
 			DebugLog.Info("UnityView.Reveal: {0} (immediate={1})", this.name, immediate);
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				RevealedEvent.EventTriggered += (view) => onCompleted(view);
 
-			if (handler != null)
-			{
-				RevealedEvent.EventTriggered += handler;
-			}
-
-			OnAppearing();
-			if (immediate || BindingContext.IsRevealed)
-			{
-				OnVisible();
-			}
-			else
-			{
-				StartAnimatedReveal();
-			}
+				OnAppearing();
+				if (immediate || BindingContext.IsRevealed)
+				{
+					OnVisible();
+				}
+				else
+				{
+					StartAnimatedReveal();
+				}
+			});
 		}
 
-		public void Hide(bool immediate = false, VisibilityEvent.OnceEventHandler handler = null)
+		public IAsyncTask Hide(bool immediate = false)
 		{
 			DebugLog.Info("UnityView.Hide: {0} (immediate={1})", this.name, immediate);
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				HiddenEvent.EventTriggered += (view) => onCompleted(view);
 
-			if (handler != null)
-			{
-				HiddenEvent.EventTriggered += handler;
-			}
-
-			OnDisappearing();
-			if (immediate || !BindingContext.IsRevealed)
-			{
-				OnHidden();
-			}
-			else
-			{
-				StartAnimatedHide();
-			}
+				OnDisappearing();
+				if (immediate || !BindingContext.IsRevealed)
+				{
+					OnHidden();
+				}
+				else
+				{
+					StartAnimatedHide();
+				}
+			});
 		}
 
 		protected virtual void StartAnimatedReveal()

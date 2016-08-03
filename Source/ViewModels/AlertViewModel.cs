@@ -61,7 +61,7 @@ namespace IntelliMedia
 
 		public void ButtonPressed(int index)
 		{
-			navigator.Hide(this, (IView view) =>
+			navigator.Hide(this).Start((result) =>
 			{
 				if (AlertDismissed != null)
 				{

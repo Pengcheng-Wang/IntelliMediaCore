@@ -58,21 +58,29 @@ namespace IntelliMedia
 		{
 			if (oldValue != null)
 			{
-				oldValue.Hide(false, (view) =>
-				{
-					if (newValue != null)
+				new AsyncTry(oldValue.Hide(false))
+					.Then<IView>((view) =>
 					{
-						newValue.BindingContext = this.ViewModel;
-						newValue.Reveal(immediateSwitch);
-					}
-				});
+						if (newValue != null)
+						{
+							newValue.BindingContext = this.ViewModel;
+							newValue.Reveal(immediateSwitch);
+						}
+					})
+					.Catch((e) =>
+					{
+						DebugLog.Error("Unable to hide view. {0}", e.Message);
+					}).Start();
 			}
 			else
 			{
 				if (newValue != null)
 				{
 					newValue.BindingContext = this.ViewModel;
-					newValue.Reveal(immediateSwitch);
+					newValue.Reveal(immediateSwitch).Start(null, (e) =>
+					{
+						DebugLog.Error("Unable to reveal view. {0}", e.Message);
+					});
 				}				
 			}			
 		}

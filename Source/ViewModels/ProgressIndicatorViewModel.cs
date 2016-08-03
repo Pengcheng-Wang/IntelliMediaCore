@@ -47,14 +47,14 @@ namespace IntelliMedia
 			{
 				//if (IsRevealed || IsRevealInProgress)
 				{
-					navigator.Hide(this);
+					navigator.Hide(this).Start();
 				}
 			}
 			else
 			{
 				if (!IsRevealed && !IsRevealInProgress)
 				{
-					navigator.Reveal(this);
+					navigator.Reveal(this).Start();
 				}
 			}
 

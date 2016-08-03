@@ -50,41 +50,37 @@ namespace IntelliMedia
 
 		#region IView implementation
 
-		public void Reveal(bool immediate = false, OnceEvent<IView>.OnceEventHandler handler = null)
+		public IAsyncTask Reveal(bool immediate = false)
 		{
-			SceneService.Instance.LoadScene(SceneName, false, (bool success, string error) =>
+			return new AsyncTask((onCompleted, onError) =>
 			{
-				if (success)
+				SceneService.Instance.LoadScene(SceneName, false, (bool success, string error) =>
 				{
-					stageManager.Hide(BindingContext, (IView sceneView) =>
+					if (success)
 					{
-						stageManager.Reveal(BindingContext, (IView view) =>
-						{
-							if (handler != null)
+						new AsyncTry(stageManager.Hide(BindingContext))
+							.Then<ViewModel>((vm) => stageManager.Reveal(BindingContext))
+							.Catch((e) =>
 							{
-								handler(view);
-							}
-						}).Start();						
-					});
-				}
-				else
-				{
-					DebugLog.Error("Unable to load '{0}' scene. {1}", SceneName, error);
-				}
+								onError(new Exception(String.Format("Unable to reveal '{0}' in '{1}' scene. {2}", 
+									BindingContext.GetType().Name, SceneName, e.Message)));
+							})
+							.Start();
+					}
+					else
+					{
+						onError(new Exception(String.Format("Unable to load '{0}' scene. {1}", SceneName, error)));
+					}
+				});
 			});
-
-			if (handler != null)
-			{
-				handler(this);
-			}
 		}
 
-		public void Hide (bool immediate = false, OnceEvent<IView>.OnceEventHandler handler = null)
+		public IAsyncTask Hide (bool immediate = false)
 		{
-			if (handler != null)
+			return new AsyncTask((onCompleted, onError) =>
 			{
-				handler(this);
-			}
+				onCompleted(this);
+			});
 		}
 
 		public ViewModel BindingContext { get; set; }
