@@ -33,6 +33,7 @@ using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(SignInViewModel))]
 	public class SignInView : UnityGuiView<SignInViewModel>
 	{
 		public InputField groupField;

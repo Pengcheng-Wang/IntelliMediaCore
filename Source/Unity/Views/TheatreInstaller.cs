@@ -40,17 +40,18 @@ namespace IntelliMedia
 		public string[] models;
 		public string[] viewModels;
 
-		private ViewModelFactory ViewModelFactory { get; set; }
+		private Resolver Resolver { get; set; }
+
 		private int TotalBindings { get; set; }
 
 		public override void InstallBindings()
 		{	
+			Resolver = new Resolver(gameObject.name, Container);
+
 			InstallBindingsByName("Services", services);	
 			InstallBindingsByName("Repositories", repositories);	
 			InstallBindingsByName("Models", models);	
 			InstallBindingsByName("ViewModels", viewModels);
-
-			Container.Bind<ViewModelFactory>().FromNew().AsSingle().WithArguments(gameObject.name, Container).NonLazy();
 
 			if (TotalBindings == 0)
 			{
@@ -58,15 +59,18 @@ namespace IntelliMedia
 			}				
 		}
 
+		public override void Start()
+		{
+			base.Start();
+
+			Resolver.Register(Container.Resolve<StageManager>());
+		}
+
 		public void OnDestroy()
 		{
-			if (Container != null)
+			if (Resolver != null)
 			{
-				ViewModelFactory factory = Container.TryResolve<ViewModelFactory>();
-				if (factory != null)
-				{
-					factory.Dispose();
-				}
+				Resolver.Dispose();
 			}
 		}
 

@@ -37,6 +37,7 @@ using System.Text.RegularExpressions;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(ExampleActivityViewModel))]
 	public class ExampleActivityView : UnityGuiView<ExampleActivityViewModel>
 	{
 		public InputField dataDisplayField;

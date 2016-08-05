@@ -34,21 +34,21 @@ namespace IntelliMedia
 {
 	public class StageManager
 	{
-		private List<ViewModelFactory> viewModelFactories = new List<ViewModelFactory>();
-		private List<IViewResolver> viewFactories = new List<IViewResolver>();
+		private readonly List<IResolver> resolvers = new List<IResolver>();
+		private readonly List<IViewResolver> viewFactories = new List<IViewResolver>();
 
 		private HashSet<IView> revealedViews = new HashSet<IView>();
 
-		public void Register(ViewModelFactory factory)
+		public void Register(IResolver resolver)
 		{
-			DebugLog.Info("StageManager registered ViewModel factory: {0}", factory.Name);
-			viewModelFactories.Add(factory);
+			DebugLog.Info("StageManager registered resolver: {0}", resolver.Name);
+			resolvers.Add(resolver);
 		}
 
-		public void Unregister(ViewModelFactory factory)
+		public void Unregister(IResolver resolver)
 		{
-			DebugLog.Info("StageManager unregistered ViewModel factory: {0}", factory.Name);
-			viewModelFactories.Remove(factory);
+			DebugLog.Info("StageManager unregistered resolver: {0}", resolver.Name);
+			resolvers.Remove(resolver);
 		}
 
 		public void Register(IViewResolver factory)
@@ -63,35 +63,50 @@ namespace IntelliMedia
 			viewFactories.Remove(factory);
 		}
 
-		public IAsyncTask ResolveViewModel(Type viewModelType)
+		public IAsyncTask Resolve(Type type)
 		{ 
-			Contract.ArgumentNotNull("viewModelType", viewModelType);
+			Contract.ArgumentNotNull("type", type);
 
-			return new AsyncTry(viewModelFactories.Select(r => r.TryResolve(viewModelType)).ForEach((result) => result != null))
-				.Then<object>((result) =>
+			return new AsyncTry(resolvers.Select(r => r.TryResolve(type)).ForEach())
+				.Then<IEnumerable<IAsyncTask>>((tasks) =>
 				{
-					if (!viewModelType.IsInstanceOfType(result))
+					IAsyncTask[] array = tasks.ToArray();
+					int totalFound = tasks.Count(t => t.Result != null);
+					if (totalFound == 0)
 					{
-						throw new Exception(string.Format("Unable to resolve '{0}' class", viewModelType.Name));
+						throw new Exception(string.Format("Unable to resolve '{0}' class", type.Name));
 					}
-					return result;
+					else if (totalFound > 1)
+					{
+						throw new Exception(string.Format("Found {0} matches for '{1}' class. Expected exactly 1.", 
+							totalFound, type.Name));
+					}
+
+					return tasks.FirstOrDefault(t => t.Result != null).Result;
 				});
 		}
 
-		private IView ResolveViewForViewModel(Type viewModelType)
+		private IAsyncTask ResolveViewType(ViewModel vm)
 		{ 
-			Contract.ArgumentNotNull("viewModelType", viewModelType);
+			Contract.ArgumentNotNull("viewModelType", vm);
 
-			foreach(IViewResolver factory in viewFactories)
-			{
-				IView view = factory.Resolve(viewModelType);
-				if (view != null)
+			return new AsyncTry(resolvers.Select(r => r.ResolveViewFor(vm)).ForEach())
+				.Then<IEnumerable<IAsyncTask>>((tasks) =>
 				{
-					return view;
-				}
-			}
+					IAsyncTask[] array = tasks.ToArray();
+					int totalFound = tasks.Count(t => t.Result != null);
+					if (totalFound == 0)
+					{
+						throw new Exception(string.Format("Unable to resolve view for '{0}'", vm.GetType().Name));
+					}
+					else if (totalFound > 1)
+					{
+						throw new Exception(string.Format("Found {0} views for '{1}' class. Expected exactly 1.", 
+							totalFound, vm.GetType().Name));
+					}
 
-			throw new Exception("Unable to resolve View for: " + viewModelType.Name);
+					return tasks.FirstOrDefault(t => t.Result != null).Result;
+				});
 		}
 
 		public void Transition(ViewModel from, ViewModel to)
@@ -111,7 +126,7 @@ namespace IntelliMedia
 		{
 			Contract.ArgumentNotNull("toViewModelType", toViewModelType);
 
-			ResolveViewModel(toViewModelType).Start((result) => 
+			Resolve(toViewModelType).Start((result) => 
 			{
 				Transition(from, (ViewModel)result);
 			});
@@ -123,39 +138,43 @@ namespace IntelliMedia
 
 			DebugLog.Info("StageManager.Reveal: {0}", vm.GetType().Name);
 
-			IView view = revealedViews.FirstOrDefault(v => v.BindingContext == vm);
-			if (view == null)
+			IView revealedView = revealedViews.FirstOrDefault(v => v.BindingContext == vm);
+			if (revealedView == null)
 			{
-				view = ResolveViewForViewModel(vm.GetType());
-				view.BindingContext = vm;
-				return new AsyncTry(view.Reveal(true))
-					.Then<IView>((revealedView) =>
+				return new AsyncTry(ResolveViewType(vm))
+					.Then<Type>((viewType) => Resolve(viewType))
+					.Then<IView>((view) =>
+					{
+						view.BindingContext = vm;
+						view.HiddenEvent.EventTriggered += OnViewHidden;
+						return view.Reveal(true);
+					})						
+					.Then<IView>((view) =>
 	                {
-						revealedViews.Add(revealedView);
-						return revealedView.BindingContext;
+						revealedViews.Add(view);
+						return view.BindingContext;
 	                });
             }
 			else
 			{
-				return AsyncTask.WithResult(view.BindingContext);
+				return AsyncTask.WithResult(revealedView.BindingContext);
 			}		
 		}
 
 		public IAsyncTask Reveal<TViewModel>(Action<TViewModel> setStateAction = null) where TViewModel : ViewModel
 		{
-			return new AsyncTry(ResolveViewModel(typeof(TViewModel)))
+			return new AsyncTry(Resolve(typeof(TViewModel)))
 				.Then<TViewModel>((vm) =>
 				{					
 					if (setStateAction != null)
 					{
 						setStateAction(vm);
 					}
-					return vm;
+					return Reveal(vm);
 				})
-				.Then<TViewModel>((vm) => Reveal(vm))
 				.Catch((e) =>
 				{
-					DebugLog.Error("Unable to reval '{0}'. {1}", typeof(TViewModel).Name, e.Message);
+					DebugLog.Error("Unable to reveal '{0}'. {1}", typeof(TViewModel).Name, e.Message);
 				});
 		}			
 
@@ -178,6 +197,14 @@ namespace IntelliMedia
 			else
 			{
 				return AsyncTask.WithResult(null);
+			}
+		}
+
+		private void OnViewHidden(IView view)
+		{
+			if (revealedViews.Contains(view))
+			{
+				revealedViews.Remove(view);
 			}
 		}
 	}

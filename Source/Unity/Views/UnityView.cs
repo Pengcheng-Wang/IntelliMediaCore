@@ -38,11 +38,14 @@ namespace IntelliMedia
 {
 	public abstract class UnityView : MonoBehaviour, IView
 	{
-		public OnceEvent<IView> RevealedEvent = new OnceEvent<IView>();
-		public OnceEvent<IView> HiddenEvent = new OnceEvent<IView>();
+		private OnceEvent<IView> revealedEvent = new OnceEvent<IView>();
+		public OnceEvent<IView> RevealedEvent { get { return revealedEvent; }}
+		private OnceEvent<IView> hiddenEvent = new OnceEvent<IView>();
+		public OnceEvent<IView> HiddenEvent { get { return hiddenEvent; }}
 
 		public bool modal;
 		public bool destroyOnHide;
+		public bool dontdestroyOnLoad;
 
 		private bool IsInitialized { get; set; }
 
@@ -78,12 +81,20 @@ namespace IntelliMedia
 			ViewModelProperty.ValueChanged += OnBindingContextChanged;
 		}	
 
+		public virtual void Awake()
+		{
+			if (dontdestroyOnLoad)
+			{
+				GameObject.DontDestroyOnLoad(transform.gameObject);
+			}
+		}
+
 		public virtual void OnDestroy()
 		{
 			DebugLog.Info("UnityView.OnDestroy: view='{0}'", this.name);
 			if (BindingContext.IsRevealed)
 			{
-				Hide(true);
+				OnHidden();
 			}
 			BindingContext = null;
 			ViewModelProperty.ValueChanged = null;

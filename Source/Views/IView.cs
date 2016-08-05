@@ -30,6 +30,8 @@ namespace IntelliMedia
 	public interface IView
 	{
 		ViewModel BindingContext { get; set; }
+		OnceEvent<IView> RevealedEvent { get; }
+		OnceEvent<IView> HiddenEvent { get; }
 
         IAsyncTask Reveal(bool immediate = false);
 		IAsyncTask Hide(bool immediate = false);

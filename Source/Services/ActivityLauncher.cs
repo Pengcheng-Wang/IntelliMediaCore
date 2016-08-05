@@ -95,7 +95,7 @@ namespace IntelliMedia
 				throw new Exception(String.Format("Unable to find class with type name '{0}'", viewModelTypeName));
 			}
 
-			return stageManager.ResolveViewModel(viewModelType);
+			return stageManager.Resolve(viewModelType);
 		}
 	}
 }

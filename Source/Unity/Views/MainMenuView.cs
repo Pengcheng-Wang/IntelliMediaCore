@@ -35,6 +35,7 @@ using System.Linq;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(MainMenuViewModel))]
 	public class MainMenuView : UnityGuiView<MainMenuViewModel>
 	{
 		public Text usernameLabel;

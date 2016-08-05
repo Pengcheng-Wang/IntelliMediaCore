@@ -34,7 +34,7 @@ namespace IntelliMedia
 	public interface IViewResolver
 	{
 		string Name { get; }
-		IView Resolve(Type viewModelType, string[] capabilities = null);
+		Type Resolve(Type viewModelType, string[] capabilities = null);
 	}
 }
 

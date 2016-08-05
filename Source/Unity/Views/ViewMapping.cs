@@ -36,16 +36,19 @@ using UnityEngine;
 
 namespace IntelliMedia
 {
-	public class TheatreViewRouter : MonoBehaviour, IViewResolver
+	public class ViewMapping : MonoBehaviour, IViewResolver
 	{
+		private readonly Dictionary<Type, Info> viewMap = new Dictionary<Type, Info>();
+
 		[Serializable]
-		public class ViewInfo
+		public class Info
 		{
 			public string viewModelTypeName;
-			public string sceneName;
+			public string viewTypeName;
+			public Type viewType;
 			public string[] viewCapabilities;
 		}
-		public ViewInfo[] routes;
+		public Info[] views;
 
 		private StageManager stageManager;
 
@@ -53,6 +56,25 @@ namespace IntelliMedia
 		public void Initialize(StageManager stageManager)
 		{
 			this.stageManager = stageManager;
+
+			foreach (Info info in views)
+			{
+				try
+				{
+					Type viewModelType = TypeFinder.ClassNameToType(info.viewModelTypeName);
+					viewMap[viewModelType] = info;
+					viewMap[viewModelType].viewType = TypeFinder.ClassNameToType(info.viewTypeName);
+				}
+				catch(Exception e)
+				{
+					DebugLog.Error("{0}: {1}", gameObject.name, e.Message);
+				}
+			}
+
+			if (viewMap.Keys.Count == 0)
+			{
+				DebugLog.Warning("{0}: Zero views defined. Remove this component if not used.", gameObject.name);
+			}
 		}
 
 		public void Start()
@@ -69,24 +91,25 @@ namespace IntelliMedia
 
 		public string Name { get { return gameObject.name; }}
 
-		public IView Resolve(Type viewModelType, string[] capabilities = null)
+		public Type Resolve(Type viewModelType, string[] capabilities = null)
 		{
+			if (!viewMap.ContainsKey(viewModelType))
+			{
+//				if (throwOnError)
+//				{
+//					throw new Exception(string.Format("{0}: Unable to find view for '{1}'.",
+//						Name, viewModelType.Name));
+//				}
+//				else
+				{
+					return null;
+				}
+			}
 
-				ViewInfo viewInfo = routes.FirstOrDefault(v => String.Compare(v.viewModelTypeName, viewModelType.Name) == 0
-					&& ViewDescriptorAttribute.HasCapabilities(capabilities, v.viewCapabilities));
-				if (viewInfo != null)
-				{
-					UnityProxyView proxyView = new UnityProxyView(stageManager);
-					proxyView.SceneName = viewInfo.sceneName;
-					proxyView.Capabilities = viewInfo.viewCapabilities;
-					return proxyView;
-				}
-				else
-				{
-				return null;
-				}
+			return viewMap[viewModelType].viewType;
 		}
 
-		#endregion			
+		#endregion
 	}
 }
+

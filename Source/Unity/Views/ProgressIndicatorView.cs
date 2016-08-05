@@ -34,6 +34,7 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(ProgressIndicatorViewModel))]
 	public class ProgressIndicatorView : UnityGuiView<ProgressIndicatorViewModel>
 	{
 		public Text message;

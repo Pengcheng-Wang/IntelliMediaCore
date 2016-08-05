@@ -25,70 +25,21 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using Zenject;
 using System.Collections.Generic;
+using Zenject;
 using System;
-using IntelliMedia;
-using UnityEngine.EventSystems;
 
 namespace IntelliMedia
-{	
-	public class UnityProxyView : IView
+{
+	public interface IResolver
 	{
-		private StageManager stageManager;
-		public string SceneName { get; set; }
-		public string[] Capabilities { get; set; }
-
-		public UnityProxyView(StageManager stageManager)
-		{
-			Contract.ArgumentNotNull("stageManager", stageManager);
-			this.stageManager = stageManager;
-		}
-
-		#region IView implementation
-
-		public IAsyncTask Reveal(bool immediate = false)
-		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				SceneService.Instance.LoadScene(SceneName, false, (bool success, string error) =>
-				{
-					if (success)
-					{
-						new AsyncTry(stageManager.Hide(BindingContext))
-							.Then<ViewModel>((vm) => stageManager.Reveal(BindingContext))
-							.Catch((e) =>
-							{
-								onError(new Exception(String.Format("Unable to reveal '{0}' in '{1}' scene. {2}", 
-									BindingContext.GetType().Name, SceneName, e.Message)));
-							})
-							.Start();
-					}
-					else
-					{
-						onError(new Exception(String.Format("Unable to load '{0}' scene. {1}", SceneName, error)));
-					}
-				});
-			});
-		}
-
-		public IAsyncTask Hide (bool immediate = false)
-		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				onCompleted(this);
-			});
-		}
-
-		public ViewModel BindingContext { get; set; }
-
-		#endregion
-
-		public class Factory : Factory<UnityProxyView>
-		{
-		}
+		string Name { get; }
+		IAsyncTask TryResolve<T>() where T:class;
+		IAsyncTask Resolve<T>() where T:class;
+		IAsyncTask TryResolve(Type type);
+		IAsyncTask Resolve(Type type);
+		IAsyncTask TryResolveViewFor(ViewModel vm, string[] capabilities = null);
+		IAsyncTask ResolveViewFor(ViewModel vm, string[] capabilities = null);
 	}
 }
+ 

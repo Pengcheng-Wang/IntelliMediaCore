@@ -40,6 +40,7 @@ using System.IO;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(VideoPlayerViewModel))]
 	public class VideoPlayerView : UnityGuiView<VideoPlayerViewModel>
 	{
 		public const int VideoPrevNextCacheSize = 1;

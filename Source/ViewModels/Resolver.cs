@@ -31,20 +31,31 @@ using System;
 
 namespace IntelliMedia
 {
-	public class ViewModelFactory : IDisposable
+	public class Resolver : IResolver, IDisposable
 	{
 		public string Name { get; private set; }
 
-		private readonly StageManager StageManager;
+		private StageManager StageManager;
 		private readonly DiContainer Container;
 
-		public ViewModelFactory(string name, DiContainer container, StageManager stageManager)
+		class TheatreInfo
+		{
+			public Type viewModelType;
+		}
+		private readonly Dictionary<Type, TheatreInfo> TypeMap = new Dictionary<Type, TheatreInfo>();
+
+		public Resolver(string name, DiContainer container)
 		{
 			this.Name = name;
-			this.Container = container;
+			this.Container = container;	
+		}
+
+		[Inject]
+		public void Register(StageManager stageManager)
+		{
 			this.StageManager = stageManager;
 
-			StageManager.Register(this);	
+			StageManager.Register(this);
 		}
 
 		#region IDisposable implementation
@@ -56,39 +67,83 @@ namespace IntelliMedia
 
 		#endregion
 
-		public IAsyncTask TryResolve<T>() where T:class
+		public IAsyncTask TryResolve<T>() where T : class
 		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				onCompleted(Container.TryResolve<T>());
-			});
+			return Resolve(typeof(T), false);
 		}
 
-		public IAsyncTask Resolve<T>() where T:class
+		public IAsyncTask Resolve<T>() where T : class
 		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				onCompleted(Container.Resolve<T>());
-			});
+			return Resolve(typeof(T), true);
 		}
 
 		public IAsyncTask TryResolve(Type type)
 		{
-			Contract.ArgumentNotNull("type", type);
-
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				onCompleted(Container.TryResolve(type));
-			});
+			return Resolve(type, false);
 		}
 
 		public IAsyncTask Resolve(Type type)
 		{
-			Contract.ArgumentNotNull("type", type);
+			return Resolve(type, true);
+		}
 
+		public IAsyncTask TryResolveViewFor(ViewModel vm, string[] capabilities = null)
+		{
+			return ResolveViewFor( vm.GetType(), capabilities, false);
+		}
+
+		public IAsyncTask ResolveViewFor(ViewModel vm, string[] capabilities = null)
+		{
+			return ResolveViewFor( vm.GetType(), capabilities, true);
+		}
+
+		private IAsyncTask ResolveViewFor(Type vmType, string[] capabilities, bool throwOnError)
+		{
+			return new AsyncTask((onCompleted, onError) =>
+			{			
+				Type viewType = null;
+				ViewDescriptorAttribute attribute = null;
+				foreach(Type iviewType in Container.ResolveTypeAll(typeof(IView)))
+				{
+					DebugLog.Info("IView: {0}", iviewType.Name);
+					attribute = ViewDescriptorAttribute.FindOn(iviewType);
+					if (attribute != null && attribute.ViewModelType == vmType)
+					{
+						viewType = iviewType;
+						break;
+					}
+				}
+
+				if (viewType == null && throwOnError)
+				{
+					throw new Exception(string.Format("Unable to find IView with ViewDescriptorAttribute.ViewModelType = '{0}'",
+						vmType.Name));
+				}
+
+				onCompleted(viewType);
+			});
+		}
+
+		private IAsyncTask Resolve(Type type, bool throwOnError)
+		{
 			return new AsyncTask((onCompleted, onError) =>
 			{
-				onCompleted(Container.Resolve(type));
+				object obj = null;
+				if (throwOnError)
+				{					
+					obj = Container.Resolve(type);
+				}
+				else
+				{
+					obj = Container.TryResolve(type);
+				}
+
+				if (obj != null)
+				{
+					DebugLog.Info("{0}: Resolved '{1}'", Name, type.Name);					
+				}
+					
+				onCompleted(obj);
 			});
 		}
 	}

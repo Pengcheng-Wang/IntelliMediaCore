@@ -33,6 +33,7 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(LoadingViewModel))]
 	public class LoadingView : UnityGuiView<LoadingViewModel>
 	{
 		public Text message;

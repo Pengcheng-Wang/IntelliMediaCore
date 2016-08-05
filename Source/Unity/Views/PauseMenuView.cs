@@ -35,21 +35,22 @@ using System.Linq;
 
 namespace IntelliMedia
 {
+	[ViewDescriptor(typeof(PauseMenuViewModel))]
 	public class PauseMenuView : UnityGuiView<PauseMenuViewModel>
 	{
 		public void SaveAndExit()
 		{
-			ViewModel.SignOut();
+			//ViewModel.SignOut();
 		}
 
 		public void Resume()
 		{
-			ViewModel.Resume();
+			//ViewModel.Resume();
 		}
 
 		public void Settings()
 		{
-			ViewModel.Settings();
+			//ViewModel.Settings();
 		}
 
 	}

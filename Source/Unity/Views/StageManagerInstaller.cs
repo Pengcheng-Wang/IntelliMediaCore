@@ -47,6 +47,7 @@ namespace IntelliMedia
 		{
 			//Container.BindFactory<UnityProxyView, UnityProxyView.Factory>();
 			Container.Bind<StageManager>().AsSingle();
+			Container.Bind<SessionState>().AsSingle();
 		}					
 	}
 }

@@ -33,101 +33,101 @@ namespace IntelliMedia
 {
 	public class PauseMenuViewModel : ViewModel
 	{
-		private StageManager navigator;
-		private SessionState sessionState;
-		private AuthenticationService authenticator;
-		private SessionService sessionService;
-		private ActivityService activityService;
-		private ActivityLauncher activityLauncher;
-		private EyeTrackingService eyeTrackingService;
-
-		public readonly BindableProperty<string> UsernameProperty = new BindableProperty<string>();	
-		public string Username 
-		{ 
-			get { return UsernameProperty.Value; }
-			set { UsernameProperty.Value = value; }
-		}
-
-		public readonly BindableProperty<List<Activity>> ActivitiesProperty = new BindableProperty<List<Activity>>();	
-		public List<Activity> Activities 
-		{ 
-			get { return ActivitiesProperty.Value; }
-			set { ActivitiesProperty.Value = value; }
-		}
-
-		public readonly BindableProperty<List<ActivityState>> ActivityStatesProperty = new BindableProperty<List<ActivityState>>();	
-		public List<ActivityState> ActivityStates 
-		{ 
-			get { return ActivityStatesProperty.Value; }
-			set { ActivityStatesProperty.Value = value; }
-		}
-
-		public PauseMenuViewModel(
-			StageManager navigator, 
-			SessionState sessionState,
-			AuthenticationService authenticator, 
-			SessionService sessionService,
-			ActivityService activityService,
-			ActivityLauncher activityLauncher,
-			[Zenject.InjectOptional] EyeTrackingService eyeTrackingService)
-		{
-			this.navigator = navigator;
-			this.sessionState = sessionState;
-			this.authenticator = authenticator;
-			this.sessionService = sessionService;
-			this.activityService = activityService;
-			this.activityLauncher = activityLauncher;
-			this.eyeTrackingService = eyeTrackingService;
-		}
-
-
-		public void SignOut()
-		{
-			DebugLog.Info("SignOut...");
-			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
-				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
-				{
-					busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
-					return sessionService.EndSession();
-				})
-				.Then<bool>((success) =>
-				{
-					DebugLog.Info("Session ended");
-					return authenticator.SignOut();
-				})
-				.Then<bool>((success) =>
-				{
-					DebugLog.Info("Signed out");
-					navigator.Transition(this, typeof(SignInViewModel));
-				})
-				.Catch((Exception e) =>
-				{
-					navigator.Reveal<AlertViewModel>(alert =>
-					{
-						alert.Title = "Unable to sign out";
-						alert.Message = e.Message;
-						alert.Error = e;
-						alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
-					}).Start();
-				})
-				.Finally(() =>
-				{
-					if (busyIndicator != null)
-					{
-						busyIndicator.Dispose();
-					}
-				}).Start();
-		}
-
-		public void Settings()
-		{            
-			navigator.Transition(this, typeof(SettingsViewModel));
-		}
-
-		public void Resume()
-		{ 
-			navigator.Transition(this, typeof(HudViewModel));
-		}
+//		private StageManager navigator;
+//		private SessionState sessionState;
+//		private AuthenticationService authenticator;
+//		private SessionService sessionService;
+//		private ActivityService activityService;
+//		private ActivityLauncher activityLauncher;
+//		private EyeTrackingService eyeTrackingService;
+//
+//		public readonly BindableProperty<string> UsernameProperty = new BindableProperty<string>();	
+//		public string Username 
+//		{ 
+//			get { return UsernameProperty.Value; }
+//			set { UsernameProperty.Value = value; }
+//		}
+//
+//		public readonly BindableProperty<List<Activity>> ActivitiesProperty = new BindableProperty<List<Activity>>();	
+//		public List<Activity> Activities 
+//		{ 
+//			get { return ActivitiesProperty.Value; }
+//			set { ActivitiesProperty.Value = value; }
+//		}
+//
+//		public readonly BindableProperty<List<ActivityState>> ActivityStatesProperty = new BindableProperty<List<ActivityState>>();	
+//		public List<ActivityState> ActivityStates 
+//		{ 
+//			get { return ActivityStatesProperty.Value; }
+//			set { ActivityStatesProperty.Value = value; }
+//		}
+//
+//		public PauseMenuViewModel(
+//			StageManager navigator, 
+//			SessionState sessionState,
+//			AuthenticationService authenticator, 
+//			SessionService sessionService,
+//			ActivityService activityService,
+//			ActivityLauncher activityLauncher,
+//			[Zenject.InjectOptional] EyeTrackingService eyeTrackingService)
+//		{
+//			this.navigator = navigator;
+//			this.sessionState = sessionState;
+//			this.authenticator = authenticator;
+//			this.sessionService = sessionService;
+//			this.activityService = activityService;
+//			this.activityLauncher = activityLauncher;
+//			this.eyeTrackingService = eyeTrackingService;
+//		}
+//
+//
+//		public void SignOut()
+//		{
+//			DebugLog.Info("SignOut...");
+//			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+//			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+//				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+//				{
+//					busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
+//					return sessionService.EndSession();
+//				})
+//				.Then<bool>((success) =>
+//				{
+//					DebugLog.Info("Session ended");
+//					return authenticator.SignOut();
+//				})
+//				.Then<bool>((success) =>
+//				{
+//					DebugLog.Info("Signed out");
+//					navigator.Transition(this, typeof(SignInViewModel));
+//				})
+//				.Catch((Exception e) =>
+//				{
+//					navigator.Reveal<AlertViewModel>(alert =>
+//					{
+//						alert.Title = "Unable to sign out";
+//						alert.Message = e.Message;
+//						alert.Error = e;
+//						alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
+//					}).Start();
+//				})
+//				.Finally(() =>
+//				{
+//					if (busyIndicator != null)
+//					{
+//						busyIndicator.Dispose();
+//					}
+//				}).Start();
+//		}
+//
+//		public void Settings()
+//		{            
+//			navigator.Transition(this, typeof(SettingsViewModel));
+//		}
+//
+//		public void Resume()
+//		{ 
+//			navigator.Transition(this, typeof(HudViewModel));
+//		}
 	}
 }

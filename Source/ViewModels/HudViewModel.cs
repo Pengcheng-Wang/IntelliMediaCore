@@ -33,58 +33,58 @@ namespace IntelliMedia
 {
 	public class HudViewModel : ViewModel
 	{
-		private StageManager navigator;
-		private SessionState sessionState;
-		private AuthenticationService authenticator;
-		private SessionService sessionService;
-		private ActivityService activityService;
-		private ActivityLauncher activityLauncher;
-		private EyeTrackingService eyeTrackingService;
-
-		public readonly BindableProperty<string> UsernameProperty = new BindableProperty<string>();	
-		public string Username 
-		{ 
-			get { return UsernameProperty.Value; }
-			set { UsernameProperty.Value = value; }
-		}
-
-		public readonly BindableProperty<List<Activity>> ActivitiesProperty = new BindableProperty<List<Activity>>();	
-		public List<Activity> Activities 
-		{ 
-			get { return ActivitiesProperty.Value; }
-			set { ActivitiesProperty.Value = value; }
-		}
-
-		public readonly BindableProperty<List<ActivityState>> ActivityStatesProperty = new BindableProperty<List<ActivityState>>();	
-		public List<ActivityState> ActivityStates 
-		{ 
-			get { return ActivityStatesProperty.Value; }
-			set { ActivityStatesProperty.Value = value; }
-		}
-
-		public HudViewModel(
-			StageManager navigator, 
-			SessionState sessionState,
-			AuthenticationService authenticator, 
-			SessionService sessionService,
-			ActivityService activityService,
-			ActivityLauncher activityLauncher,
-			[Zenject.InjectOptional] EyeTrackingService eyeTrackingService)
-		{
-			this.navigator = navigator;
-			this.sessionState = sessionState;
-			this.authenticator = authenticator;
-			this.sessionService = sessionService;
-			this.activityService = activityService;
-			this.activityLauncher = activityLauncher;
-			this.eyeTrackingService = eyeTrackingService;
-		}
-
-
-		public void PauseMenu()
-		{            
-			navigator.Transition(this, typeof(PauseMenuViewModel));
-		}
+//		private StageManager navigator;
+//		private SessionState sessionState;
+//		private AuthenticationService authenticator;
+//		private SessionService sessionService;
+//		private ActivityService activityService;
+//		private ActivityLauncher activityLauncher;
+//		private EyeTrackingService eyeTrackingService;
+//
+//		public readonly BindableProperty<string> UsernameProperty = new BindableProperty<string>();	
+//		public string Username 
+//		{ 
+//			get { return UsernameProperty.Value; }
+//			set { UsernameProperty.Value = value; }
+//		}
+//
+//		public readonly BindableProperty<List<Activity>> ActivitiesProperty = new BindableProperty<List<Activity>>();	
+//		public List<Activity> Activities 
+//		{ 
+//			get { return ActivitiesProperty.Value; }
+//			set { ActivitiesProperty.Value = value; }
+//		}
+//
+//		public readonly BindableProperty<List<ActivityState>> ActivityStatesProperty = new BindableProperty<List<ActivityState>>();	
+//		public List<ActivityState> ActivityStates 
+//		{ 
+//			get { return ActivityStatesProperty.Value; }
+//			set { ActivityStatesProperty.Value = value; }
+//		}
+//
+//		public HudViewModel(
+//			StageManager navigator, 
+//			SessionState sessionState,
+//			AuthenticationService authenticator, 
+//			SessionService sessionService,
+//			ActivityService activityService,
+//			ActivityLauncher activityLauncher,
+//			[Zenject.InjectOptional] EyeTrackingService eyeTrackingService)
+//		{
+//			this.navigator = navigator;
+//			this.sessionState = sessionState;
+//			this.authenticator = authenticator;
+//			this.sessionService = sessionService;
+//			this.activityService = activityService;
+//			this.activityLauncher = activityLauncher;
+//			this.eyeTrackingService = eyeTrackingService;
+//		}
+//
+//
+//		public void PauseMenu()
+//		{            
+//			navigator.Transition(this, typeof(PauseMenuViewModel));
+//		}
 			
 	}
 }

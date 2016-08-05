@@ -26,6 +26,7 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace IntelliMedia
@@ -36,16 +37,15 @@ namespace IntelliMedia
 	{
 		private CompletedHandler onCompleted;
 		private ErrorHandler onError;
-		private IEnumerable<IAsyncTask> tasks;
+		private List<IAsyncTask> tasks;
 		private IEnumerator<IAsyncTask> taskEnumerator;
 		private AsyncResultCondition breakCondition;
 
-		public AsyncForEach(IEnumerable<IAsyncTask> tasks, AsyncResultCondition breakCondition)
+		public AsyncForEach(IEnumerable<IAsyncTask> tasks, AsyncResultCondition breakCondition = null)
 		{
 			Contract.ArgumentNotNull("tasks", tasks);
-			Contract.ArgumentNotNull("breakCondition", breakCondition);
 
-			this.tasks = tasks;
+			this.tasks = tasks.ToList();
 			this.breakCondition = breakCondition;
 		}				
 
@@ -73,7 +73,7 @@ namespace IntelliMedia
 					{
 						taskEnumerator.Current.Start((result) =>
 						{
-							if (breakCondition(result))
+							if (breakCondition != null && breakCondition(result))
 							{
 								Completed(result);
 								return;

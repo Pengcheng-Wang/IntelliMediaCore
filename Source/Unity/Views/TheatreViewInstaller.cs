@@ -53,17 +53,26 @@ namespace IntelliMedia
 			InstallViewPrefabBindings();
 			InstallViewBindings();
 
-			Container.Bind<ViewFactory>().FromNew().WithArguments(gameObject.name, Container, modelToView).NonLazy();
+			//Container.Bind<Resolver>().FromNew().AsSingle().WithArguments(gameObject.name, Container).NonLazy();
+			//Container.Bind<ViewFactory>().FromNew().WithArguments(gameObject.name, modelToView).NonLazy();
 
 			if (TotalBindings == 0)
 			{
 				DebugLog.Warning("{0} doesn't specify any classes for binding.", this.gameObject.name);
 			}	
 		}			
+			
 
 		public void OnDestroy()
 		{
-			Container.Resolve<ViewFactory>().Dispose();
+			if (Container != null)
+			{
+				ViewFactory resolver = Container.Resolve<ViewFactory>();
+				if (resolver != null)
+				{
+					resolver.Dispose();
+				}
+			}			
 		}
 
 		void InstallViewBindings()
@@ -71,7 +80,7 @@ namespace IntelliMedia
 			StringBuilder views = new StringBuilder();
 			foreach(UnityView view in this.transform.GetComponentsInChildren<UnityView>(true))
 			{
-				Container.Bind(view.GetType()).FromInstance(view).AsSingle();
+				Container.Bind(typeof(IView), view.GetType()).To(view.GetType()).FromInstance(view).AsSingle();
 				++TotalBindings;
 				modelToView[view.ViewModelType] = view.GetType();
 				views.AppendFormat("{0}, ", view.name);
@@ -98,7 +107,7 @@ namespace IntelliMedia
 					vvm.prefab.gameObject.SetActive(false);
 				}
 					
-				Container.Bind(viewType).FromPrefab(vvm.prefab.gameObject).UnderGameObjectGroup(gameObject.name).AsSingle();
+				Container.Bind(typeof(IView), viewType).To(viewType).FromPrefab(vvm.prefab.gameObject).UnderGameObjectGroup(gameObject.name).AsSingle();
 				++TotalBindings;
 				modelToView[vvm.prefab.ViewModelType] = vvm.prefab.GetType();
 				prefabs.AppendFormat("{0}, ", viewType.Name);

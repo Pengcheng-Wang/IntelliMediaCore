@@ -56,6 +56,23 @@ namespace IntelliMedia
 
 			return !required.Except(viewCapabilities).Any();
 		}
+
+		public static ViewDescriptorAttribute FindOn(Type type)
+		{
+			object[] attributes = type.GetCustomAttributes(typeof(ViewDescriptorAttribute), true);
+			if (attributes == null || attributes.Length == 0)
+			{
+				return null;
+			}
+
+			if (attributes.Length > 1)
+			{
+				throw new Exception(string.Format("Multiple {0} attached to '{1}'",
+					typeof(ViewDescriptorAttribute), type.Name));
+			}
+
+			return attributes[0] as ViewDescriptorAttribute;
+		}
 	}
 }
 

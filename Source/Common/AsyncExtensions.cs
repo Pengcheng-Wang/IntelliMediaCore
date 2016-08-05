@@ -32,7 +32,7 @@ namespace IntelliMedia
 {
 	public static class AsyncExtensions
 	{
-		public static IAsyncTask ForEach(this IEnumerable<IAsyncTask> tasks, AsyncResultCondition breakCondition)
+		public static IAsyncTask ForEach(this IEnumerable<IAsyncTask> tasks, AsyncResultCondition breakCondition = null)
 		{
 			return new AsyncForEach(tasks, breakCondition);
 		}
