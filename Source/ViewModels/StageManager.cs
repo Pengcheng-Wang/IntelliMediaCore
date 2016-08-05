@@ -35,7 +35,6 @@ namespace IntelliMedia
 	public class StageManager
 	{
 		private readonly List<IResolver> resolvers = new List<IResolver>();
-		private readonly List<IViewResolver> viewFactories = new List<IViewResolver>();
 
 		private HashSet<IView> revealedViews = new HashSet<IView>();
 
@@ -49,19 +48,7 @@ namespace IntelliMedia
 		{
 			DebugLog.Info("StageManager unregistered resolver: {0}", resolver.Name);
 			resolvers.Remove(resolver);
-		}
-
-		public void Register(IViewResolver factory)
-		{
-			DebugLog.Info("StageManager registered View factory: {0}", factory.Name);
-			viewFactories.Add(factory);
-		}
-
-		public void Unregister(IViewResolver factory)
-		{
-			DebugLog.Info("StageManager unregistered View factory: {0}", factory.Name);
-			viewFactories.Remove(factory);
-		}
+		}			
 
 		public IAsyncTask Resolve(Type type)
 		{ 
@@ -90,7 +77,7 @@ namespace IntelliMedia
 		{ 
 			Contract.ArgumentNotNull("viewModelType", vm);
 
-			return new AsyncTry(resolvers.Select(r => r.ResolveViewFor(vm)).ForEach())
+			return new AsyncTry(resolvers.Select(r => r.TryResolveViewFor(vm)).ForEach())
 				.Then<IEnumerable<IAsyncTask>>((tasks) =>
 				{
 					IAsyncTask[] array = tasks.ToArray();

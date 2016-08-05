@@ -33,21 +33,15 @@ using System.Reflection;
 
 namespace IntelliMedia
 {
-	public class StageManagerInstaller : MonoInstaller
+	public class TheatreGlobalInstaller : TheatreSceneInstaller
 	{
-		public StageManager StageManager
-		{
-			get
-			{
-				return Container.Resolve<StageManager>();
-			}
-		}
-
 		public override void InstallBindings()
-		{
-			//Container.BindFactory<UnityProxyView, UnityProxyView.Factory>();
-			Container.Bind<StageManager>().AsSingle();
-			Container.Bind<SessionState>().AsSingle();
-		}					
+		{	
+			// The global container is automatically inherited by the Scene Container, it can
+			// resolve class bound globally
+			DontRegisterTheatreResolvers = true;
+
+			base.InstallBindings();
+		}			
 	}
 }

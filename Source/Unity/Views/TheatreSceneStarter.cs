@@ -30,21 +30,26 @@ using Zenject;
 
 namespace IntelliMedia
 {
-	public class TheatreLauncher : MonoBehaviour
+	public class TheatreSceneStarter : MonoBehaviour
 	{
 		private StageManager StageManger { get; set; }
+		private SessionState SessionState { get; set; }
 
 		[Inject]
-		public void Launch(StageManager stageManger)
+		public void Launch(StageManager stageManger, SessionState sessionState)
 		{
 			DebugLog.Info("Start Theatre -> StageManger");
 			StageManger = stageManger;
+			SessionState = sessionState;
 		}
 
 		public void Start()
 		{
-			DebugLog.Info("Start Theatre Scene");
-			StageManger.Reveal<SignInViewModel>().Start();
+			if (SessionState == null || SessionState.Session == null)
+			{
+				DebugLog.Info("Start Theatre Scene");
+				StageManger.Reveal<SignInViewModel>().Start();
+			}
 		}
 	}
 }

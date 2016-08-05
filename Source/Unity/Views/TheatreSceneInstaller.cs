@@ -33,25 +33,58 @@ using System.Reflection;
 
 namespace IntelliMedia
 {
-	public class TheatreInstaller : MonoInstaller
+	public class TheatreSceneInstaller : TheatreViewsInstaller
 	{
+		public string[] viewModels;
+		public string[] models;
 		public string[] services;
 		public string[] repositories;
-		public string[] models;
-		public string[] viewModels;
+
+		public TypeProxySceneResolver.RoutingInfo[] SceneProxyTypes;
+
+		protected bool DontRegisterTheatreResolvers { get; set; }
+
+		public class PostInitializeRegister : IDisposable
+		{
+			private Resolver Resolver { get; set; }
+			private TypeProxySceneResolver TypeProxySceneResolver { get; set; }
+			private StageManager StageManager { get; set; }
+
+			public PostInitializeRegister(Resolver resolver, TypeProxySceneResolver typeProxySceneResolver, StageManager stageManager)
+			{
+				Resolver = resolver;
+				TypeProxySceneResolver = typeProxySceneResolver;
+				StageManager = stageManager;
+
+				StageManager.Register(Resolver);
+				TypeProxySceneResolver.StageManager = StageManager;
+				StageManager.Register(TypeProxySceneResolver);
+			}
+
+			#region IDisposable implementation
+
+			public void Dispose ()
+			{
+				StageManager.Unregister(TypeProxySceneResolver);
+				StageManager.Unregister(Resolver);
+			}
+
+			#endregion
+		}
 
 		private Resolver Resolver { get; set; }
-
-		private int TotalBindings { get; set; }
+		private TypeProxySceneResolver TypeProxySceneResolver { get; set; }
 
 		public override void InstallBindings()
 		{	
-			Resolver = new Resolver(gameObject.name, Container);
+			base.InstallBindings();
 
-			InstallBindingsByName("Services", services);	
-			InstallBindingsByName("Repositories", repositories);	
-			InstallBindingsByName("Models", models);	
 			InstallBindingsByName("ViewModels", viewModels);
+			InstallBindingsByName("Models", models);	
+			InstallBindingsByName("Services", services);	
+			InstallBindingsByName("Repositories", repositories);
+
+			InstallTheatreResolverBindings();
 
 			if (TotalBindings == 0)
 			{
@@ -59,18 +92,29 @@ namespace IntelliMedia
 			}				
 		}
 
-		public override void Start()
+		public override void Start ()
 		{
-			base.Start();
+			base.Start ();
 
-			Resolver.Register(Container.Resolve<StageManager>());
+			Type[] views = Container.ResolveTypeAll(typeof(IView)).ToArray();
+			if (views != null)
+			{
+			}
+
+			ProgressIndicatorView view = Container.Resolve(typeof(ProgressIndicatorView)) as ProgressIndicatorView;
+			if (view != null)
+			{
+			}
 		}
 
-		public void OnDestroy()
+		void InstallTheatreResolverBindings()
 		{
-			if (Resolver != null)
+			if (!DontRegisterTheatreResolvers)
 			{
-				Resolver.Dispose();
+				Resolver = new Resolver(gameObject.name, Container);
+				TypeProxySceneResolver = new TypeProxySceneResolver(Resolver.Name + "ProxyResolver", SceneProxyTypes);
+
+				Container.Bind(typeof(IDisposable)).To<PostInitializeRegister>().AsSingle().WithArguments(Resolver, TypeProxySceneResolver).NonLazy();
 			}
 		}
 

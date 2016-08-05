@@ -35,45 +35,24 @@ using System.Text;
 
 namespace IntelliMedia
 {
-	public class TheatreViewInstaller : MonoInstaller
+	public class TheatreViewsInstaller : MonoInstaller
 	{
 		[Serializable]
-		public class ViewInfo
+		public class PrefabViewInfo
 		{
-			public bool singleton;
 			public UnityView prefab;
+			public string gameObjectGroupName;			
+			public bool singleton;
 		}
-		public ViewInfo[] viewPrefabs;
+		public PrefabViewInfo[] viewPrefabs;
 
-		Dictionary<Type, Type> modelToView = new Dictionary<Type, Type>();
-		private int TotalBindings { get; set; }
+		protected int TotalBindings { get; set; }
 
 		public override void InstallBindings()
 		{	
 			InstallViewPrefabBindings();
 			InstallViewBindings();
-
-			//Container.Bind<Resolver>().FromNew().AsSingle().WithArguments(gameObject.name, Container).NonLazy();
-			//Container.Bind<ViewFactory>().FromNew().WithArguments(gameObject.name, modelToView).NonLazy();
-
-			if (TotalBindings == 0)
-			{
-				DebugLog.Warning("{0} doesn't specify any classes for binding.", this.gameObject.name);
-			}	
 		}			
-			
-
-		public void OnDestroy()
-		{
-			if (Container != null)
-			{
-				ViewFactory resolver = Container.Resolve<ViewFactory>();
-				if (resolver != null)
-				{
-					resolver.Dispose();
-				}
-			}			
-		}
 
 		void InstallViewBindings()
 		{
@@ -82,7 +61,6 @@ namespace IntelliMedia
 			{
 				Container.Bind(typeof(IView), view.GetType()).To(view.GetType()).FromInstance(view).AsSingle();
 				++TotalBindings;
-				modelToView[view.ViewModelType] = view.GetType();
 				views.AppendFormat("{0}, ", view.name);
 			}
 			DebugLog.Info ("{0}: Installed View bindings: {1}", 
@@ -92,24 +70,30 @@ namespace IntelliMedia
 		void InstallViewPrefabBindings()
 		{						
 			StringBuilder prefabs = new StringBuilder();
-			foreach (ViewInfo vvm in viewPrefabs)
+			foreach (PrefabViewInfo prefabInfo in viewPrefabs)
 			{
-				if (vvm.prefab == null)
+				if (prefabInfo.prefab == null)
 				{
 					throw new Exception("Missing view prefab");
 				}
 
-				Type viewType = vvm.prefab.GetType();
+				Type viewType = prefabInfo.prefab.GetType();
 
 				// By default, the view should be hidden until revealed by the StageManager
-				if (vvm.prefab.gameObject.activeSelf)
+				if (prefabInfo.prefab.gameObject.activeSelf)
 				{
-					vvm.prefab.gameObject.SetActive(false);
+					prefabInfo.prefab.gameObject.SetActive(false);
 				}
-					
-				Container.Bind(typeof(IView), viewType).To(viewType).FromPrefab(vvm.prefab.gameObject).UnderGameObjectGroup(gameObject.name).AsSingle();
+
+				if (!string.IsNullOrEmpty(prefabInfo.gameObjectGroupName))
+				{
+					Container.Bind(typeof(IView), viewType).To(viewType).FromPrefab(prefabInfo.prefab.gameObject).UnderGameObjectGroup(prefabInfo.gameObjectGroupName).AsSingle();
+				}
+				else
+				{
+					Container.Bind(typeof(IView), viewType).To(viewType).FromPrefab(prefabInfo.prefab.gameObject).AsSingle();					
+				}
 				++TotalBindings;
-				modelToView[vvm.prefab.ViewModelType] = vvm.prefab.GetType();
 				prefabs.AppendFormat("{0}, ", viewType.Name);
 			}
 			DebugLog.Info ("{0}: Installed Prefab View bindings: {1}", 

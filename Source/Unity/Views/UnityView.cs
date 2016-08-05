@@ -45,7 +45,6 @@ namespace IntelliMedia
 
 		public bool modal;
 		public bool destroyOnHide;
-		public bool dontdestroyOnLoad;
 
 		private bool IsInitialized { get; set; }
 
@@ -80,14 +79,6 @@ namespace IntelliMedia
 			DebugLog.Info("UnityView.OnInitialize: view='{0}'", this.name);
 			ViewModelProperty.ValueChanged += OnBindingContextChanged;
 		}	
-
-		public virtual void Awake()
-		{
-			if (dontdestroyOnLoad)
-			{
-				GameObject.DontDestroyOnLoad(transform.gameObject);
-			}
-		}
 
 		public virtual void OnDestroy()
 		{

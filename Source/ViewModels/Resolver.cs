@@ -31,7 +31,7 @@ using System;
 
 namespace IntelliMedia
 {
-	public class Resolver : IResolver, IDisposable
+	public class Resolver : IResolver
 	{
 		public string Name { get; private set; }
 
@@ -48,24 +48,7 @@ namespace IntelliMedia
 		{
 			this.Name = name;
 			this.Container = container;	
-		}
-
-		[Inject]
-		public void Register(StageManager stageManager)
-		{
-			this.StageManager = stageManager;
-
-			StageManager.Register(this);
-		}
-
-		#region IDisposable implementation
-
-		public void Dispose()
-		{
-			StageManager.Unregister(this);	
-		}
-
-		#endregion
+		}			
 
 		public IAsyncTask TryResolve<T>() where T : class
 		{

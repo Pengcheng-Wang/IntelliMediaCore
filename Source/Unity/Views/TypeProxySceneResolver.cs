@@ -36,56 +36,38 @@ using UnityEngine;
 
 namespace IntelliMedia
 {
-	public class SceneRouter : MonoBehaviour, IResolver
+	public class TypeProxySceneResolver : IResolver
 	{
-		private readonly Dictionary<Type, ViewInfo> routeMap = new Dictionary<Type, ViewInfo>();
+		public StageManager StageManager { get; set; }
 
 		[Serializable]
-		public class ViewInfo
+		public class RoutingInfo
 		{
-			public string className;
+			public string typeName;
 			public string sceneName;
-			public string[] viewCapabilities;
 		}
-		public ViewInfo[] routes;
 
-		private StageManager stageManager;
+		private readonly Dictionary<Type, RoutingInfo> TypeRoutes = new Dictionary<Type, RoutingInfo>();
 
-		[Inject]
-		public void Initialize(StageManager stageManager)
+		public string Name { get; private set; }
+
+		public TypeProxySceneResolver(string name, IEnumerable<RoutingInfo> routes)
 		{
-			this.stageManager = stageManager;
+			Contract.ArgumentNotNull("name", name);
+			Contract.ArgumentNotNull("routes", routes);
 
-			foreach (ViewInfo info in routes)
-			{
-				try
-				{
-					Type type = TypeFinder.ClassNameToType(info.className);
-					routeMap[type] = info;
-				}
-				catch(Exception e)
-				{
-					DebugLog.Error("{0}: {1}", Name, e.Message);
-				}
-			}
+			Name = name;
 
-			if (routeMap.Keys.Count == 0)
+			foreach(RoutingInfo route in routes)
 			{
-				DebugLog.Warning("{0}: Zero routes defined. Remove this component if not used.", Name);
+				Type type = TypeFinder.ClassNameToType(route.typeName);
+				if (TypeRoutes.ContainsKey(type))
+				{
+					throw new Exception("Attempting to define two routes for same type: " + type.Name);
+				}
+				TypeRoutes[type] = route;
 			}
 		}
-
-		public void Start()
-		{	
-			stageManager.Register(this);
-		}			
-
-		public void OnDestroy()
-		{
-			stageManager.Unregister(this);
-		}
-
-		public string Name { get { return gameObject.name; }}
 
 		public IAsyncTask TryResolve<T>() where T : class
 		{
@@ -109,19 +91,46 @@ namespace IntelliMedia
 
 		public IAsyncTask TryResolveViewFor(ViewModel vm, string[] capabilities = null)
 		{
-			return AsyncTask.WithResult(null);
+			return ResolveViewFor( vm.GetType(), capabilities, false);
 		}
 
 		public IAsyncTask ResolveViewFor(ViewModel vm, string[] capabilities = null)
 		{
-			return AsyncTask.WithResult(null);
+			return ResolveViewFor( vm.GetType(), capabilities, true);
+		}
+
+		private IAsyncTask ResolveViewFor(Type vmType, string[] capabilities, bool throwOnError)
+		{
+			return new AsyncTask((onCompleted, onError) =>
+			{			
+				Type viewType = null;
+				ViewDescriptorAttribute attribute = null;
+				foreach(Type iviewType in TypeRoutes.Keys)
+				{
+					DebugLog.Info("IView: {0}", iviewType.Name);
+					attribute = ViewDescriptorAttribute.FindOn(iviewType);
+					if (attribute != null && attribute.ViewModelType == vmType)
+					{
+						viewType = iviewType;
+						break;
+					}
+				}
+
+				if (viewType == null && throwOnError)
+				{
+					throw new Exception(string.Format("Unable to find IView with ViewDescriptorAttribute.ViewModelType = '{0}'",
+						vmType.Name));
+				}
+
+				onCompleted(viewType);
+			});
 		}
 
 		private IAsyncTask Resolve(Type type, bool throwOnError)
 		{
 			return new AsyncTask((onCompleted, onError) =>
 			{
-				if (!routeMap.ContainsKey(type))
+				if (!TypeRoutes.ContainsKey(type))
 				{
 					if (throwOnError)
 					{
@@ -135,14 +144,14 @@ namespace IntelliMedia
 					}
 				}
 
-				ViewInfo info = routeMap[type];
+				RoutingInfo info = TypeRoutes[type];
 
 				DebugLog.Info("{0}: Resolved '{1}' to '{2}' scene. Loading scene...", Name, type.Name, info.sceneName);
 				SceneService.Instance.LoadScene(info.sceneName, false, (bool success, string error) =>
 				{
 					if (success)
 					{
-						stageManager.Resolve(type).Start(onCompleted, onError);
+						StageManager.Resolve(type).Start(onCompleted, onError);
 					}
 					else
 					{
