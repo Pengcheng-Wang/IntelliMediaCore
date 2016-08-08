@@ -77,7 +77,7 @@ namespace IntelliMedia
 		{ 
 			Contract.ArgumentNotNull("viewModelType", vm);
 
-			return new AsyncTry(resolvers.Select(r => r.TryResolveViewFor(vm)).ForEach())
+			return new AsyncTry(resolvers.Select(r => r.TryResolveViewFor(vm, vm.ViewPreferences)).ForEach())
 				.Then<IEnumerable<IAsyncTask>>((tasks) =>
 				{
 					IAsyncTask[] array = tasks.ToArray();

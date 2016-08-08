@@ -109,7 +109,8 @@ namespace IntelliMedia
 				{
 					DebugLog.Info("IView: {0}", iviewType.Name);
 					attribute = ViewDescriptorAttribute.FindOn(iviewType);
-					if (attribute != null && attribute.ViewModelType == vmType)
+					if (attribute != null && attribute.ViewModelType == vmType 
+						&& attribute.HasCapabilities(capabilities))
 					{
 						viewType = iviewType;
 						break;

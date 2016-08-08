@@ -42,19 +42,19 @@ namespace IntelliMedia
 			this.Capabilities = capabilities;
 		}
 
-		public static bool HasCapabilities(string[] required, string[] viewCapabilities)
+		public bool HasCapabilities(string[] required)
 		{
 			if (required == null || required.Length == 0)
 			{
 				return true;
 			}
 
-			if (viewCapabilities == null || viewCapabilities.Length == 0)
+			if (Capabilities == null || Capabilities.Length == 0)
 			{
 				return false;
 			}
 
-			return !required.Except(viewCapabilities).Any();
+			return !required.Except(Capabilities).Any();
 		}
 
 		public static ViewDescriptorAttribute FindOn(Type type)

@@ -74,6 +74,7 @@ namespace IntelliMedia
 				{
 					vm.Activity = activity;
 					vm.ActivityState = currentState;
+					vm.ViewPreferences = activityMapping[activity.Uri].viewCapabilities;
 
 					return vm;
 				});

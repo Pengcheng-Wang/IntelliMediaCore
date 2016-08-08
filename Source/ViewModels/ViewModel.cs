@@ -38,6 +38,7 @@ namespace IntelliMedia
 	public class ViewModel
 	{
 		public string Name { get; set; }
+		public string[] ViewPreferences { get; set; }
 		
 		public void SetState<T>(Action<T> action) where T : ViewModel
 		{

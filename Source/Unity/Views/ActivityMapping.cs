@@ -27,6 +27,7 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace IntelliMedia
@@ -41,6 +42,14 @@ namespace IntelliMedia
 			public string[] viewCapabilities;
 		}
 		public ActivityInfo[] activities;
+
+		public ActivityInfo this[string urn]
+		{
+			get
+			{
+				return activities.FirstOrDefault(a => String.Compare(a.urn, urn) == 0);
+			}
+		}
 
 		public string FindViewModelByUrn(string activityUrn)
 		{
