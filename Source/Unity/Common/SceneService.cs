@@ -33,24 +33,34 @@ using UnityEngine.SceneManagement;
 
 namespace IntelliMedia
 {
-    public sealed class SceneService : MonoBehaviourSingleton<SceneService>
+    public class SceneService : MonoBehaviourSingleton<SceneService>
     {
         public delegate void LoadScenesHandler(bool success, string error);
 
-        public TaskProgress LoadScene(string sceneName, bool isAdditive, LoadScenesHandler callback)
+		public IAsyncTask LoadScene(string sceneName, bool isAdditive)
         {
-            return LoadScenes(new List<SceneInfo>() { new SceneInfo() { DisplayName = sceneName, Name = sceneName }}, isAdditive, callback);
+            return LoadScenes(new List<SceneInfo>() { new SceneInfo() { DisplayName = sceneName, Name = sceneName }}, isAdditive);
         }
 
-        public TaskProgress LoadScenes(List<SceneInfo> Scenes, bool isAdditive, LoadScenesHandler callback)
+        public IAsyncTask LoadScenes(List<SceneInfo> Scenes, bool isAdditive)
         {
 			Contract.ArgumentNotNull("Scenes", Scenes);
-			Contract.ArgumentNotNull("callback", callback);
 
-            TaskProgress progress = new TaskProgress();
-            StartCoroutine(LoadScenesAsync(Scenes, isAdditive, progress, callback));
-
-            return progress;
+			return new AsyncTask((onCompleted, onError) =>
+			{
+            	TaskProgress progress = new TaskProgress();
+				StartCoroutine(LoadScenesAsync(Scenes, isAdditive, progress, (bool success, string error) =>
+				{
+					if (success)
+					{
+						onCompleted(true);
+					}
+					else
+					{
+						onError(new Exception(error));
+					}
+				}));
+			});			
         }
 
         private IEnumerator LoadScenesAsync(List<SceneInfo> Scenes, bool isAdditive, TaskProgress progress, LoadScenesHandler callback) 

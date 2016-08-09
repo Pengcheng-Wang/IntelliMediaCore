@@ -129,38 +129,38 @@ namespace IntelliMedia
 
 		private IAsyncTask Resolve(Type type, bool throwOnError)
 		{
-			return new AsyncTask((onCompleted, onError) =>
+			if (!TypeRoutes.ContainsKey(type) && !throwOnError)
 			{
-				if (!TypeRoutes.ContainsKey(type))
-				{
-					if (throwOnError)
+				return AsyncTask.WithResult(null);
+			}
+			else
+			{
+				return new AsyncTry(
+					new AsyncTask((onCompleted, onError) =>
 					{
-						throw new Exception(string.Format("{0}: Unable to resolve '{1}'. Route not defined for this type.",
-							Name, type.Name));
-					}
-					else
-					{
-						onCompleted(null);
-						return;
-					}
-				}
+						if (!TypeRoutes.ContainsKey(type))
+						{
+							if (throwOnError)
+							{
+								throw new Exception(string.Format("{0}: Unable to resolve '{1}'. Route not defined for this type.",
+									Name, type.Name));
+							}
+							else
+							{
+								onCompleted(null);
+								return;
+							}
+						}
 
-				RoutingInfo info = TypeRoutes[type];
-
-				DebugLog.Info("{0}: Resolved '{1}' to '{2}' scene. Loading scene...", Name, type.Name, info.sceneName);
-				SceneService.Instance.LoadScene(info.sceneName, false, (bool success, string error) =>
+						DebugLog.Info("{0}: Resolved '{1}' to '{2}' scene. Loading scene...", Name, type.Name, TypeRoutes[type].sceneName);
+						onCompleted(TypeRoutes[type]);
+					}))
+				.Then<RoutingInfo>((info) => SceneService.Instance.LoadScene(info.sceneName, false))
+				.Then<bool>((success) =>
 				{
-					if (success)
-					{
-						StageManager.Resolve(type).Start(onCompleted, onError);
-					}
-					else
-					{
-						onError(new Exception(String.Format("{0}: Unable to load '{1}' scene. {2}",
-							Name, info.sceneName, error)));
-					}
+					return StageManager.Resolve(type);
 				});
-			});
+			}
 		}
 	}
 }
