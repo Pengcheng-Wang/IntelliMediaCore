@@ -1,5 +1,4 @@
-﻿//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+﻿// Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,36 +24,43 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using Zenject;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using IntelliMedia;
 
 namespace IntelliMedia
 {
-	public class TheatreSceneStarter : MonoBehaviour
+	public class Terminal : ViewModel 
 	{
-		public string[] viewModelsToRevealOnStart;
+		public readonly BindableProperty<bool> InteractableProperty = new BindableProperty<bool>();
+		public readonly BindableProperty<string> InputProperty = new BindableProperty<string>();
+		public readonly BindableProperty<string> HistoryProperty = new BindableProperty<string>();	
 
-		private StageManager StageManger { get; set; }
-		private SessionState SessionState { get; set; }
-
-		[Inject]
-		public void Launch(StageManager stageManger, SessionState sessionState)
+		public IAsyncTask ReadLine()
 		{
-			DebugLog.Info("Start Theatre -> StageManger");
-			StageManger = stageManger;
-			SessionState = sessionState;
-		}
-
-		public void Start()
-		{
-			if (SessionState == null || SessionState.Session == null)
+			return new AsyncTask((onCompleted, onError) =>
 			{
-				DebugLog.Info("Start Theatre Scene");
-				foreach(string vm in viewModelsToRevealOnStart)
+				InteractableProperty.Value = true;
+				InputProperty.ValueChanged += (oldValue, newValue) =>
 				{
-					StageManger.Reveal(TypeFinder.ClassNameToType(vm)).Start();
-				}
-			}
+					InteractableProperty.Value = false;
+					InputProperty.ValueChanged = null;
+					onCompleted(newValue);
+				};
+			});
 		}
+
+		public void Write(string format, params object[] args)
+		{
+			string line = string.Format(format, args);
+			HistoryProperty.Value += line;
+		}
+
+		public void WriteLine(string format, params object[] args)
+		{
+			string line = string.Format(format + "\n", args);
+			HistoryProperty.Value += line;
+		}			
 	}
 }

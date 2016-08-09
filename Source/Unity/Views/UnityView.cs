@@ -46,6 +46,7 @@ namespace IntelliMedia
 		public bool modal;
 		public bool destroyOnHide;
 
+		private Animator Animator { get; set; }
 		private bool IsInitialized { get; set; }
 
 		public abstract Type ViewModelType { get; }
@@ -73,6 +74,11 @@ namespace IntelliMedia
 				(newViewModel != null ? newViewModel.GetType().Name : "null"));
 
 		}	
+
+		public virtual void Awake()
+		{
+			Animator = GetComponent<Animator>();
+		}
 
 		protected virtual void OnInitialize()
 		{
@@ -131,14 +137,28 @@ namespace IntelliMedia
 
 		protected virtual void StartAnimatedReveal()
 		{
-			DebugLog.Info("UnityView.StartAnimatedReveal: {0}", this.name);
-			GetComponent<Animator>().SetTrigger("Show");
+			if (Animator != null)
+			{
+				DebugLog.Info("UnityView.StartAnimatedReveal: {0}", this.name);
+				Animator.SetTrigger("Show");
+			}
+			else
+			{
+				OnVisible();
+			}
 		}
 
 		protected virtual void StartAnimatedHide()
 		{
-			DebugLog.Info("UnityView.StartAnimatedHide: {0}", this.name);
-			GetComponent<Animator>().SetTrigger("Hide");
+			if (Animator != null)
+			{			
+				DebugLog.Info("UnityView.StartAnimatedHide: {0}", this.name);
+				Animator.SetTrigger("Hide");
+			}
+			else
+			{
+				OnHidden();	
+			}
 		}
 
 		public virtual void OnAppearing()

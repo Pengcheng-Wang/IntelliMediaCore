@@ -119,6 +119,16 @@ namespace IntelliMedia
 			});
 		}
 
+		public IAsyncTask Reveal(Type type)
+		{
+			Contract.ArgumentNotNull("type", type);
+
+			DebugLog.Info("StageManager.Reveal: {0}", type.Name);
+
+			return new AsyncTry(Resolve(type))
+				.Then<ViewModel>((vm) => Reveal(vm));
+		}
+
 		public IAsyncTask Reveal(ViewModel vm)
 		{
 			Contract.ArgumentNotNull("vm", vm);

@@ -44,7 +44,7 @@ namespace IntelliMedia
 		public override Type ViewModelType { get { return typeof(TViewModel); }}
 		public TViewModel ViewModel { get { return (TViewModel)BindingContext; }}
 
-		protected override void OnBindingContextChanged (IntelliMedia.ViewModel oldViewModel, IntelliMedia.ViewModel newViewModel)
+		protected override void OnBindingContextChanged (ViewModel oldViewModel, ViewModel newViewModel)
 		{
 			base.OnBindingContextChanged (oldViewModel, newViewModel);
 
