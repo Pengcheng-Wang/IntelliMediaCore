@@ -57,7 +57,6 @@ namespace IntelliMedia
 			return new AsyncTry(resolvers.Select(r => r.TryResolve(type)).ForEach())
 				.Then<IEnumerable<IAsyncTask>>((tasks) =>
 				{
-					IAsyncTask[] array = tasks.ToArray();
 					int totalFound = tasks.Count(t => t.Result != null);
 					if (totalFound == 0)
 					{
@@ -80,7 +79,6 @@ namespace IntelliMedia
 			return new AsyncTry(resolvers.Select(r => r.TryResolveViewFor(vm, vm.ViewPreferences)).ForEach())
 				.Then<IEnumerable<IAsyncTask>>((tasks) =>
 				{
-					IAsyncTask[] array = tasks.ToArray();
 					int totalFound = tasks.Count(t => t.Result != null);
 					if (totalFound == 0)
 					{

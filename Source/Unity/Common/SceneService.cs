@@ -29,6 +29,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace IntelliMedia
 {
@@ -72,10 +73,10 @@ namespace IntelliMedia
                     AsyncOperation asyncOp;
                     if (!isAdditive)
                     {
-                        if (Application.loadedLevelName.CompareTo(Scenes[index].Name) != 0)
+						if (string.Compare(SceneManager.GetActiveScene().name, Scenes[index].Name) != 0)
                         {
                             // Add the remaing scenes
-                            asyncOp = Application.LoadLevelAsync(Scenes[index].Name);
+							asyncOp = SceneManager.LoadSceneAsync(Scenes[index].Name, LoadSceneMode.Single);
                         }
                         else
                         {
@@ -86,7 +87,7 @@ namespace IntelliMedia
                     else
                     {
                         // Load the first scene
-                        asyncOp = Application.LoadLevelAdditiveAsync(Scenes[index].Name);
+						asyncOp = SceneManager.LoadSceneAsync(Scenes[index].Name, LoadSceneMode.Additive);
                     }
                     
                     while (!asyncOp.isDone && !progress.IsCancelled)

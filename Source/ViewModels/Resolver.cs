@@ -38,12 +38,6 @@ namespace IntelliMedia
 		private StageManager StageManager;
 		private readonly DiContainer Container;
 
-		class TheatreInfo
-		{
-			public Type viewModelType;
-		}
-		private readonly Dictionary<Type, TheatreInfo> TypeMap = new Dictionary<Type, TheatreInfo>();
-
 		public Resolver(string name, DiContainer container)
 		{
 			this.Name = name;

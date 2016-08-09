@@ -38,7 +38,7 @@ namespace IntelliMedia
     public class UnityButton
     {
         private static int highestDepthID = 0;
-#if (UNITY_IPHONE || UNITY_ANDROID)
+#if (UNITY_IPHONE || UNITY_ANDROID) && !UNITY_EDITOR
         private static Vector2 touchBeganPosition = Vector2.zero;
 #endif
         private static EventType lastEventType = EventType.Layout;

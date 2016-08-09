@@ -12,6 +12,7 @@ using TETCSharpClient;
 using TETCSharpClient.Data;
 using System;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Component attached to 'Main Camera' of 'TheEyeTribe/Scenes/calib_scene.unity'.
@@ -255,7 +256,7 @@ public class CalibCamera : MonoBehaviour, IGazeListener, ICalibrationProcessHand
 
                 if (GUI.Button(new Rect(x + btnPadding, y + btnPadding, btnWidth, btnHeight), btnText))
                 {
-                    Application.LoadLevel(1);
+					SceneManager.LoadScene(1);
                 }
             }
         }
@@ -330,7 +331,7 @@ public class CalibCamera : MonoBehaviour, IGazeListener, ICalibrationProcessHand
                 //Handle on main UI thread
                 QueueCallback(new Callback(delegate
                 {
-                    Application.LoadLevel(1);
+					SceneManager.LoadScene(1);
                 }));
             }
             else
