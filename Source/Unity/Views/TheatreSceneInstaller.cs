@@ -30,6 +30,7 @@ using IntelliMedia;
 using System;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace IntelliMedia
 {
@@ -50,7 +51,7 @@ namespace IntelliMedia
 			private TypeProxySceneResolver TypeProxySceneResolver { get; set; }
 			private StageManager StageManager { get; set; }
 
-			public PostInitializeRegister(Resolver resolver, TypeProxySceneResolver typeProxySceneResolver, StageManager stageManager)
+			public PostInitializeRegister(Resolver resolver, TypeProxySceneResolver typeProxySceneResolver, StageManager stageManager, SceneService sceneService)
 			{
 				Resolver = resolver;
 				TypeProxySceneResolver = typeProxySceneResolver;
@@ -58,6 +59,7 @@ namespace IntelliMedia
 
 				StageManager.Register(Resolver);
 				TypeProxySceneResolver.StageManager = StageManager;
+				TypeProxySceneResolver.SceneService = sceneService;
 				StageManager.Register(TypeProxySceneResolver);
 			}
 
@@ -128,7 +130,14 @@ namespace IntelliMedia
 			foreach (string className in classNames)
 			{
 				Type type = TypeFinder.ClassNameToType (className);
-				Container.Bind (type).AsSingle ();
+				if (type.IsSubclassOf(typeof(MonoBehaviour)))
+				{
+					Container.Bind(type).FromGameObject().WithGameObjectName(type.Name).AsSingle();
+				}
+				else
+				{
+					Container.Bind(type).AsSingle();
+				}
 				++TotalBindings;
 			}
 			DebugLog.Info ("{0}: Installed {1} bindings: {2}", 

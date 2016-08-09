@@ -30,16 +30,37 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace IntelliMedia
 {
-    public class SceneService : MonoBehaviourSingleton<SceneService>
-    {
-        public delegate void LoadScenesHandler(bool success, string error);
+	public class SceneService : MonoBehaviour
+    {		
+        private delegate void LoadScenesHandler(bool success, string error);
+		private StageManager stageManager;
+
+		[Inject]
+		public void Initialize(StageManager stageManager)
+		{
+			this.stageManager = stageManager;
+		}
 
 		public IAsyncTask LoadScene(string sceneName, bool isAdditive)
         {
-            return LoadScenes(new List<SceneInfo>() { new SceneInfo() { DisplayName = sceneName, Name = sceneName }}, isAdditive);
+			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+			return new AsyncTry(stageManager.Reveal<ProgressIndicatorViewModel>())
+				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+				{
+					busyIndicator = progressIndicatorViewModel.Begin("Loading...");
+					return LoadScenes(new List<SceneInfo>() { new SceneInfo() { DisplayName = sceneName, Name = sceneName }}, isAdditive);
+				})
+				.Finally(() =>
+				{
+					if (busyIndicator != null)
+					{
+						busyIndicator.Dispose();
+					}
+				});
         }
 
         public IAsyncTask LoadScenes(List<SceneInfo> Scenes, bool isAdditive)

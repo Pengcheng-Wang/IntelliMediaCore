@@ -39,6 +39,7 @@ namespace IntelliMedia
 	public class TypeProxySceneResolver : IResolver
 	{
 		public StageManager StageManager { get; set; }
+		public SceneService SceneService { get; set; }
 
 		[Serializable]
 		public class RoutingInfo
@@ -155,7 +156,7 @@ namespace IntelliMedia
 						DebugLog.Info("{0}: Resolved '{1}' to '{2}' scene. Loading scene...", Name, type.Name, TypeRoutes[type].sceneName);
 						onCompleted(TypeRoutes[type]);
 					}))
-				.Then<RoutingInfo>((info) => SceneService.Instance.LoadScene(info.sceneName, false))
+				.Then<RoutingInfo>((info) => SceneService.LoadScene(info.sceneName, false))
 				.Then<bool>((success) =>
 				{
 					return StageManager.Resolve(type);
