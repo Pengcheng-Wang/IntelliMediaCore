@@ -27,28 +27,47 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 using Zenject;
+using System;
 using IntelliMedia.Models;
-using IntelliMedia.Services;
 
-namespace IntelliMedia.Views
-{
+namespace IntelliMedia.Utilities
+{	
 	/// <summary>
-	/// Configure trace log settings during app startup
-	/// </summary>
-	public class TraceLogConfigurator : MonoBehaviour 
+	/// Configure repository settings during app startup
+	/// </summary>	
+	public class RepositoryConfigurator : MonoBehaviour 
 	{
-		public string traceDataDirectory = "TraceData";
-		public bool writeTraceDataToLocalFile = false;
-
-		private SessionService sessionService;
+		[Serializable]
+		public enum ServerType
+		{
+			Production,
+			Development,
+			Local
+		}
+			
+		public ServerType server;
 
 		// After Dependency Injection
 		[Inject]
 		public void Init(AppSettings appSettings)
 		{
-			appSettings.WriteTraceDataToLocalFile = writeTraceDataToLocalFile;
-			appSettings.TraceDataDirectory = traceDataDirectory;
+			switch (server)
+			{
+			case ServerType.Production:
+				appSettings.ServerURI = "https://intellimedia-portal.appspot.com/";
+				break;
+
+			case ServerType.Development:
+				appSettings.ServerURI = "https://intellimedia-portal-dev.appspot.com/";
+				break;
+
+			case ServerType.Local:
+				appSettings.ServerURI = "http://localhost:8888/";
+				break;
+
+			default:
+				throw new Exception("Unknown server type: " + server.ToString());
+			}
 		}			
 	}
 }
-

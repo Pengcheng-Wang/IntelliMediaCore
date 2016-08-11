@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,20 +25,30 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using System;
-using IntelliMedia.Utilities;
+using UnityEngine;
+using Zenject;
+using IntelliMedia.Models;
+using IntelliMedia.Services;
 
-namespace IntelliMedia.ViewModels
+namespace IntelliMedia.Utilities
 {
-	public interface ITheatreResolver
+	/// <summary>
+	/// Configure trace log settings during app startup
+	/// </summary>
+	public class TraceLogConfigurator : MonoBehaviour 
 	{
-		string Name { get; }
-		IAsyncTask TryResolve<T>() where T:class;
-		IAsyncTask Resolve<T>() where T:class;
-		IAsyncTask TryResolve(Type type);
-		IAsyncTask Resolve(Type type);
-		IAsyncTask TryResolveViewFor(ViewModel vm, string[] capabilities = null);
-		IAsyncTask ResolveViewFor(ViewModel vm, string[] capabilities = null);
+		public string traceDataDirectory = "TraceData";
+		public bool writeTraceDataToLocalFile = false;
+
+		private SessionService sessionService;
+
+		// After Dependency Injection
+		[Inject]
+		public void Init(AppSettings appSettings)
+		{
+			appSettings.WriteTraceDataToLocalFile = writeTraceDataToLocalFile;
+			appSettings.TraceDataDirectory = traceDataDirectory;
+		}			
 	}
 }
- 
+

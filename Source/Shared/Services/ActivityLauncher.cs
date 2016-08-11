@@ -39,26 +39,33 @@ namespace IntelliMedia.Services
 	public class ActivityLauncher
 	{
 		private StageManager stageManager;
+		private SessionState sessionState;
 		private ActivityMapping activityMapping;
 		private ActivityService activityService;
-		private ActivityViewModel activityViewModel;
-		private LogEntry startedEntry;
+		private IEyeTrackingService eyeTrackingService;
 
 		public ActivityLauncher(
 			StageManager stageManager,
+			SessionState sessionState,
 			ActivityMapping activityMapping,
-			ActivityService activityService)
+			ActivityService activityService,
+			[Zenject.InjectOptional] IEyeTrackingService eyeTrackingService)
 		{
 			this.stageManager = stageManager;
+			this.sessionState = sessionState;
 			this.activityMapping = activityMapping;
 			this.activityService = activityService;
+			this.eyeTrackingService = eyeTrackingService;
 		}
 		
 		public IAsyncTask Start(Student student, Activity activity, bool resetActivityState = false)
 		{
 			DebugLog.Info("ActivityLauncher: Start  '{0}' ({1})", activity.Name, activity.Uri);
 
+			ActivityMapping.ActivityInfo activityInfo = null;
 			ActivityState currentState = null;
+			ActivityViewModel activityViewModel = null;
+
 			return new AsyncTry(activityService.LoadActivityState(student.Id, activity.Id, true))
 				.Then<ActivityState>((activityState) =>
 				{
@@ -72,35 +79,51 @@ namespace IntelliMedia.Services
 					activityState.ModifiedDate = DateTime.Now;
 					currentState = activityState;
 
-					return Resolve(activity.Uri);
+					activityInfo = activityMapping.FindViewModelByUrn(activity.Uri);
+					if (activityInfo == null || string.IsNullOrEmpty(activityInfo.viewModel))
+					{
+						throw new Exception(String.Format("Could not find urn in ActivityMapping for '{0}'", activity.Uri));
+					}
+
+					Type viewModelType = TypeFinder.ClassNameToType(activityInfo.viewModel);
+					if (viewModelType == null)
+					{
+						throw new Exception(String.Format("Unable to find class with type name '{0}'", activity.Uri));
+					}
+
+					return stageManager.Resolve(viewModelType);
 				})
 				.Then<ActivityViewModel>((vm) =>
 				{
-					vm.Activity = activity;
-					vm.ActivityState = currentState;
-					vm.ViewPreferences = activityMapping[activity.Uri].viewCapabilities;
+					activityViewModel = vm;
 
-					return vm;
+					if (eyeTrackingService != null
+						&& sessionState.CourseSettings.EyeTrackingEnabled 
+						&& eyeTrackingService.IsEnabled
+						// TODO rgtaylor 2016-04-05 Use some other approach for disabling eye tracking for web view activities
+						&& !activity.Uri.Contains("assessment")
+						&& !activity.Uri.Contains("video"))
+					{
+						return eyeTrackingService.Calibrate();
+					}
+					else
+					{
+						return true;
+					}									
+				})
+				.Then<bool>((calibrateSuccess) =>
+				{
+					if (!calibrateSuccess)
+					{
+						throw new Exception("Eye tracking calibration was not successful. Activity cannot be launched.");
+					}
+
+					activityViewModel.Activity = activity;
+					activityViewModel.ActivityState = currentState;
+					activityViewModel.ViewPreferences = activityInfo.viewCapabilities;
+
+					return activityViewModel;
 				});
-		}
-			
-		public IAsyncTask Resolve(string activityUrn)
-		{
-			Contract.ArgumentNotNull("activityUrn", activityUrn);
-
-			string viewModelTypeName = activityMapping.FindViewModelByUrn(activityUrn);
-			if (string.IsNullOrEmpty(viewModelTypeName))
-			{
-				throw new Exception(String.Format("Activity URN not defined in ActivityMapping for '{0}'", activityUrn));
-			}
-
-			Type viewModelType = TypeFinder.ClassNameToType(viewModelTypeName);
-			if (viewModelType == null)
-			{
-				throw new Exception(String.Format("Unable to find class with type name '{0}'", viewModelTypeName));
-			}
-
-			return stageManager.Resolve(viewModelType);
 		}
 	}
 }

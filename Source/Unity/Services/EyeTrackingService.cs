@@ -1,4 +1,3 @@
-#region Copyright 2015 North Carolina State University
 //---------------------------------------------------------------------------------------
 // Copyright 2015 North Carolina State University
 //
@@ -20,12 +19,6 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using IntelliMedia.Utilities;
-using IntelliMedia.EyeTracking;
-
-
-#endregion
-
 using UnityEngine;
 using System;
 using System.Linq;
@@ -34,22 +27,67 @@ using EyeTrackingController;
 using System.Text;
 using IntelliMedia.Models;
 using IntelliMedia.Repositories;
+using IntelliMedia.Utilities;
+using IntelliMedia.EyeTracking;
+using IntelliMedia.ViewModels;
+using Zenject;
 
 namespace IntelliMedia.Services
 {
-    public class EyeTrackingService
+	public class EyeTrackingService : IEyeTrackingService
     {
 		public EyeTrackerSettings Settings { get; private set; }
 		public bool IsCalibrated { get; private set; }
 		public event EventHandler<GazeEventArgs> GazeChanged;
 
+		private StageManager stageManager;
 		private EyeTrackerSettingsRepository repository;
-		public EyeTracker EyeTracker { get; private set; }
+		private EyeTracker eyeTracker;
 
-		private EyeTrackingService(EyeTrackerSettingsRepository repository)
+		public EyeTrackingService(StageManager stageManager, EyeTrackerSettingsRepository repository)
         {
+			this.stageManager = stageManager;
 			this.repository = repository;
         }
+
+		#region IInitializable implementation
+
+		public void Initialize ()
+		{
+			Dispose();
+
+			DebugLog.Info("EyeTrackingService Initialize");
+			repository.Get().Start((settings) =>
+			{
+				Settings = (EyeTrackerSettings)settings;
+			},
+			(error) =>
+			{
+				ShowMessage("Unable to initialize eye tracker", error.Message);
+			});
+		}
+
+		#endregion
+
+		#region IDisposable implementation
+
+		public void Dispose()
+		{			
+			if (eyeTracker != null) 
+			{
+				DebugLog.Info("EyeTrackingService Shutdown");
+
+				TraceLog.Player(TraceLog.Action.DisconnectedFrom, "EyeTracker",
+					"EyeTrackerSystem", eyeTracker.GetType().Name);
+
+				eyeTracker.GazeChanged -= HandleGazeChanged;
+				eyeTracker.Disconnect();
+				eyeTracker = null;
+				IsCalibrated = false;
+			}			
+		}
+
+		#endregion
 
         public bool IsEnabled
         {
@@ -64,31 +102,11 @@ namespace IntelliMedia.Services
 		{
 			get
 			{
-				return (EyeTracker != null ? EyeTracker.IsConnected && EyeTracker.IsCalibrated : false);
+				return (eyeTracker != null ? eyeTracker.IsConnected && eyeTracker.IsCalibrated : false);
 			}
 		}
 
-		public void Initialize(ShowMessageHandler showMessage)
-        {
-            DebugLog.Info("EyeTrackingService Initialize");
-			if (EyeTracker != null) 
-			{
-				Shutdown();
-			}
-
-			repository.Get().Start((settings) =>
-			{
-				Settings = (EyeTrackerSettings)settings;
-			},
-			(error) =>
-			{
-				showMessage(
-					"Unable to initialize eye tracker", 
-					error.Message);				
-			});
-        }
-
-        void HandleGazeChanged(object sender, GazeEventArgs e)
+        private void HandleGazeChanged(object sender, GazeEventArgs e)
         {
 			if (GazeChanged != null) 
 			{
@@ -98,29 +116,28 @@ namespace IntelliMedia.Services
 
         public void Update()
         {
-            if (EyeTracker != null) 
+            if (eyeTracker != null) 
             {
-                EyeTracker.Update();
+                eyeTracker.Update();
             }
         }	
-
-        public void Shutdown()
-        {
-            DebugLog.Info("EyeTrackingService Shutdown");
-			if (EyeTracker != null) 
+			
+		private void ShowMessage(string title, string message, string[] buttons = null, Action<int> buttonHandler = null)
+		{
+			stageManager.Reveal<Alert>(alert =>
 			{
-				TraceLog.Player(TraceLog.Action.DisconnectedFrom, "EyeTracker",
-				                "EyeTrackerSystem", EyeTracker.GetType().Name);
-
-				EyeTracker.GazeChanged -= HandleGazeChanged;
-				EyeTracker.Disconnect();
-				EyeTracker = null;
-				IsCalibrated = false;
-			}
-        }
-
-		public delegate void ButtonHandler(int index); 
-		public delegate void ShowMessageHandler(string title, string message, string[] buttons = null, ButtonHandler buttonHandler = null);
+				alert.Title = title;
+				alert.Message = message;
+				if (buttons != null)
+				{
+					alert.ButtonLabels = buttons;
+				}
+				if (buttonHandler != null)
+				{
+					alert.AlertDismissed += ((int index) => buttonHandler(index));
+				}
+			}).Start();			
+		}
 
 		public void Connect()
 		{
@@ -132,7 +149,7 @@ namespace IntelliMedia.Services
 			case EyeTrackerSettings.EyeTrackerSystem.Simulated:
 				SimulatedEyeTracker simulated = new SimulatedEyeTracker();
 				simulated.SimulatedEyeTrackingFrequency = Settings.SimulatedEyeTrackingFrequency;
-				EyeTracker = simulated;
+				eyeTracker = simulated;
 				break;
 
 			case EyeTrackerSettings.EyeTrackerSystem.SMI:
@@ -142,7 +159,7 @@ namespace IntelliMedia.Services
 				smi.ServerSendAddress = Settings.ServerSendAddress;
 				smi.ServerSendPort = Settings.ServerSendPort;
 				smi.CalibrationPoints = Settings.CalibrationPoints;
-				EyeTracker = smi;
+				eyeTracker = smi;
 				break; 
 
 			case EyeTrackerSettings.EyeTrackerSystem.EyeTribe:
@@ -151,7 +168,7 @@ namespace IntelliMedia.Services
 				eyeTribe.ServerRecvPort = Settings.ServerRecvPort;
 				eyeTribe.CalibrationPointSampleDuration = Settings.CalibrationPointSampleDuration;
 				eyeTribe.CalibrationPoints = Settings.CalibrationPoints;
-				EyeTracker = eyeTribe;
+				eyeTracker = eyeTribe;
 				break; 
 
 			default:
@@ -159,102 +176,96 @@ namespace IntelliMedia.Services
 			}
 
 
-			EyeTracker.GazeChanged += HandleGazeChanged;
-			EyeTracker.Connect();
+			eyeTracker.GazeChanged += HandleGazeChanged;
+			eyeTracker.Connect();
 
 			TraceLog.Player(TraceLog.Action.ConnectedTo, "EyeTracker",
-				"EyeTrackerSystem", EyeTracker.GetType().Name);			
+				"EyeTrackerSystem", eyeTracker.GetType().Name);			
 		}
 
-		public void Calibrate(Action launchAction, ShowMessageHandler showMessage)  
+		public IAsyncTask Calibrate()  
 		{
-			Contract.ArgumentNotNull("launchAction", launchAction);
-			Contract.ArgumentNotNull("showMessage", showMessage);
-
 			IsCalibrated = false;
 
-			try
+			return new AsyncTask((onCompleted, onError) => 
 			{
-				Connect();
-				if (EyeTracker.IsCalibrationRequired) 
+				try
 				{
-					showMessage("Begin Eye Tracker Calibration", 
-								"The next step is to calibrate the eye tracking. After pressing OK, a screen will open with a dot in the center. Look at the dot and press the spacebar when ready. The dot will move around the screen. Follow the dot with your eyes.", 
-								null,
-								(int index) =>
+					Connect();
+					if (eyeTracker.IsCalibrationRequired) 
 					{
-						try 
+						ShowMessage("Begin Eye Tracker Calibration", 
+									"The next step is to calibrate the eye tracking. After pressing OK, a screen will open with a dot in the center. Look at the dot and press the spacebar when ready. The dot will move around the screen. Follow the dot with your eyes.", 
+									null,
+									(int index) =>
 						{
-							EyeTracker.Calibrate((bool success, string message, Dictionary<string, object> calibrationPropertyResults) =>
+							try 
 							{
-								TraceLog.Player(TraceLog.Action.Calibrated, "EyeTracker",
-								                "EyeTrackerSystem", EyeTracker.GetType().Name,
-								                "Success", success,
-								                "Message", message,
-								                calibrationPropertyResults);
-
-								if (success)
+								eyeTracker.Calibrate((bool success, string message, Dictionary<string, object> calibrationPropertyResults) =>
 								{
-									IsCalibrated = true;
+									TraceLog.Player(TraceLog.Action.Calibrated, "EyeTracker",
+									                "EyeTrackerSystem", eyeTracker.GetType().Name,
+									                "Success", success,
+									                "Message", message,
+									                calibrationPropertyResults);
 
-									// Calibrate inform the user and continue launch
-									showMessage(
-										"Calibration Completed", 
-										message, 
-										new string[]
-										{
-											"Start",
-											"Recalibrate",
-											"Cancel"
-										},
-										(int option) =>
-									{ 
-										switch(option)
-										{
-										case 0:
-											launchAction();
-											break;
+									if (success)
+									{
+										IsCalibrated = true;
 
-										case 1:
-											Calibrate(launchAction, showMessage);
-											break;
+										// Calibrate inform the user and continue launch
+										ShowMessage(
+											"Calibration Completed", 
+											message, 
+											new string[]
+											{
+												"Start",
+												"Recalibrate",
+												"Cancel"
+											},
+											(int option) =>
+										{ 
+											switch(option)
+											{
+											case 0:
+												onCompleted(true);
+												break;
 
-										default:
-											// Do nothing
-											DebugLog.Info("Start cancelled by user.");
-											break;
-										}
-									});
-								}
-								else
-								{
-									showMessage(
-										"Calibration Failed", 
-										message);
-								}
-							});
-						} 
-	                    catch (Exception e) 
-	                    {
-							showMessage(
-								"Calibration Failed", 
-								e.Message);
-						}
-					});
-				} 
-				else
-				{
-					// No need to calibrate the eye tracker, go ahead with the launch
-					launchAction();
+											case 1:
+												Calibrate().Start(onCompleted, onError);
+												break;
+
+											default:
+												// Do nothing
+												DebugLog.Info("Start cancelled by user.");
+												onCompleted(false);
+												break;
+											}
+										});
+									}
+									else
+									{
+										onError(new Exception(string.Format("Calibration Failed. {0}", message)));
+									}
+								});
+							} 
+		                    catch (Exception e) 
+		                    {
+								onError(new Exception(string.Format("Calibration Failed. {0}", e.Message)));
+							}
+						});
+					} 
+					else
+					{
+						// No need to calibrate the eye tracker, go ahead with the launch
+						onCompleted(true);
+					}
 				}
-			}
-			catch (Exception e) 
-			{
-				showMessage(
-					"Unable to connect to eye tracker", 
-					e.Message);
-			}
-			
+				catch (Exception e) 
+				{
+					onError(new Exception(string.Format("Unable to connect to eye tracker. {0}", e.Message)));
+				}
+			});	
         }
     }
 }

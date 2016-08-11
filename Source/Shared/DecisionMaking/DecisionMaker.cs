@@ -32,7 +32,7 @@ namespace IntelliMedia.DecisionMaking
 {
     public class DecisionMaker : ISchedulable
 	{
-		#if TOOL
+		#if !UNITY_5
 		private static Blackboard globalKnowledge = new Blackboard();
 		#else
 		private static Blackboard globalKnowledge = IlluminateManager.Instance.GlobalKnowledge;

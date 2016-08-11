@@ -30,7 +30,8 @@ using System.IO;
 using System.Collections.Specialized;
 using System.Collections.Generic;
 
-#if (SILVERLIGHT || WPF || TOOL)
+#if !UNITY_5
+// Requires System.Web assembly when using .NET
 using System.Web;
 #endif
 

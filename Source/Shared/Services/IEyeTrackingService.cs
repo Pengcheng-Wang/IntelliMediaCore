@@ -1,17 +1,11 @@
 ﻿//---------------------------------------------------------------------------------------
 // Copyright 2015 North Carolina State University
 //
+// Computer Science Department
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
 //
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-//   * Redistributions of source code must retain the above copyright notice, this 
-//     list of conditions and the following disclaimer.
-//   * Redistributions in binary form must reproduce the above copyright notice, 
-//     this list of conditions and the following disclaimer in the documentation 
-//     and/or other materials provided with the distribution.
+// All rights reserved
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
@@ -25,20 +19,17 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using System;
 using IntelliMedia.Utilities;
+using Zenject;
+using System;
 
-namespace IntelliMedia.ViewModels
+namespace IntelliMedia.Services
 {
-	public interface ITheatreResolver
+	public interface IEyeTrackingService : IInitializable, IDisposable
 	{
-		string Name { get; }
-		IAsyncTask TryResolve<T>() where T:class;
-		IAsyncTask Resolve<T>() where T:class;
-		IAsyncTask TryResolve(Type type);
-		IAsyncTask Resolve(Type type);
-		IAsyncTask TryResolveViewFor(ViewModel vm, string[] capabilities = null);
-		IAsyncTask ResolveViewFor(ViewModel vm, string[] capabilities = null);
+		bool IsCalibrated { get; }
+		bool IsEnabled { get; }
+		void Connect();
+	 	IAsyncTask Calibrate();
 	}
 }
- 

@@ -28,7 +28,7 @@
 using System.Text.RegularExpressions;
 
 
-#if !(SILVERLIGHT || WPF || TOOL)
+#if UNITY_5
 using UnityEngine;
 using HttpWebResponse = IntelliMedia.Utilities.UnityWebResponse;
 #endif
@@ -68,7 +68,7 @@ namespace IntelliMedia.Utilities
         {
 			return new AsyncTask<string>((onCompleted, onError) =>
 			{			
-#if (SILVERLIGHT || WPF || TOOL)
+#if !UNITY_5
 	            WebRequest webRequest = WebRequest.Create(uri);
 #else
 	            WebRequest webRequest = new UnityWebRequest(uri);
@@ -128,7 +128,7 @@ namespace IntelliMedia.Utilities
         {
 			return new AsyncTask<string>((onCompleted, onError) =>
 			{				
-#if (SILVERLIGHT || WPF || TOOL)
+#if !UNITY_5
 	            WebRequest webRequest = WebRequest.Create(uri);
 #else
 	            WebRequest webRequest = new UnityWebRequest(uri);

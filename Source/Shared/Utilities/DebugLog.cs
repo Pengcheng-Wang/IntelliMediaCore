@@ -66,7 +66,7 @@ namespace IntelliMedia.Utilities
 			//var m = new StackTrace().GetFrame(1).GetMethod();
 
 			string msg = TryFormat(format, args);
-#if (SILVERLIGHT || WPF || TOOL)
+#if !UNITY_5
             System.Diagnostics.Debug.WriteLine(msg);
 #else
             UnityEngine.Debug.Log(msg);
@@ -83,7 +83,7 @@ namespace IntelliMedia.Utilities
         public static string Warning(string format, params object[] args)
         {
             string msg = TryFormat(format, args);
-#if (SILVERLIGHT || WPF || TOOL)
+#if !UNITY_5
             msg = "WARNING: " + msg;
             System.Diagnostics.Debug.WriteLine(msg);
 #else
@@ -101,7 +101,7 @@ namespace IntelliMedia.Utilities
         public static string Error(string format, params object[] args)
         {
             string msg = TryFormat(format, args);
-#if (SILVERLIGHT || WPF || TOOL)
+#if !UNITY_5
             msg = "ERROR: " + msg;
             System.Diagnostics.Debug.WriteLine(msg);
 #else

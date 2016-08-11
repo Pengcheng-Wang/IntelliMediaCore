@@ -25,15 +25,16 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
-namespace IntelliMedia.Views
+namespace IntelliMedia.Models
 {
-	public class ActivityMapping : MonoBehaviour
+	public class ActivityMapping
 	{
+		// Don't use properties for this class since it is used to present 
+		// settings in Unity Editor
 		[Serializable]
 		public class ActivityInfo
 		{
@@ -41,24 +42,26 @@ namespace IntelliMedia.Views
 			public string viewModel;
 			public string[] viewCapabilities;
 		}
-		public ActivityInfo[] activities;
+		public List<ActivityInfo> Activities { get; set; }
 
-		public ActivityInfo this[string urn]
+		public ActivityMapping()
 		{
-			get
-			{
-				return activities.FirstOrDefault(a => String.Compare(a.urn, urn) == 0);
-			}
+			Activities = new List<ActivityInfo>();
 		}
 
-		public string FindViewModelByUrn(string activityUrn)
+		public void Initialize(IEnumerable<ActivityInfo> activities)
 		{
-			foreach(ActivityInfo activity in activities)
+			Activities = new List<ActivityInfo>(activities);
+		}
+
+		public ActivityInfo FindViewModelByUrn(string activityUrn)
+		{
+			foreach(ActivityInfo activity in Activities)
 			{
 				Regex regex = new Regex(activity.urn);
 				if (regex.IsMatch(activityUrn))
 				{
-					return activity.viewModel;
+					return activity;
 				}
 			}	
 

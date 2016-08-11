@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2016 North Carolina State University
+// Copyright 2015 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,48 +26,27 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using Zenject;
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using IntelliMedia.Models;
+using Zenject;
 
-namespace IntelliMedia.Views
-{	
-	/// <summary>
-	/// Configure repository settings during app startup
-	/// </summary>	
-	public class RepositoryConfigurator : MonoBehaviour 
+namespace IntelliMedia.Utilities
+{
+	public class ActivityMappingConfigurator : MonoBehaviour
 	{
-		[Serializable]
-		public enum ServerType
-		{
-			Production,
-			Development,
-			Local
-		}
-			
-		public ServerType server;
+		public ActivityMapping.ActivityInfo[] activities;
 
-		// After Dependency Injection
 		[Inject]
-		public void Init(AppSettings appSettings)
+		public void Initialize(ActivityMapping activityMapping)
 		{
-			switch (server)
+			activityMapping.Initialize(activities);
+			if (activities == null || activities.Length == 0)
 			{
-			case ServerType.Production:
-				appSettings.ServerURI = "https://intellimedia-portal.appspot.com/";
-				break;
-
-			case ServerType.Development:
-				appSettings.ServerURI = "https://intellimedia-portal-dev.appspot.com/";
-				break;
-
-			case ServerType.Local:
-				appSettings.ServerURI = "http://localhost:8888/";
-				break;
-
-			default:
-				throw new Exception("Unknown server type: " + server.ToString());
+				DebugLog.Warning("{0}: No activity mappings specified.", this.gameObject.name);
 			}
-		}			
+		}
 	}
 }
+

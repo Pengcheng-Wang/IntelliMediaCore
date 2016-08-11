@@ -130,13 +130,15 @@ namespace IntelliMedia.Services
 
 		private void UpdatePlatformInfo(Session session)
 		{
-			session.Platform = UnityEngine.Application.platform.ToString();
-			session.OperatingSystem = UnityEngine.SystemInfo.operatingSystem;
-
 			if (!String.IsNullOrEmpty(appSettings.Version))
 			{
 				session.GameVersion = appSettings.Version;
 			}
+
+#if UNITY_5
+			session.Platform = UnityEngine.Application.platform.ToString();
+			session.OperatingSystem = UnityEngine.SystemInfo.operatingSystem;
+
 //			WebBrowserUtility webBrowser = Global.Component<WebBrowserUtility>();
 //			if (UnityEngine.Application.isWebPlayer && webBrowser != null)
 //			{
@@ -150,6 +152,12 @@ namespace IntelliMedia.Services
 			session.GraphicsMemorySize = UnityEngine.SystemInfo.graphicsMemorySize.ToString();
 			session.GraphicsDeviceName = UnityEngine.SystemInfo.graphicsDeviceName;
 			session.GraphicsShaderLevel = UnityEngine.SystemInfo.graphicsShaderLevel.ToString();
+#else
+			session.Platform = Environment.OSVersion.Platform.ToString();
+			session.OperatingSystem = Environment.OSVersion.VersionString;
+			session.ProcessorType = (Environment.Is64BitProcess ? "64" : "32");
+			session.ProcessorCount = Environment.ProcessorCount.ToString();
+#endif
 		}
 	}
 }

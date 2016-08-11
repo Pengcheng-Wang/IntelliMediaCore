@@ -37,7 +37,6 @@ namespace IntelliMedia.ViewModels
 	{
 		public string Name { get; private set; }
 
-		private StageManager StageManager;
 		private readonly DiContainer Container;
 
 		public Resolver(string name, DiContainer container)

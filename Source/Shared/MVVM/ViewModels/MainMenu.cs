@@ -26,8 +26,8 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using IntelliMedia.Models;
 using IntelliMedia.Services;
 using IntelliMedia.Utilities;
@@ -42,7 +42,6 @@ namespace IntelliMedia.ViewModels
 		private SessionService sessionService;
 		private ActivityService activityService;
 		private ActivityLauncher activityLauncher;
-		private EyeTrackingService eyeTrackingService;
 
 		public readonly BindableProperty<string> UsernameProperty = new BindableProperty<string>();	
 		public string Username 
@@ -71,8 +70,7 @@ namespace IntelliMedia.ViewModels
 			AuthenticationService authenticator, 
 			SessionService sessionService,
 			ActivityService activityService,
-			ActivityLauncher activityLauncher,
-			[Zenject.InjectOptional] EyeTrackingService eyeTrackingService)
+			ActivityLauncher activityLauncher)
 		{
 			this.navigator = navigator;
 			this.sessionState = sessionState;
@@ -80,7 +78,6 @@ namespace IntelliMedia.ViewModels
 			this.sessionService = sessionService;
 			this.activityService = activityService;
 			this.activityLauncher = activityLauncher;
-			this.eyeTrackingService = eyeTrackingService;
 		}
 
 		public override void OnStartReveal()
@@ -88,10 +85,6 @@ namespace IntelliMedia.ViewModels
 			base.OnStartReveal();
 
 			RefreshActivityList();
-			if (eyeTrackingService != null)
-			{
-				eyeTrackingService.Initialize(ShowMessageHandler);
-			}
 		}
 
 		private void RefreshActivityList()
@@ -142,45 +135,6 @@ namespace IntelliMedia.ViewModels
 		}
 
 		public void StartActivity(Activity activity)
-		{
-			if (eyeTrackingService != null
-				&& sessionState.CourseSettings.EyeTrackingEnabled 
-				&& eyeTrackingService.IsEnabled
-				// TODO rgtaylor 2016-04-05 Use some other approach for disabling eye tracking for web view activities
-				&& !activity.Uri.Contains("assessment")
-				&& !activity.Uri.Contains("video"))
-			{
-				eyeTrackingService.Calibrate(
-					() => 
-					{ 
-						TransitionToActivity(activity); 
-					},
-					ShowMessageHandler);
-			}
-			else
-			{
-				TransitionToActivity(activity);
-			}			
-		}
-
-		public void ShowMessageHandler(string title, string message, string[] buttons = null, EyeTrackingService.ButtonHandler buttonHandler = null)
-		{
-			navigator.Reveal<Alert>(alert =>
-			{
-				alert.Title = title;
-				alert.Message = message;
-				if (buttons != null)
-				{
-					alert.ButtonLabels = buttons;
-				}
-				if (buttonHandler != null)
-				{
-					alert.AlertDismissed += ((int index) => buttonHandler(index));
-				}
-			}).Start();			
-		}
-
-		private void TransitionToActivity(Activity activity)
 		{
 			Contract.ArgumentNotNull("activity", activity);
 			
