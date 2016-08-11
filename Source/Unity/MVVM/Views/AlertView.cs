@@ -31,8 +31,11 @@ using System.Collections;
 using Zenject;
 using IntelliMedia;
 using UnityEngine.Events;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Views;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(Alert))]
 	public class AlertView : UnityGuiView<Alert>

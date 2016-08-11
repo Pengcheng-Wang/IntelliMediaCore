@@ -28,8 +28,9 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public class RestRepository<T, R> : Repository<T> where T : class, new() where R : class, new()
     {

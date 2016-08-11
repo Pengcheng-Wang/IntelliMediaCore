@@ -29,7 +29,7 @@ using System;
 using IntelliMedia;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class SessionState
     {   

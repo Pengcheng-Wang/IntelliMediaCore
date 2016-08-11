@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class Composition
     {

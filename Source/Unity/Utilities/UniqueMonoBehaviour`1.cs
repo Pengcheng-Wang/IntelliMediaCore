@@ -28,7 +28,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {   
     /// <summary>
     /// Inherit from this class to ensure that only one GameObject with this 

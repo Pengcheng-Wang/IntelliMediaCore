@@ -34,8 +34,10 @@ using UnityEngine.Events;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(Terminal), "Text")]
 	public class TerminalView : UnityGuiView<Terminal> 

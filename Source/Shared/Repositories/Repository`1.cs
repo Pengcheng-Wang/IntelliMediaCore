@@ -29,8 +29,9 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Collections.Generic;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public abstract class Repository<T> where T : class, new()
     {

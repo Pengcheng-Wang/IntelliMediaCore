@@ -34,8 +34,11 @@ using UnityEngine.Events;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Views;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(ExampleActivity))]
 	public class ExampleActivityView : UnityGuiView<ExampleActivity>

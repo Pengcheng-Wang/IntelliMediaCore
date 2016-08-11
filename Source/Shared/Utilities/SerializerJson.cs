@@ -28,7 +28,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
 	/// Serialize/deserialize C# objects to JSON. using Newtonsoft.Json;

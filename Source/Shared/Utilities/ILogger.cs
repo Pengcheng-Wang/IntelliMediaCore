@@ -27,8 +27,9 @@
 //---------------------------------------------------------------------------------------
 using System;
 using System.Text;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public delegate void LoggerCloseCallback(bool success, string error);
 

@@ -29,7 +29,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	/// <summary>
 	/// Add tab and return key navigation to selectable controls that are children of the GameObject

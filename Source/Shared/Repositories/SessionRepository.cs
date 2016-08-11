@@ -27,8 +27,9 @@
 //---------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public class SessionResponse : RestResponse
     {

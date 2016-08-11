@@ -27,8 +27,9 @@
 //---------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using IntelliMedia.Repositories;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     [Serializable]
     public class Activity

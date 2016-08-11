@@ -28,8 +28,9 @@
 using System.Collections.Generic;
 using Zenject;
 using System;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public interface ITheatreResolver
 	{

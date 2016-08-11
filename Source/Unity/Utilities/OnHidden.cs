@@ -28,6 +28,7 @@
 using UnityEngine;
 using System.Collections;
 using IntelliMedia;
+using IntelliMedia.Views;
 
 public class OnHidden : StateMachineBehaviour {
 

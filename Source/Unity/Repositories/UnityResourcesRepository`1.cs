@@ -30,8 +30,9 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public class UnityResourcesRepository<T> : Repository<T> where T : class, new()
     {

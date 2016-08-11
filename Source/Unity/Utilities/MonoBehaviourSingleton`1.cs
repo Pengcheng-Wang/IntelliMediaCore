@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {   
     /// <summary>
     /// Inherit from this class to create a Unity MonoBehaviour-derived singleton.

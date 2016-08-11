@@ -26,8 +26,9 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class Alert : ViewModel
 	{

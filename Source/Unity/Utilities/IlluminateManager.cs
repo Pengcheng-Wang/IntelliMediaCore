@@ -31,7 +31,7 @@ using System.Text;
 using UnityEngine;
 using IntelliMedia.DecisionMaking;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class IlluminateManager : MonoBehaviour 
     {

@@ -32,8 +32,9 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using IntelliMedia.Views;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class TheatreViewsInstaller : MonoInstaller
 	{

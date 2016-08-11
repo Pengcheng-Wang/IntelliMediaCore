@@ -28,7 +28,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class AsyncTask<T> : AsyncTask
 	{

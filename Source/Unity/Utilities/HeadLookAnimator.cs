@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class coordinates the Unity HeadLookController and Animator components.

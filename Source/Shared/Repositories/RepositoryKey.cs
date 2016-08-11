@@ -26,48 +26,12 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
-using System.Text;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
-    public class RepositoryLogger : FileSystemRepository<LogEntry>, ILogger
-    {   
-        public RepositoryLogger(string pathToDataDirectory, ISerializer serializer, bool enabled = true) : base(pathToDataDirectory, serializer)
-        {
-            Enabled = enabled;
-        }
-
-        #region ILogger implementation
-
-        private bool enabled;
-        public bool Enabled
-        {
-            get { return enabled; } 
-            set { if (enabled != value) { enabled = value; OnEnabledChanged(); } }
-        }
-        
-        private void OnEnabledChanged()
-        {
-            DebugLog.Info("RepositoryLogger: {0} Enabled={1}", DataDirectory, Enabled); 
-        }
-
-        public void Write(LogEntry entry)
-        {
-            if (Enabled)
-            {
-				Insert(entry).Start(null, (error) =>
-                {
-					DebugLog.Error("RepositoryLogger unabled to log. {0}", error.Message);
-                });
-            }
-        }
-
-		public void Close(LoggerCloseCallback callback)
-        {
-			callback(true, null);
-        }
-        
-        #endregion
+    [AttributeUsage(AttributeTargets.Property)]
+    public class RepositoryKey : Attribute
+    { 
+        public string AlternateName { get; set; }
     }
 }
-

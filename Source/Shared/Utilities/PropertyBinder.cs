@@ -30,7 +30,7 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class PropertyBinder<TObject>
 	{

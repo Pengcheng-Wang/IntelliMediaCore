@@ -26,8 +26,9 @@
 //
 //---------------------------------------------------------------------------------------
 using System.Collections.Generic;
+using IntelliMedia.Repositories;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class CourseSettings
     {        

@@ -27,8 +27,11 @@
 //---------------------------------------------------------------------------------------
 using System;
 using System.Collections;
+using IntelliMedia.Models;
+using IntelliMedia.Repositories;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Services
 {
 	public class SessionService 
 	{

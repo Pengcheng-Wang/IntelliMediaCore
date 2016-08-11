@@ -30,7 +30,7 @@ using System.Linq;
 using System.Reflection;
 
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class TypeFinder
 	{

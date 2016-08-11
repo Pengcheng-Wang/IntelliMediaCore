@@ -30,7 +30,7 @@ using System.Text.RegularExpressions;
 
 #if !(SILVERLIGHT || WPF || TOOL)
 using UnityEngine;
-using HttpWebResponse = IntelliMedia.UnityWebResponse;
+using HttpWebResponse = IntelliMedia.Utilities.UnityWebResponse;
 #endif
 
 using System;
@@ -39,7 +39,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class simplifies network access by executing HTTP commands and processing 

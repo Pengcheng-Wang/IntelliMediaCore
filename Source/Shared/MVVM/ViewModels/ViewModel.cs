@@ -33,7 +33,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Zenject;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class ViewModel
 	{

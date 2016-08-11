@@ -29,7 +29,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class CsvIgnore : Attribute

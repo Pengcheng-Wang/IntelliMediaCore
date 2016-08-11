@@ -28,7 +28,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public delegate IAsyncTask HandlerReturnsAsync<TResult>(TResult result);
 	public delegate object HandlerReturnsResult<TResult>(TResult result);

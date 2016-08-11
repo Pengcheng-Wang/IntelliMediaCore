@@ -28,7 +28,7 @@
 using System;
 using System.Text;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class Cipher
 	{

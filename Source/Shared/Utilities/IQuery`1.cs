@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public delegate void QueryResultsHandler<T>(bool success, List<T> results, string error);
 

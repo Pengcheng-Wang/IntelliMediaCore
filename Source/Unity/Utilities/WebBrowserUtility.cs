@@ -35,7 +35,7 @@ using System;
 using UnityEngine;
 using System.Collections;
  
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class contains helper methods for interacting with the web browser hosting the Unity 3D WebPlugin

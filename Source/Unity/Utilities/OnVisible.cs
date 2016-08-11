@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2014 North Carolina State University
+// Copyright 2015 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,35 +26,39 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using Zenject;
+using System.Collections;
+using IntelliMedia;
+using IntelliMedia.Views;
 
-namespace IntelliMedia
-{
-	public class TheatreSceneStarter : MonoBehaviour
+public class OnVisible : StateMachineBehaviour {
+
+	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
+	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
 	{
-		public string[] viewModelsToRevealOnStart;
-
-		private StageManager StageManger { get; set; }
-		private SessionState SessionState { get; set; }
-
-		[Inject]
-		public void Launch(StageManager stageManger, SessionState sessionState)
+		UnityView view = animator.GetComponent<UnityView>();
+		if (view != null)
 		{
-			DebugLog.Info("Start Theatre -> StageManger");
-			StageManger = stageManger;
-			SessionState = sessionState;
-		}
-
-		public void Start()
-		{
-			if (SessionState == null || SessionState.Session == null)
-			{
-				DebugLog.Info("Start Theatre Scene");
-				foreach(string vm in viewModelsToRevealOnStart)
-				{
-					StageManger.Reveal(TypeFinder.ClassNameToType(vm)).Start();
-				}
-			}
+			view.OnVisible();
 		}
 	}
+
+	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
+	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+	//
+	//}
+
+	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
+	//override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+	//
+	//}
+
+	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
+	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+	//
+	//}
+
+	// OnStateIK is called right after Animator.OnAnimatorIK(). Code that sets up animation IK (inverse kinematics) should be implemented here.
+	//override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+	//
+	//}
 }

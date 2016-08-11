@@ -1,4 +1,3 @@
-#region Copyright 2015 North Carolina State University
 //---------------------------------------------------------------------------------------
 // Copyright 2015 North Carolina State University
 //
@@ -23,15 +22,14 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
-
-
-#endregion
-
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
+using IntelliMedia.EyeTracking;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     [RequireComponent (typeof (Camera))]
     public class EyeTrackingRecorder : MonoBehaviour

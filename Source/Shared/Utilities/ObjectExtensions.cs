@@ -28,6 +28,7 @@
 using System;
 using System.Globalization;
 using IntelliMedia;
+using IntelliMedia.Utilities;
 
 namespace System
 {

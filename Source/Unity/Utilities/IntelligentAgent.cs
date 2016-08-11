@@ -28,7 +28,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class IntelligentAgent : MonoBehaviour 
 	{

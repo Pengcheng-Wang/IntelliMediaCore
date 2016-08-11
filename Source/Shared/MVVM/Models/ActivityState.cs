@@ -27,8 +27,10 @@
 //---------------------------------------------------------------------------------------
 using System.Collections.Generic;
 using System;
+using IntelliMedia.Utilities;
+using IntelliMedia.Repositories;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class ActivityState
     {   

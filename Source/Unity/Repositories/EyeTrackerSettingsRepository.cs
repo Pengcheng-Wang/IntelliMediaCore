@@ -20,13 +20,17 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using IntelliMedia.Utilities;
+
+
 #endregion
 
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 { 
     public class EyeTrackerSettingsRepository : PlayerPrefsRepository<EyeTrackerSettings>
     {

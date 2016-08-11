@@ -27,8 +27,11 @@
 //---------------------------------------------------------------------------------------
 using System.Text.RegularExpressions;
 using System;
+using IntelliMedia.Models;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class WebActivity : ActivityViewModel
 	{			

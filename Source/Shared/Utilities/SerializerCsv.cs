@@ -30,8 +30,9 @@ using System.Text;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class SerializerCsv : ISerializer
     {

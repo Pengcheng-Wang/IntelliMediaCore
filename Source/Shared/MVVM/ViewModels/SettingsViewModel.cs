@@ -28,7 +28,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class SettingsViewModel : ViewModel
 	{

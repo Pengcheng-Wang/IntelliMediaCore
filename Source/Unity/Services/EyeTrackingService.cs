@@ -20,6 +20,10 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using IntelliMedia.Utilities;
+using IntelliMedia.EyeTracking;
+
+
 #endregion
 
 using UnityEngine;
@@ -28,8 +32,10 @@ using System.Linq;
 using System.Collections.Generic;
 using EyeTrackingController;
 using System.Text;
+using IntelliMedia.Models;
+using IntelliMedia.Repositories;
 
-namespace IntelliMedia
+namespace IntelliMedia.Services
 {
     public class EyeTrackingService
     {

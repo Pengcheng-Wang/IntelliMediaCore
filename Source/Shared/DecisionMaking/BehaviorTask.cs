@@ -27,6 +27,7 @@
 //---------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using IntelliMedia.Utilities;
 
 namespace IntelliMedia.DecisionMaking
 {

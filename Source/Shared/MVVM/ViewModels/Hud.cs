@@ -29,7 +29,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class Hud : ViewModel
 	{

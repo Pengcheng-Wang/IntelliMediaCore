@@ -24,7 +24,7 @@
 
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class AdditionalTraceData : MonoBehaviour 
     {

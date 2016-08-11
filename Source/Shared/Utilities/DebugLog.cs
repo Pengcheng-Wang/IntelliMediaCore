@@ -29,7 +29,7 @@ using System;
 using System.Text;
 using System.Diagnostics;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class abstracts the logging methods used in Unity and .NET.

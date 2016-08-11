@@ -7,7 +7,7 @@ using System.Net;
 using UnityEngine;
 using System.Runtime.Serialization;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {   
     /// <summary>
     /// A timer that is executed on the main Unity thread.

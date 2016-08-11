@@ -29,7 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     // Provides a task scheduler that ensures a maximum concurrency level while  
     // running on top of the thread pool.

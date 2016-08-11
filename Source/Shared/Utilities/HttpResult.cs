@@ -30,7 +30,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	/// <summary>
 	/// Response associated with a HTTP GET or PUT. Make sure to dispose this object to 

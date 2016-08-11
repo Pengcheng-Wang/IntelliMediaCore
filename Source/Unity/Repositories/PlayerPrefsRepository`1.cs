@@ -34,8 +34,9 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using System.Collections.Generic;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public class PlayerPrefsRepository<T> : Repository<T> where T : class, new()
     {

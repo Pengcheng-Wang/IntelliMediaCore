@@ -27,8 +27,10 @@
 //---------------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using IntelliMedia.Models;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public class StudentResponse : RestResponse
     {

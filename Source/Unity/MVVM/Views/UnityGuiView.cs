@@ -33,8 +33,10 @@ using System.Collections.Generic;
 using System;
 using IntelliMedia;
 using UnityEngine.EventSystems;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[RequireComponent(typeof(Animator), typeof(CanvasGroup))]
 	public abstract class UnityGuiView<TViewModel> : UnityView where TViewModel:ViewModel

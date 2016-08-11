@@ -25,7 +25,7 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public interface ISchedulable 
 	{

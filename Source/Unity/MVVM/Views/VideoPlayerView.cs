@@ -37,8 +37,10 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(VideoPlayer))]
 	public class VideoPlayerView : UnityGuiView<VideoPlayer>

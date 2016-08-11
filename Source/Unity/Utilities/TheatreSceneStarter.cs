@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2016 North Carolina State University
+// Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -27,26 +27,37 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 using Zenject;
+using IntelliMedia.Models;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
-	/// <summary>
-	/// Configure trace log settings during app startup
-	/// </summary>
-	public class TraceLogConfigurator : MonoBehaviour 
+	public class TheatreSceneStarter : MonoBehaviour
 	{
-		public string traceDataDirectory = "TraceData";
-		public bool writeTraceDataToLocalFile = false;
+		public string[] viewModelsToRevealOnStart;
 
-		private SessionService sessionService;
+		private StageManager StageManger { get; set; }
+		private SessionState SessionState { get; set; }
 
-		// After Dependency Injection
 		[Inject]
-		public void Init(AppSettings appSettings)
+		public void Launch(StageManager stageManger, SessionState sessionState)
 		{
-			appSettings.WriteTraceDataToLocalFile = writeTraceDataToLocalFile;
-			appSettings.TraceDataDirectory = traceDataDirectory;
-		}			
+			DebugLog.Info("Start Theatre -> StageManger");
+			StageManger = stageManger;
+			SessionState = sessionState;
+		}
+
+		public void Start()
+		{
+			if (SessionState == null || SessionState.Session == null)
+			{
+				DebugLog.Info("Start Theatre Scene");
+				foreach(string vm in viewModelsToRevealOnStart)
+				{
+					StageManger.Reveal(TypeFinder.ClassNameToType(vm)).Start();
+				}
+			}
+		}
 	}
 }
-

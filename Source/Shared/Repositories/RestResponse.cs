@@ -29,7 +29,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public abstract class RestResponse
     {

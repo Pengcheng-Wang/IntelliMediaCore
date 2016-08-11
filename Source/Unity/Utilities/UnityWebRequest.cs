@@ -33,7 +33,7 @@ using System.Net;
 using UnityEngine;
 using System.Runtime.Serialization;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {   
     /// <summary>
     /// A Unity 3D WWW-based implementation of the standard .NET WebRequest class. 

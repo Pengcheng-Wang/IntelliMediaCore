@@ -32,8 +32,10 @@ using Zenject;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Views;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(Hud))]
 	public class HudView : UnityGuiView<Hud>

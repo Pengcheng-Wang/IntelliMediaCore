@@ -32,8 +32,11 @@ using Zenject;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using IntelliMedia.Models;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(MainMenu))]
 	public class MainMenuView : UnityGuiView<MainMenu>

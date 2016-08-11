@@ -30,8 +30,9 @@ using System.Collections.Generic;
 using System.Text;
 using TETCSharpClient;
 using TETCSharpClient.Data;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.EyeTracking
 {		
 	public class EyeTribeEyeTracker : EyeTracker, IConnectionStateListener, IGazeListener
     {

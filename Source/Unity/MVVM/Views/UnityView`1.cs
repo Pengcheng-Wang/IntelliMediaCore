@@ -26,8 +26,10 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	public abstract class UnityView<TViewModel> : UnityView where TViewModel:ViewModel
 	{

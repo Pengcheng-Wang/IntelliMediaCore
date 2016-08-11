@@ -38,7 +38,7 @@ using System.Security.Permissions;
 using System.Text;
 using System;
 
-namespace IntelliMedia 
+namespace IntelliMedia.Utilities 
 {
 
 	public sealed class HttpUtility

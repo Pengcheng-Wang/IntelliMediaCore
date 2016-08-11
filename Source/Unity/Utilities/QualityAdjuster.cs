@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class dynamically adjusts the quality setting for the game based on the frame rate.

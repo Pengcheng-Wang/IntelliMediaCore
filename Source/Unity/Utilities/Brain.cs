@@ -32,7 +32,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using IntelliMedia.DecisionMaking;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     [Serializable]
     public class Brain : ScriptableObject

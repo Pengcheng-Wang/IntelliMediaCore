@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Web;
 #endif
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class abstracts the HTTP payload that is passed to the HttpClient 

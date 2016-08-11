@@ -30,8 +30,10 @@ using UnityEngine.UI;
 using System.Collections;
 using Zenject;
 using UnityEngine.Events;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(Loading))]
 	public class LoadingView : UnityGuiView<Loading>

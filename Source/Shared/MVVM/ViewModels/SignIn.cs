@@ -26,8 +26,11 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
+using IntelliMedia.Models;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class SignIn : ViewModel
 	{

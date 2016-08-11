@@ -29,8 +29,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using IntelliMedia.Views;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class StageManager
 	{

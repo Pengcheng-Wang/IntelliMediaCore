@@ -28,7 +28,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public delegate void CompletedHandler(object result);
 	public delegate void CompletedHandler<T>(T result);

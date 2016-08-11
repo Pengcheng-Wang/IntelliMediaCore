@@ -27,8 +27,11 @@
 //---------------------------------------------------------------------------------------
 using System.Collections.Generic;
 using System;
+using IntelliMedia.Models;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public abstract class ActivityViewModel : ViewModel
 	{

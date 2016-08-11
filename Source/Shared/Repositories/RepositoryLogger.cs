@@ -1,4 +1,4 @@
-﻿//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 // Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
@@ -25,23 +25,51 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using Zenject;
-using IntelliMedia;
 using System;
-using System.Linq;
-using System.Reflection;
+using System.Text;
+using IntelliMedia.Models;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
-	public class TheatreGlobalInstaller : TheatreSceneInstaller
-	{
-		public override void InstallBindings()
-		{	
-			// The global container is automatically inherited by the Scene Container, it can
-			// resolve class bound globally
-			DontRegisterTheatreResolvers = true;
+    public class RepositoryLogger : FileSystemRepository<LogEntry>, ILogger
+    {   
+        public RepositoryLogger(string pathToDataDirectory, ISerializer serializer, bool enabled = true) : base(pathToDataDirectory, serializer)
+        {
+            Enabled = enabled;
+        }
 
-			base.InstallBindings();
-		}			
-	}
+        #region ILogger implementation
+
+        private bool enabled;
+        public bool Enabled
+        {
+            get { return enabled; } 
+            set { if (enabled != value) { enabled = value; OnEnabledChanged(); } }
+        }
+        
+        private void OnEnabledChanged()
+        {
+            DebugLog.Info("RepositoryLogger: {0} Enabled={1}", DataDirectory, Enabled); 
+        }
+
+        public void Write(LogEntry entry)
+        {
+            if (Enabled)
+            {
+				Insert(entry).Start(null, (error) =>
+                {
+					DebugLog.Error("RepositoryLogger unabled to log. {0}", error.Message);
+                });
+            }
+        }
+
+		public void Close(LoggerCloseCallback callback)
+        {
+			callback(true, null);
+        }
+        
+        #endregion
+    }
 }
+

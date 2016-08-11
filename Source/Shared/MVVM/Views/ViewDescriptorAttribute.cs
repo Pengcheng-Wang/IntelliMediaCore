@@ -28,7 +28,7 @@
 using System;
 using System.Linq;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class ViewDescriptorAttribute : Attribute

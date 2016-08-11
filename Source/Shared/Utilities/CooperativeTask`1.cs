@@ -29,7 +29,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class CooperativeTask<T> : CooperativeTask
     {        

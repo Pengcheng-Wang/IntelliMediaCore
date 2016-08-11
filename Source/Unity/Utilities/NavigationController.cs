@@ -30,7 +30,7 @@ using System.Collections;
 using IntelliMedia;
 using IntelliMedia.DecisionMaking;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     [RequireComponent(typeof(NavMeshAgent))]
     public class NavigationController : MonoBehaviour, INavigationController

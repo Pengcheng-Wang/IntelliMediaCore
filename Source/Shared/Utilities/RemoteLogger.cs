@@ -30,8 +30,9 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class RemoteLogger : ILogger
 	{   

@@ -31,8 +31,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Zenject;
+using IntelliMedia.Models;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Services
 {
 	public class SceneService : MonoBehaviour
     {		

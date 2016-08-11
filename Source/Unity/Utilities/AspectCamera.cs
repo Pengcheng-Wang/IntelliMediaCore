@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     [RequireComponent(typeof(Camera))]
     public class AspectCamera : MonoBehaviour

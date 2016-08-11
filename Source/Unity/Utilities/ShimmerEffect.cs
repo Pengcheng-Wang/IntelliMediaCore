@@ -17,6 +17,7 @@ using System.Collections.Generic;
 /// be turned off by setting IsAnimating to false.
 /// </summary>
 using IntelliMedia;
+using IntelliMedia.Utilities;
 
 
 public class ShimmerEffect : MonoBehaviour

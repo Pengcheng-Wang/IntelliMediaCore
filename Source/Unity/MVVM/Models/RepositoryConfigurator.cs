@@ -27,31 +27,47 @@
 //---------------------------------------------------------------------------------------
 using UnityEngine;
 using Zenject;
+using System;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
-{
+namespace IntelliMedia.Views
+{	
 	/// <summary>
-	/// Ensure that the session is stopped when the application is quit.
-	/// </summary>
-	public class SessionGuard : MonoBehaviour 
+	/// Configure repository settings during app startup
+	/// </summary>	
+	public class RepositoryConfigurator : MonoBehaviour 
 	{
-		private SessionService sessionService;
+		[Serializable]
+		public enum ServerType
+		{
+			Production,
+			Development,
+			Local
+		}
+			
+		public ServerType server;
 
 		// After Dependency Injection
 		[Inject]
-		public void Init(SessionService sessionService)
+		public void Init(AppSettings appSettings)
 		{
-			this.sessionService = sessionService;
-		}			
-
-		public void OnApplicationQuit()
-		{
-			DebugLog.Info("SessionGuard.OnApplicationQuit()");
-
-			if (sessionService != null && sessionService.IsSessionStarted)
+			switch (server)
 			{
-				sessionService.EndSession().Start();
+			case ServerType.Production:
+				appSettings.ServerURI = "https://intellimedia-portal.appspot.com/";
+				break;
+
+			case ServerType.Development:
+				appSettings.ServerURI = "https://intellimedia-portal-dev.appspot.com/";
+				break;
+
+			case ServerType.Local:
+				appSettings.ServerURI = "http://localhost:8888/";
+				break;
+
+			default:
+				throw new Exception("Unknown server type: " + server.ToString());
 			}
-		}
+		}			
 	}
 }

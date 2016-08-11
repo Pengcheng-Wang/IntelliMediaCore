@@ -28,7 +28,7 @@
 using System;
 using System.Threading;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public delegate void AsyncCallback<T>(AsyncResult<T> ar);
 

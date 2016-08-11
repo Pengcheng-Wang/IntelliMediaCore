@@ -28,7 +28,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This class parses the useragent string provided by web Browsers to attempt to determine

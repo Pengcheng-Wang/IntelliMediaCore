@@ -27,6 +27,7 @@
 //---------------------------------------------------------------------------------------
 using System.Collections;
 using UnityEditor;
+using IntelliMedia.Utilities;
 
 namespace IntelliMedia
 {

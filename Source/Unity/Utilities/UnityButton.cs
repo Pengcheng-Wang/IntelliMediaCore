@@ -28,7 +28,7 @@
 using UnityEngine;
 using System.Collections;
  
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// The purpose of this button is to wrap the Unity 3D button and properly handle mouse presses

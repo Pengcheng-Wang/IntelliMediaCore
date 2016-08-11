@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public static class IListExtensions
     {

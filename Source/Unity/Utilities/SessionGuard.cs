@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2015 North Carolina State University
+// Copyright 2016 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -26,38 +26,34 @@
 //
 //---------------------------------------------------------------------------------------
 using UnityEngine;
-using System.Collections;
-using IntelliMedia;
+using Zenject;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
 
-public class OnVisible : StateMachineBehaviour {
-
-	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) 
+namespace IntelliMedia.Utilities
+{
+	/// <summary>
+	/// Ensure that the session is stopped when the application is quit.
+	/// </summary>
+	public class SessionGuard : MonoBehaviour 
 	{
-		UnityView view = animator.GetComponent<UnityView>();
-		if (view != null)
+		private SessionService sessionService;
+
+		// After Dependency Injection
+		[Inject]
+		public void Init(SessionService sessionService)
 		{
-			view.OnVisible();
+			this.sessionService = sessionService;
+		}			
+
+		public void OnApplicationQuit()
+		{
+			DebugLog.Info("SessionGuard.OnApplicationQuit()");
+
+			if (sessionService != null && sessionService.IsSessionStarted)
+			{
+				sessionService.EndSession().Start();
+			}
 		}
 	}
-
-	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-	//override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
-	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
-
-	// OnStateIK is called right after Animator.OnAnimatorIK(). Code that sets up animation IK (inverse kinematics) should be implemented here.
-	//override public void OnStateIK(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
 }

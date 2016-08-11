@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class AppSettings
     {

@@ -28,8 +28,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.EyeTracking
 {		
     public class SmiEyeTracker : EyeTracker
     {

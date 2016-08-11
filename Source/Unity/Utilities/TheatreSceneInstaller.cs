@@ -31,8 +31,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
+using IntelliMedia.Views;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class TheatreSceneInstaller : TheatreViewsInstaller
 	{

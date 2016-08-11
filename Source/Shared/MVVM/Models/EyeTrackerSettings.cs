@@ -20,11 +20,14 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using IntelliMedia.Repositories;
+
+
 #endregion
 
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class EyeTrackerSettings
     {

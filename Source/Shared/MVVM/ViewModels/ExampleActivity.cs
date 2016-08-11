@@ -28,8 +28,11 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using IntelliMedia.Models;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.ViewModels
 {
 	public class ExampleActivity : ActivityViewModel
 	{

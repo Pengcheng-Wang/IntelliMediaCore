@@ -25,7 +25,10 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-namespace IntelliMedia
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
+
+namespace IntelliMedia.Views 
 {
 	public interface IView
 	{

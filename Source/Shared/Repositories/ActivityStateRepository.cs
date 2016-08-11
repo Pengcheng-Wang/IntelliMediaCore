@@ -28,8 +28,10 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using IntelliMedia.Models;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Repositories
 {
     public class ActivityStateResponse : RestResponse
     {

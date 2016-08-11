@@ -31,8 +31,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class LogEntry : IDictionary<string, object>
     {

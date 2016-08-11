@@ -34,7 +34,7 @@ using System.Runtime.Serialization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// A Unity 3D WWW-based implementation of the standard .NET WebResponse class. 

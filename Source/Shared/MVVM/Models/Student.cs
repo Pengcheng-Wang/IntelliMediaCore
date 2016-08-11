@@ -1,4 +1,3 @@
-#region Copyright 2014 North Carolina State University
 //---------------------------------------------------------------------------------------
 // Copyright 2014 North Carolina State University
 //
@@ -20,12 +19,11 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-#endregion
-
+using IntelliMedia.Repositories;
 using IntelliMedia;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class Student
     {

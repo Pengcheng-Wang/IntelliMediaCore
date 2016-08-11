@@ -29,8 +29,9 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Collections;
+using IntelliMedia.Models;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// This provides static methods for recording trace data.

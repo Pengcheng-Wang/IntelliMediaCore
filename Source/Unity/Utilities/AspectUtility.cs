@@ -28,7 +28,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class AspectUtility : UniqueMonoBehaviour<AspectUtility> {
        

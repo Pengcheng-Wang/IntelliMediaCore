@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using System;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public class OnceEvent<T>
     {

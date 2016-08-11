@@ -31,8 +31,10 @@ using System.Collections;
 using Zenject;
 using IntelliMedia;
 using UnityEngine.Events;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(VideoPlayer))]
 	public class WebActivityView : UnityGuiView<WebActivity>

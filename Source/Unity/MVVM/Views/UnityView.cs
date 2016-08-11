@@ -33,8 +33,11 @@ using System.Collections.Generic;
 using System;
 using IntelliMedia;
 using UnityEngine.EventSystems;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Views;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Views
 {
 	public abstract class UnityView : MonoBehaviour, IView
 	{

@@ -29,7 +29,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public delegate bool AsyncResultCondition(object result);
 

@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using UnityEngine.UI;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	/// <summary>
 	/// http://forum.unity3d.com/threads/change-the-value-of-a-toggle-without-triggering-onvaluechanged.275056/#post-2348336

@@ -33,8 +33,12 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Services;
+using IntelliMedia.Utilities;
+using IntelliMedia.Views;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	public class TypeProxySceneResolver : ITheatreResolver
 	{

@@ -28,7 +28,7 @@
 using System;
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	/// <summary>
 	/// Simple component to implement Quit button behavior

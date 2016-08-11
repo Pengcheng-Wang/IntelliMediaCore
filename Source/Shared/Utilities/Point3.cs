@@ -28,7 +28,7 @@
 using System;
 using System.Threading;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     /// <summary>
     /// Simple container for 3D (or 2D) point data

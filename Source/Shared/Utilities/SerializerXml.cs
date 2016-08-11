@@ -34,7 +34,7 @@ using System.Xml;
 
 #endregion
 
-namespace IntelliMedia 
+namespace IntelliMedia.Utilities 
 {
     public class SerializerXml : ISerializer
     {

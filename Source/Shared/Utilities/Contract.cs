@@ -27,7 +27,7 @@
 //---------------------------------------------------------------------------------------
 using System;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
 	/// <summary>
 	/// Conveinence methods to verify method arguments and class properties. These methods throw argument

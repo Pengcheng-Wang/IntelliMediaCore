@@ -28,7 +28,7 @@
 using System;
 using UnityEngine;
 
-namespace IntelliMedia
+namespace IntelliMedia.Utilities
 {
     public static class UnityTypeExtension
     {

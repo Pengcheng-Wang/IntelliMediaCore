@@ -1,5 +1,5 @@
 ﻿//---------------------------------------------------------------------------------------
-// Copyright 2016 North Carolina State University
+// Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
 // http://www.cei.ncsu.edu/
@@ -25,48 +25,23 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
 using Zenject;
+using IntelliMedia;
 using System;
+using System.Linq;
+using System.Reflection;
 
-namespace IntelliMedia
-{	
-	/// <summary>
-	/// Configure repository settings during app startup
-	/// </summary>	
-	public class RepositoryConfigurator : MonoBehaviour 
+namespace IntelliMedia.Utilities
+{
+	public class TheatreGlobalInstaller : TheatreSceneInstaller
 	{
-		[Serializable]
-		public enum ServerType
-		{
-			Production,
-			Development,
-			Local
-		}
-			
-		public ServerType server;
+		public override void InstallBindings()
+		{	
+			// The global container is automatically inherited by the Scene Container, it can
+			// resolve class bound globally
+			DontRegisterTheatreResolvers = true;
 
-		// After Dependency Injection
-		[Inject]
-		public void Init(AppSettings appSettings)
-		{
-			switch (server)
-			{
-			case ServerType.Production:
-				appSettings.ServerURI = "https://intellimedia-portal.appspot.com/";
-				break;
-
-			case ServerType.Development:
-				appSettings.ServerURI = "https://intellimedia-portal-dev.appspot.com/";
-				break;
-
-			case ServerType.Local:
-				appSettings.ServerURI = "http://localhost:8888/";
-				break;
-
-			default:
-				throw new Exception("Unknown server type: " + server.ToString());
-			}
+			base.InstallBindings();
 		}			
 	}
 }

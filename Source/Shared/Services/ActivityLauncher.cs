@@ -29,8 +29,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using IntelliMedia.Models;
+using IntelliMedia.ViewModels;
+using IntelliMedia.Views;
+using IntelliMedia.Utilities;
 
-namespace IntelliMedia
+namespace IntelliMedia.Services
 {
 	public class ActivityLauncher
 	{

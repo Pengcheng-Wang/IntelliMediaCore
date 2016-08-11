@@ -28,8 +28,9 @@
 using System;
 using IntelliMedia;
 using System.Collections.Generic;
+using IntelliMedia.Repositories;
 
-namespace IntelliMedia
+namespace IntelliMedia.Models
 {
     public class Session
     {   
