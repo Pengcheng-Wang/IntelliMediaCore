@@ -63,9 +63,9 @@ namespace IntelliMedia.Utilities
         /// <returns>string that was logged</returns>
         public static string Info(string format, params object[] args)
         {
-			var m = new StackTrace().GetFrame(1).GetMethod();
+			//var m = new StackTrace().GetFrame(1).GetMethod();
 
-			string msg = TryFormat(m.DeclaringType.Name + ":" + format, args);
+			string msg = TryFormat(format, args);
 #if (SILVERLIGHT || WPF || TOOL)
             System.Diagnostics.Debug.WriteLine(msg);
 #else
