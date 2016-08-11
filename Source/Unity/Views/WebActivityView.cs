@@ -34,8 +34,8 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(VideoPlayerViewModel))]
-	public class WebActivityView : UnityGuiView<WebActivityViewModel>
+	[ViewDescriptor(typeof(VideoPlayer))]
+	public class WebActivityView : UnityGuiView<WebActivity>
 	{
 		public Text title;
 		public Text message;

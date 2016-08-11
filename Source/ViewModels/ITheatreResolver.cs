@@ -31,7 +31,7 @@ using System;
 
 namespace IntelliMedia
 {
-	public interface IResolver
+	public interface ITheatreResolver
 	{
 		string Name { get; }
 		IAsyncTask TryResolve<T>() where T:class;

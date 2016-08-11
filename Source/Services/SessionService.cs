@@ -42,51 +42,38 @@ namespace IntelliMedia
 			this.appSettings = appSettings;
 		}
 
-		public AsyncTask StartSession(Student student)
+		public IAsyncTask StartSession(Student student)
 		{
-			return new AsyncTask((onCompleted, onError) =>
-			{		
-				if (IsSessionStarted)
-				{
-					throw new Exception("Attempting to start session without ending previous session");
-				}
+			if (IsSessionStarted)
+			{
+				throw new Exception("Attempting to start session without ending previous session");
+			}
 
-				Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-				Uri restUri = new Uri(serverUri, "rest/");
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
 
-				SessionRepository repo = new SessionRepository(restUri);
-				if (repo == null)
-				{
-					throw new Exception("SessionRepository is not initialized.");
-				}
+			SessionRepository repo = new SessionRepository(restUri);
+			if (repo == null)
+			{
+				throw new Exception("SessionRepository is not initialized.");
+			}
 
-				// Get session info
-				repo.GetByKey(student.SessionGuid, (response) =>
+			// Get session info
+			return new AsyncTry(repo.GetByKey(student.SessionGuid))
+				.Then<Session>((session) =>
 				{
-					if (response.Success)
+					if (session != null)
 					{
 						// Update session info
-						Session session = response.Item;
 						UpdatePlatformInfo(session);
 						StartLogging(student, session);
-						repo.Update(session, (SessionRepository.Response updateResponse) =>
-						{
-							if (updateResponse.Success)
-							{
-								onCompleted(updateResponse.Item);
-							}
-							else
-							{
-								onError(new Exception(updateResponse.Error));
-							}
-						});
+						return repo.Update(session);
 					}
 					else
 					{
-						onError(new Exception(response.Error));
+						throw new Exception("Could not load session: " + student.SessionGuid);
 					}
 				});
-			});
 		}
 
 		public AsyncTask EndSession()

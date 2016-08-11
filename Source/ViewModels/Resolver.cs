@@ -31,7 +31,7 @@ using System;
 
 namespace IntelliMedia
 {
-	public class Resolver : IResolver
+	public class Resolver : ITheatreResolver
 	{
 		public string Name { get; private set; }
 

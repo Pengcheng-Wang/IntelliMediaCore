@@ -42,20 +42,21 @@ namespace IntelliMedia
         /// Create new settings object if it doesn't exist, or return existing settings.
         /// </summary>
         /// <param name="callback">Callback.</param>
-        public void Get(ResponseHandler callback)
+		public IAsyncTask Get()
         {
-            GetByKey(LocalSettingsId, (Response response) =>
-            {
-                if (response.Success)
-                {
-                    callback(response);
-                }
-                else
-                {
-                    EyeTrackerSettings settings = new EyeTrackerSettings() { Id = LocalSettingsId };
-                    Insert(settings, callback);
-                }
-            });
+			return new AsyncTry(GetByKey(LocalSettingsId))
+				.Then<EyeTrackerSettings>((settings) =>
+            	{
+					if (settings == null)
+	                {
+	                    settings = new EyeTrackerSettings() { Id = LocalSettingsId };
+	                    return Insert(settings);
+	                }
+					else
+					{
+						return settings;
+					}
+				});
         }                
     }
 }

@@ -71,140 +71,80 @@ namespace IntelliMedia
 
         #region IRepository implementation
 
-        public override void Insert(T instance, ResponseHandler callback)
+		public override IAsyncTask Insert(T instance)
         {
-            string serializedObj = Serializer.Serialize<T>(instance);
+			Contract.ArgumentNotNull("instance", instance);
 
+            string serializedObj = Serializer.Serialize<T>(instance);
 			MimePart mimePart = new MimePart("SerializedObject", MimePart.ApplicationXml, serializedObj);
             
-            httpClient.Post(CreateUri, DefaultRetryCount, mimePart, (postResult) =>
-            {
-                List<T> responseInstance = null;
-                string error = null;
-                try
-                {
-                    using (HttpResult httpResult = postResult.AsyncState as HttpResult)
-                    {
-                        // Check server response
-                        if (CheckServerResult(httpResult, ref error))
-                        {
-                            string responseObj = httpResult.Response;
-                            if (!string.IsNullOrEmpty(responseObj))
-                            {
-                                RestResponse response = Serializer.Deserialize<R>(responseObj) as RestResponse;
-                                responseInstance = response.ToList<T>();
-                                error = response.Error;
-                            }
-                            else
-                            {
-                                error = "Empty response for: " + UpdateUri.ToString();
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    error = "Unable to upload data to the cloud. " + e.Message;
-                }
-                finally
-                {
-                    if (!String.IsNullOrEmpty(error))
-                    {
-                        DebugLog.Error(error);
-                    }
+			return new AsyncTry(httpClient.Post(CreateUri, mimePart))
+				.Then<string>((result) =>
+				{
+					if (string.IsNullOrEmpty(result))
+					{
+						throw new Exception("Empty response for: " + CreateUri.ToString());
+					}
 
-                    if (callback != null)
-                    {
-                        callback(new Response(responseInstance, error));
-                    }
-                }
-            });
+					RestResponse response = Serializer.Deserialize<R>(result) as RestResponse;
+					return response.ToItem<T>();
+				});
         }
 
-        public override void Update(T instance, ResponseHandler callback)
+		public override IAsyncTask Update(T instance)
         {
+			Contract.ArgumentNotNull("instance", instance);
+
             string serializedObj = Serializer.Serialize<T>(instance);
             
 			MimePart mimePart = new MimePart("SerializedObject", MimePart.ApplicationXml, serializedObj);
             
-            httpClient.Post(UpdateUri, DefaultRetryCount, mimePart, (postResult) =>
-            {
-                List<T> responseInstance = null;
-                string error = null;
-                try
-                {
-                    using (HttpResult httpResult = postResult.AsyncState as HttpResult)
-                    {
-                        // Check server response
-                        if (CheckServerResult(httpResult, ref error))
-                        {
-                            string responseObj = httpResult.Response;
-                            if (!string.IsNullOrEmpty(responseObj))
-                            {
-                                RestResponse response = Serializer.Deserialize<R>(responseObj) as RestResponse;
-                                responseInstance = response.ToList<T>();
-                                error = response.Error;
-                            }
-                            else
-                            {
-                                error = "Empty response for: " + UpdateUri.ToString();
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    error = "Unable to update data to the cloud. " + e.Message;
-                }
-                finally
-                {
-                    if (!String.IsNullOrEmpty(error))
-                    {
-                        DebugLog.Error("RestRepository: {0}\nURI: {1}\nPayload: {2}", error, UpdateUri.ToString(), serializedObj);
-                    }
-                    
-                    if (callback != null)
-                    {
-                        callback(new Response(responseInstance, error));
-                    }
-                }
-            });
+			return new AsyncTry(httpClient.Post(UpdateUri, mimePart))
+				.Then<string>((result) =>
+				{
+					if (string.IsNullOrEmpty(result))
+					{
+						throw new Exception("Empty response for: " + UpdateUri.ToString());
+					}
+
+					RestResponse response = Serializer.Deserialize<R>(result) as RestResponse;
+					return response.ToItem<T>();
+				});			
         }
 
-        public override void Delete(T instance, ResponseHandler callback)
+		public override IAsyncTask Delete(T instance)
+        {
+			Contract.ArgumentNotNull("instance", instance);
+
+            throw new System.NotImplementedException ();
+        }
+
+		public override IAsyncTask Get(System.Func<T, bool> predicate)
         {
             throw new System.NotImplementedException ();
         }
 
-        public override IQuery<T> Where(System.Linq.Expressions.Expression<System.Func<T, bool>> predicate)
-        {
-            throw new System.NotImplementedException ();
+		public override IAsyncTask GetByKeys(object[] keys)
+		{
+            return Get(new Uri(ReadUri, KeysToPath(keys)));
         }
 
-        public override void Get(System.Func<T, bool> predicate, ResponseHandler callback)
+		public override IAsyncTask GetByKey(object key)
         {
-            throw new System.NotImplementedException ();
-        }
-
-        public override void GetByKeys(object[] keys, ResponseHandler callback)
-        {
-            Get(new Uri(ReadUri, KeysToPath(keys)), callback);
-        }
-
-        public override void GetByKey(object key, ResponseHandler callback)
-        {
-            GetByKey(null, key, callback);
+            return GetByKey(null, key);
         }
 
         protected static string KeysToPath(object[] keys)
         {
-            Contract.ArgumentNotNull("keys", keys);
-            
+			Contract.ArgumentNotNull("keys", keys);
+
             return String.Join(",", Array.ConvertAll(keys, k => k.ToString()));
         }
 
-        public void GetByKey(string path, object key, ResponseHandler callback)
+		public IAsyncTask GetByKey(string path, object key)
         {
+			Contract.ArgumentNotNull("key", key);
+
             Uri readPath = ReadUri;
             if (path != null)
             {
@@ -213,98 +153,33 @@ namespace IntelliMedia
 
             Uri objReadUri = new Uri(readPath, key.ToString());
 
-            Get(objReadUri, callback);
+            return Get(objReadUri, true);
         }
 
-        protected void Get(Uri uri, ResponseHandler callback)
+		protected IAsyncTask Get(Uri uri, bool firstOrDefault = false)
         {
-            httpClient.Get(uri, DefaultRetryCount, (postResult) =>
-            {
-                List<T> instance = null;
-                string error = null;
-                try
-                {
-                    using (HttpResult httpResult = postResult.AsyncState as HttpResult)
-                    {
-                        // Check status of the WWW upload
-                        if (CheckServerResult(httpResult, ref error))
-                        {
-                            string serializedObj = httpResult.Response;
-                            if (!string.IsNullOrEmpty(serializedObj))
-                            {
-                                RestResponse response = Serializer.Deserialize<R>(serializedObj) as RestResponse;
-                                instance = response.ToList<T>();
-                                error = response.Error;
-                            }
-                            else
-                            {
-                                error = "Empty response for: " + uri.ToString();
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    error = "Unable to download data from cloud. " + e.Message;
-                }
-                finally
-                {
-                    if (!String.IsNullOrEmpty(error))
-                    {
-                        DebugLog.Error(error);
-                    }
+			Contract.ArgumentNotNull("uri", uri);
 
-                    if (callback != null)
-                    {
-                        callback(new Response(instance, error));
-                    }
-                }
-            });
+			return new AsyncTry(httpClient.Get(uri))
+				.Then<string>((result) =>
+				{
+					if (string.IsNullOrEmpty(result))
+					{
+						throw new Exception("Empty response for: " + uri.ToString());
+					}
+
+					RestResponse response = Serializer.Deserialize<R>(result) as RestResponse;
+					if (firstOrDefault)
+					{
+						return response.ToItem<T>();
+					}
+					else
+					{
+						return response.ToList<T>();
+					}
+				});				
         }
 
         #endregion
-
-        private bool CheckServerResult(HttpResult httpResult, ref string error)
-        {       
-            if (httpResult.Error != null)
-            {
-                error = ParseHttpExceptionMessage(httpErrorRegexPattern, httpResult.Error.Message);
-            }
-            // Accept any HTTP status code in the 2xx range as success
-            else if (httpResult.StatusCode != System.Net.HttpStatusCode.OK
-                     && httpResult.StatusCode != System.Net.HttpStatusCode.Created
-                     && httpResult.StatusCode != System.Net.HttpStatusCode.Accepted
-                     && httpResult.StatusCode != System.Net.HttpStatusCode.NonAuthoritativeInformation
-                     && httpResult.StatusCode != System.Net.HttpStatusCode.NoContent
-                     && httpResult.StatusCode != System.Net.HttpStatusCode.ResetContent
-                     && httpResult.StatusCode != System.Net.HttpStatusCode.PartialContent)
-            {
-                // If this fails, confirm all "correct" status codes are listed above AND
-                // check the parsing code in UnityWebResponse.
-                error = string.Format("Unexpected Status Code: {0}", httpResult.StatusDescription);
-            }
-            
-            return (error == null);
-        }
-        
-        static readonly string httpErrorRegexPattern = @"^(?<status>\d*)\s*(?<message>.+)";
-        
-        static string ParseHttpExceptionMessage(string pattern, string error)
-        {
-            if (string.IsNullOrEmpty(error))
-            {
-                return null;
-            }
-            
-            Regex errorRegex = new Regex(pattern, RegexOptions.None);
-            MatchCollection matches = errorRegex.Matches(error);
-            if (matches.Count > 0 && matches[0].Success)
-            {
-                return matches[0].Groups["message"].Value;
-            }
-            
-            return null;
-        }
-
     }
 }

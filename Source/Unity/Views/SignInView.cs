@@ -33,8 +33,8 @@ using UnityEngine.EventSystems;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(SignInViewModel))]
-	public class SignInView : UnityGuiView<SignInViewModel>
+	[ViewDescriptor(typeof(SignIn))]
+	public class SignInView : UnityGuiView<SignIn>
 	{
 		public InputField groupField;
 		public InputField usernameField;
@@ -66,7 +66,7 @@ namespace IntelliMedia
 
 		public void SignIn()
 		{
-			ViewModel.SignIn(groupField.text, usernameField.text, passwordField.text);
+			ViewModel.SignInAndStartSession(groupField.text, usernameField.text, passwordField.text);
 		}			
 	}
 }

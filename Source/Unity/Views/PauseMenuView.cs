@@ -35,8 +35,8 @@ using System.Linq;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(PauseMenuViewModel))]
-	public class PauseMenuView : UnityGuiView<PauseMenuViewModel>
+	[ViewDescriptor(typeof(PauseMenu))]
+	public class PauseMenuView : UnityGuiView<PauseMenu>
 	{
 		public void SaveAndExit()
 		{

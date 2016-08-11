@@ -70,25 +70,15 @@ namespace IntelliMedia
 				Shutdown();
 			}
 
-			repository.Get((response) => 
-			{	
-				try
-				{
-					if (response.Success)
-					{
-						Settings = response.Item;
-					}
-					else
-					{
-						throw new Exception(response.Error);
-					}
-				}
-				catch(Exception e)
-				{
-					showMessage(
-						"Unable to initialize eye tracker", 
-						e.Message);
-				}
+			repository.Get().Start((settings) =>
+			{
+				Settings = (EyeTrackerSettings)settings;
+			},
+			(error) =>
+			{
+				showMessage(
+					"Unable to initialize eye tracker", 
+					error.Message);				
 			});
         }
 
@@ -259,22 +249,6 @@ namespace IntelliMedia
 					e.Message);
 			}
 			
-        }
-
-        public void LoadSettings()
-        {
-            Settings = null;
-            repository.Get((EyeTrackerSettingsRepository.Response response) =>
-            {
-                if (response.Success)
-                {
-                    Settings = response.Item;
-                }
-                else
-                {
-                    DebugLog.Error("Unable to load eye tracker settings. {0}", response.Error);
-                }                
-            });
         }
     }
 }

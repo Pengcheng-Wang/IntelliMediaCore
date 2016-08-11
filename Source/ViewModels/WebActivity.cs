@@ -30,7 +30,7 @@ using System;
 
 namespace IntelliMedia
 {
-	public class WebActivityViewModel : ActivityViewModel
+	public class WebActivity : ActivityViewModel
 	{			
 		private SessionState sessionState;
 
@@ -38,7 +38,7 @@ namespace IntelliMedia
 		public string Message { get; set; }
 		public string Url { get; private set; }
 						
-		public WebActivityViewModel(SessionState sessionState, StageManager navigator, ActivityService activityService) : base(navigator, activityService)
+		public WebActivity(SessionState sessionState, StageManager navigator, ActivityService activityService) : base(navigator, activityService)
 		{
 			Contract.ArgumentNotNull("sessionState", sessionState);
 
@@ -74,7 +74,7 @@ namespace IntelliMedia
 			}
 			else
 			{
-				navigator.Reveal<AlertViewModel>(alert => 
+				navigator.Reveal<Alert>(alert => 
 				{
 					alert.Title = "Unable to launch web browser";
 					alert.Message = String.Format("URL is blank for {0} activity.", Activity.Name);
@@ -127,7 +127,7 @@ namespace IntelliMedia
 		
 		public void DoneButtonPressed()
 		{
-			SaveActivityStateAndTransition<MainMenuViewModel>();
+			SaveActivityStateAndTransition<MainMenu>();
 		}
 	}
 }

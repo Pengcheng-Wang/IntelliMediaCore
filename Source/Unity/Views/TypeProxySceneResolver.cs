@@ -36,7 +36,7 @@ using UnityEngine;
 
 namespace IntelliMedia
 {
-	public class TypeProxySceneResolver : IResolver
+	public class TypeProxySceneResolver : ITheatreResolver
 	{
 		public StageManager StageManager { get; set; }
 		public SceneService SceneService { get; set; }

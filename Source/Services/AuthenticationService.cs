@@ -43,39 +43,23 @@ namespace IntelliMedia
 			this.appSettings = appSettings;
 		}
 		
-		public AsyncTask SignIn(string domain, string username, string password)
+		public IAsyncTask SignIn(string domain, string username, string password)
 		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				try
-				{
-					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-					Uri restUri = new Uri(serverUri, "rest/");
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
 
-					StudentRepository repo = new StudentRepository(restUri);
-					if (repo == null)
-					{
-						throw new Exception("StudentRepository is not initialized.");
-					}
-					
-					repo.SignIn(domain, username, password, (StudentRepository.Response response) =>
-					{
-						if (response.Success)
-						{
-							Token = Guid.NewGuid().ToString();
-							onCompleted(response.Item);
-						}
-						else
-						{
-							onError(new Exception(response.Error));
-						}
-					});                   
-				}
-				catch (Exception e)
+			StudentRepository repo = new StudentRepository(restUri);
+			if (repo == null)
+			{
+				throw new Exception("StudentRepository is not initialized.");
+			}
+			
+			return new AsyncTry(repo.SignIn(domain, username, password))
+				.Then<Student>((student) =>
 				{
-					onError(e);
-				}
-			});
+					Token = Guid.NewGuid().ToString();
+					return student;
+				});                   
 		}
 		
 		public AsyncTask SignOut()

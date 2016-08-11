@@ -42,11 +42,10 @@ namespace IntelliMedia
 
         #region IRepository implementation
 
-        public override void Insert(T instance, ResponseHandler callback)
+		public override IAsyncTask Insert(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
                 if (IsIdNull(instance))
                 {
                     AssignUniqueId(instance);
@@ -58,25 +57,14 @@ namespace IntelliMedia
                     throw new Exception("Attempting to insert an object which already exists. id =" + id.ToString());
                 }
                 repository[id] = instance;
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instance, error));
-                }
-            }
-        }
+				onCompleted(instance);
+			});
+		}
 
-        public override void Update(T instance, ResponseHandler callback)
+		public override IAsyncTask Update(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
                 object id = GetKey(instance);
                 if (repository.ContainsKey(id))
                 {
@@ -86,74 +74,33 @@ namespace IntelliMedia
                 {
                     throw new Exception("Unable to updated object that has not been inserted into the repository. id = " + id.ToString());
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instance, error));
-                }
-            }
-        }
+				onCompleted(instance);
+			});
+		}
 
-        public override void Delete(T instance, ResponseHandler callback)
+		public override IAsyncTask Delete(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
                 object id = GetKey(instance);
                 repository.Remove(id);
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(error));
-                }
-            }
-        }
+				onCompleted(instance);
+			});
+		}		
 
-        public override IQuery<T> Where(System.Linq.Expressions.Expression<System.Func<T, bool>> predicate)
+		public override IAsyncTask Get(System.Func<T, bool> predicate)
         {
-            throw new System.NotImplementedException ();
-        }
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				onCompleted(repository.Values.Where(predicate).ToList());
+			});
+		}
 
-        public override void Get(System.Func<T, bool> predicate, ResponseHandler callback)
+		public override IAsyncTask GetByKeys(object[] keys)
         {
-            string error = null;
-            List<T> filteredItems = null;
-            try
-            {
-                filteredItems = repository.Values.Where(predicate).ToList();
-                callback(new Response(filteredItems, null));
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(filteredItems, error));
-                }
-            }
-        }
-
-        public override void GetByKeys(object[] keys, ResponseHandler callback)
-        {
-            List<T> instances = new List<T>();
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
+            	List<T> instances = new List<T>();
                 foreach (object key in keys)
                 {
                     if (repository.ContainsKey(key))
@@ -165,24 +112,19 @@ namespace IntelliMedia
                         throw new Exception(String.Format("Unable to find {0} with id = {1}", typeof(T).Name, key.ToString()));
                     }
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instances, error));
-                }
-            }
-        }
+				onCompleted(instances);
+			});
+		}
 
-        public override void GetByKey(object key, ResponseHandler callback)
+		public override IAsyncTask GetByKey(object key)
         {
-            GetByKeys(new object[] { key }, callback);
-        }
+			return new AsyncTask((onCompleted, onError) =>
+			{		
+				T instance = default(T);	
+				repository.TryGetValue(key, out instance);
+				onCompleted(instance);
+			});
+		}
 
         #endregion 
     }

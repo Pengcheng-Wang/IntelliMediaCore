@@ -31,6 +31,7 @@ using System.Collections.Generic;
 namespace IntelliMedia
 {
 	public delegate void CompletedHandler(object result);
+	public delegate void CompletedHandler<T>(T result);
 	public delegate void ErrorHandler(Exception e);
 
 	public interface IAsyncTask

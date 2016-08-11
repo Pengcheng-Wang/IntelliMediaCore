@@ -35,8 +35,8 @@ using System.Linq;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(MainMenuViewModel))]
-	public class MainMenuView : UnityGuiView<MainMenuViewModel>
+	[ViewDescriptor(typeof(MainMenu))]
+	public class MainMenuView : UnityGuiView<MainMenu>
 	{
 		public Text usernameLabel;
 		public Transform buttonPanel;
@@ -53,7 +53,7 @@ namespace IntelliMedia
 		{
 			Contract.PropertyNotNull("buttonPanel", buttonPanel);
 
-			MainMenuViewModel oldMainMenuViewModel = oldViewModel as MainMenuViewModel;
+			MainMenu oldMainMenuViewModel = oldViewModel as MainMenu;
 			if (oldMainMenuViewModel != null)
 			{
 				oldMainMenuViewModel.ActivitiesProperty.ValueChanged -= ActivitiesChanged;

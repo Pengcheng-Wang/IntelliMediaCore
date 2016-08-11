@@ -41,175 +41,80 @@ namespace IntelliMedia
 			this.appSettings = appSettings;
 		}
 		
-		public AsyncTask LoadActivities(string courseId)
+		public IAsyncTask LoadActivities(string courseId)
 		{
-			return new AsyncTask((onCompleted, onError) =>
-			{
-				try
-				{
-					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-					Uri restUri = new Uri(serverUri, "rest/");
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
 
-					ActivityRepository repo = new ActivityRepository(restUri);
-					if (repo == null)
-					{
-						throw new Exception("ActivityRepository is not initialized.");
-					}
-								
-					repo.GetActivities(courseId, (response) =>
-					{
-						if (response.Success)
-						{
-							onCompleted(response.Items);
-						}
-						else
-						{
-							onError(new Exception(response.Error));
-						}
-					});                   
-				}
-				catch (Exception e)
-				{
-					onError(e);
-				}
-			});
+			ActivityRepository repo = new ActivityRepository(restUri);
+			if (repo == null)
+			{
+				throw new Exception("ActivityRepository is not initialized.");
+			}
+						
+			return repo.GetActivities(courseId);
 		}
 
-		public AsyncTask LoadActivityStates(string studentId, IEnumerable<string> activityIds)
+		public IAsyncTask LoadActivityStates(string studentId, IEnumerable<string> activityIds)
 		{
-			return new AsyncTask((onCompleted, onError) =>
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
+			
+			ActivityStateRepository repo = new ActivityStateRepository(restUri);
+			if (repo == null)
 			{
-				try
-				{
-					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-					Uri restUri = new Uri(serverUri, "rest/");
-					
-					ActivityStateRepository repo = new ActivityStateRepository(restUri);
-					if (repo == null)
-					{
-						throw new Exception("ActivityStateRepository is not initialized.");
-					}
-					
-					repo.GetActivityStates(studentId, activityIds, (ActivityStateRepository.Response response) =>
-					{
-						if (response.Success)
-						{
-							onCompleted(response.Items);
-						}
-						else
-						{
-							onError(new Exception(response.Error));
-						}
-					});                   
-				}
-				catch (Exception e)
-				{
-					onError(e);
-				}
-			});
+				throw new Exception("ActivityStateRepository is not initialized.");
+			}
+			
+			return repo.GetActivityStates(studentId, activityIds);
 		}
 
-		public AsyncTask LoadActivityState(string studentId, string activityId, bool createNewIfDoesNotExit = false)
+		public IAsyncTask LoadActivityState(string studentId, string activityId, bool createNewIfDoesNotExit = false)
 		{
-			return new AsyncTask((onCompleted, onError) =>
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
+			
+			ActivityStateRepository repo = new ActivityStateRepository(restUri);
+			if (repo == null)
 			{
-				try
+				throw new Exception("ActivityStateRepository is not initialized.");
+			}
+
+			// Load ActivityState (if it exists)
+			return new AsyncTry(repo.GetActivityStates(studentId, new string[] { activityId }))
+				.Then<List<ActivityState>>((states) =>
 				{
-					Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-					Uri restUri = new Uri(serverUri, "rest/");
-					
-					ActivityStateRepository repo = new ActivityStateRepository(restUri);
-					if (repo == null)
+					if (states.Count > 0)
 					{
-						throw new Exception("ActivityStateRepository is not initialized.");
+						return states.OrderByDescending(s => s.ModifiedDate).First();							
 					}
-
-					// Load ActivityState (if it exists)
-					repo.GetActivityStates(studentId, new string[] { activityId },  (ActivityStateRepository.Response loadResponse) =>
+					else
 					{
-						try
+						// Create ActivityState
+						ActivityState newState = new ActivityState()
 						{
-							if (loadResponse.Success)
-							{
-								if (loadResponse.Items != null && loadResponse.Items.Count > 0)
-								{
-									onCompleted(loadResponse.Items.OrderByDescending(s => s.ModifiedDate).First());							
-								}
-								else
-								{
-									// Create ActivityState
-									ActivityState newState = new ActivityState()
-									{
-										ActivityId = activityId,
-										StudentId = studentId
-									};
-									repo.Insert(newState, (ActivityStateRepository.Response insertResponse) =>
-									{
-										if (insertResponse.Success)
-										{
-											onCompleted(insertResponse.Item);
-										}
-										else
-										{
-											onError(new Exception(insertResponse.Error));
-										}
-									});
-
-								}
-							}
-							else
-							{
-								onError(new Exception(loadResponse.Error));
-							}
-						}
-						catch (Exception e)
-						{
-							onError(e);
-						}
-					});                   
-				}
-				catch (Exception e)
-				{
-					onError(e);
-				}
-			});
+							ActivityId = activityId,
+							StudentId = studentId
+						};
+						return repo.Insert(newState);
+					}
+				});                   
 		}
 
-		public AsyncTask SaveActivityState(ActivityState activityState)
+		public IAsyncTask SaveActivityState(ActivityState activityState)
 		{
 			Contract.ArgumentNotNull("activityState", activityState);
 
-			return new AsyncTask((onCompleted, onError) =>
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
+			
+			ActivityStateRepository repo = new ActivityStateRepository(restUri);
+			if (repo == null)
 			{
-				Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-				Uri restUri = new Uri(serverUri, "rest/");
-				
-				ActivityStateRepository repo = new ActivityStateRepository(restUri);
-				if (repo == null)
-				{
-					throw new Exception("ActivityStateRepository is not initialized.");
-				}
-				
-				// Load ActivityState (if it exists)
-				repo.Update(activityState, (ActivityStateRepository.Response response) =>
-				{
-					try
-					{
-						if (response.Success)
-						{
-							onCompleted(response.Item);
-						}
-						else
-						{
-							onError(new Exception(response.Error));							
-						}
-					}
-					catch (Exception e)
-					{
-						onError(e);
-					}
-				});                   
-			});
+				throw new Exception("ActivityStateRepository is not initialized.");
+			}
+
+			return repo.Update(activityState);                   
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace IntelliMedia
 {
 	public class AsyncTask : IAsyncTask
 	{
-		public delegate void TaskHandler(CompletedHandler onCompleted, ErrorHandler onError);
+		public delegate void TaskHandler(CompletedHandler onCompleted, ErrorHandler onError = null);
 		protected TaskHandler task;
 
 		public object Result { get; private set; }
@@ -49,7 +49,7 @@ namespace IntelliMedia
 			{
 				onCompleted(result);
 			});
-		}	
+		}				
 
 		public virtual void Start(CompletedHandler completedHandler = null, ErrorHandler errorHandler = null)
 		{

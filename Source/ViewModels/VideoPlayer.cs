@@ -32,7 +32,7 @@ using System.Text.RegularExpressions;
 
 namespace IntelliMedia
 {
-	public class VideoPlayerViewModel : ActivityViewModel
+	public class VideoPlayer : ActivityViewModel
 	{
 		private const string videoUriPattern = @"^urn:video:(?<VideoPath>.+)$";
 			
@@ -50,13 +50,13 @@ namespace IntelliMedia
 			set { PlaybackControlsVisibleProperty.Value = value; }
 		}
 
-		public VideoPlayerViewModel(StageManager navigator, ActivityService activityService) : base(navigator, activityService)
+		public VideoPlayer(StageManager navigator, ActivityService activityService) : base(navigator, activityService)
 		{
 		}
 
 		public void OnFinishedPlayingVideos()
 		{
-			navigator.Reveal<AlertViewModel> (alert => 
+			navigator.Reveal<Alert> (alert => 
 			{
 				alert.Title = "Playback complete";
 				alert.Message = "Press OK to return to return to the menu";
@@ -73,7 +73,7 @@ namespace IntelliMedia
 		{
 			PlaybackControlsVisible = true;
 
-			navigator.Reveal<AlertViewModel> (alert => 
+			navigator.Reveal<Alert> (alert => 
 			{
 				alert.Title = title;
 				alert.Message = error;
@@ -106,7 +106,7 @@ namespace IntelliMedia
 								
 		public void SaveAndQuit()
 		{
-			SaveActivityStateAndTransition<MainMenuViewModel>();
+			SaveActivityStateAndTransition<MainMenu>();
 		}
 	}
 }

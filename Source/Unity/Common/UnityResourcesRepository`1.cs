@@ -51,53 +51,52 @@ namespace IntelliMedia
 
         #region implemented abstract members of Repository
 
-        public override void Insert(T instance, ResponseHandler callback)
+		public override IAsyncTask Insert(T instance)
         {
             throw new NotImplementedException("UnityResourcesRepository.Insert() is not supported since Unity Resources read only.");
         }
         
-        public override void Update(T instance, ResponseHandler callback)
+		public override IAsyncTask Update(T instance)
         {
             throw new NotImplementedException("UnityResourcesRepository.Update() is not supported since Unity Resources read only.");
         }
         
-        public override void Delete(T instance, ResponseHandler callback)
+		public override IAsyncTask Delete(T instance)
         {
             throw new NotImplementedException("UnityResourcesRepository.Delete() is not supported since Unity Resources read only.");
         }
 
-        public override IQuery<T> Where(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+		public override IAsyncTask Get(System.Func<T, bool> predicate)
         {
-            throw new NotImplementedException();
-        }
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				List<T> items = new List<T>();
+				TextAsset[] textAssets = Resources.LoadAll<TextAsset>(DataDirectory);
+				foreach (TextAsset textAsset in textAssets)
+				{
+					T item = Serializer.Deserialize<T>(textAsset.text);
+					string id = GetKey(item).ToString();
+					if (textAsset.name.CompareTo(id) != 0)
+					{
+						DebugLog.Error("Object ID ({0}) does not match filename in {1}: {2}", id, DataDirectory, textAsset.name);
+					}
 
-        public override void Get(System.Func<T, bool> predicate, ResponseHandler callback)
-        {
-            GetAll((Response response) =>
-            {
-                if (!response.Success)
-                {
-                    throw new Exception(response.Error);
-                }
-                
-                try
-                {
-                    List<T> filteredItems = response.Items.Where(predicate).ToList();
-                    callback(new Response(filteredItems, null));
-                }
-                catch(Exception e)
-                {
-                    callback(new Response(e.Message));
-                }
-            });
-        }
+					if (predicate == null || predicate(item))
+					{
+						items.Add(item);
+					}
+				}
+				onCompleted(items);
+			});
+		}
         
-        public override void GetByKeys(object[] keys, ResponseHandler callback)
+		public override IAsyncTask GetByKeys(object[] keys)
         {
-            List<T> instances = new List<T>();
-            string error = null;
-            try
-            {
+			Contract.ArgumentNotNull("keys", keys);
+
+			return new AsyncTask((onCompleted, onError) =>
+			{			
+            	List<T> instances = new List<T>();
                 foreach (object key in keys)
                 {
                     TextAsset textAsset = Resources.Load<TextAsset>(GetResourceNameFromKey(key));
@@ -110,23 +109,24 @@ namespace IntelliMedia
                         throw new Exception(String.Format("Unable to find {0} with id = {1}", typeof(T).Name, key.ToString()));
                     }
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instances, error));
-                }
-            }
-        }
+				onCompleted(instances);
+			});
+		}
 
-        public override void GetByKey(object key, ResponseHandler callback)
+		public override IAsyncTask GetByKey(object key)
         {
-            GetByKeys(new object[] { key }, callback);
+			Contract.ArgumentNotNull("key", key);
+
+			return new AsyncTask((onCompleted, onError) =>
+			{		
+				T instance = default(T);	
+				TextAsset textAsset = Resources.Load<TextAsset>(GetResourceNameFromKey(key));
+				if (textAsset != null)
+				{                       
+					instance = Serializer.Deserialize<T>(textAsset.text);
+				}
+				onCompleted(instance);
+			});
         }
 
         #endregion
@@ -141,38 +141,7 @@ namespace IntelliMedia
             }
             
             return PathCombine(DataDirectory, key.ToString());
-        }
-        
-        protected virtual void GetAll(ResponseHandler callback)
-        {
-            List<T> items = new List<T>();
-            string error = null;
-            try
-            {
-                TextAsset[] textAssets = Resources.LoadAll<TextAsset>(DataDirectory);
-                foreach (TextAsset textAsset in textAssets)
-                {
-                    T item = Serializer.Deserialize<T>(textAsset.text);
-                    string id = GetKey(item).ToString();
-                    if (textAsset.name.CompareTo(id) != 0)
-                    {
-                        DebugLog.Error("Object ID ({0}) does not match filename in {1}: {2}", id, DataDirectory, textAsset.name);
-                    }
-                    items.Add(item);
-                }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(items, error));
-                }
-            }
-        }
+        }        
 
         // Path.Combine() isn't available on the Unity WebPlayer
         private string PathCombine(string path1, string path2)

@@ -34,36 +34,6 @@ namespace IntelliMedia
 {
     public abstract class Repository<T> where T : class, new()
     {
-        public class Response
-        {
-            public bool Success { get { return Error == null; }}
-            public string Error { get; private set; }
-            public T Item { get; set; }
-            public List<T> Items { get; set; }
-
-            public Response(string error)
-            {
-                Error = error;
-            } 
-           
-            public Response(T item, string error)
-            {
-                Item = item;
-                Error = error;
-            }           
-
-            public Response(List<T> items, string error)
-            {
-                Items = items;
-                if (Items != null && Items.Count == 1)
-                {
-                    Item = Items[0];
-                }
-                Error = error;
-            }
-        }
-        public delegate void ResponseHandler(Response response);
-
         protected RepositoryKey RepositoryKey { get; private set; }
         protected PropertyInfo KeyPropertyInfo { get; private set; }
 
@@ -72,13 +42,14 @@ namespace IntelliMedia
             FindKeyPropertyInDataType();            
         }
 
-        public abstract void Insert(T instance, ResponseHandler callback);
-        public abstract void Update(T instance, ResponseHandler callback);
-        public abstract void Delete(T instance, ResponseHandler callback);
-        public abstract IQuery<T> Where(Expression<Func<T, Boolean>> predicate);
-        public abstract void Get(System.Func<T, bool> predicate, ResponseHandler callback);
-        public abstract void GetByKeys(object[] keys, ResponseHandler callback);
-        public abstract void GetByKey(object key, ResponseHandler callback);
+		public abstract IAsyncTask Insert(T instance);
+		public abstract IAsyncTask Update(T instance);
+		public abstract IAsyncTask Delete(T instance);
+		// TODO rgtaylor 2016-08-16 Implement query capable of returning results in batches
+        // public abstract IQuery<T> Where(Expression<Func<T, Boolean>> predicate);
+		public abstract IAsyncTask Get(System.Func<T, bool> predicate);
+		public abstract IAsyncTask GetByKeys(object[] keys);
+		public abstract IAsyncTask GetByKey(object key);
 
         protected object GetKey(T instance)
         {

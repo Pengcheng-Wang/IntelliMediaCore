@@ -34,8 +34,8 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(AlertViewModel))]
-	public class AlertView : UnityGuiView<AlertViewModel>
+	[ViewDescriptor(typeof(Alert))]
+	public class AlertView : UnityGuiView<Alert>
 	{
 		public Text title;
 		public Text message;

@@ -33,7 +33,7 @@ using IntelliMedia;
 
 namespace IntelliMedia
 {
-	public class LoadingViewModel : ViewModel
+	public class ProgressIndicator : ViewModel
 	{
 		private StageManager navigator;
 		private List<ProgressInfo> indicators = new List<ProgressInfo>();
@@ -45,16 +45,16 @@ namespace IntelliMedia
 		{
 			if (IsFinished)
 			{
-				if (IsRevealed || IsRevealInProgress)
+				//if (IsRevealed || IsRevealInProgress)
 				{
-					navigator.Hide(this);
+					navigator.Hide(this).Start();
 				}
 			}
 			else
 			{
 				if (!IsRevealed && !IsRevealInProgress)
 				{
-					navigator.Reveal(this);
+					navigator.Reveal(this).Start();
 				}
 			}
 
@@ -109,7 +109,7 @@ namespace IntelliMedia
 
 		public class ProgressInfo : IDisposable
 		{
-			private LoadingViewModel ViewModel { get; set; }
+			private ProgressIndicator ViewModel { get; set; }
 
 			public delegate void CancelledHandler();
 			public CancelledHandler Cancelled;
@@ -134,7 +134,7 @@ namespace IntelliMedia
 				private set { if (percentComplete != value) { percentComplete = value; OnProgressUpdated(); } }
 			}
 			
-			public ProgressInfo(LoadingViewModel busyViewModel, string message, bool isBlocking = true)
+			public ProgressInfo(ProgressIndicator busyViewModel, string message, bool isBlocking = true)
 			{
 				Contract.ArgumentNotNull("busyViewModel",busyViewModel);
 				Contract.ArgumentNotNull("message", message );
@@ -175,7 +175,7 @@ namespace IntelliMedia
 			}
 		}
 
-		public LoadingViewModel(StageManager navigator)
+		public ProgressIndicator(StageManager navigator)
 		{
 			this.navigator = navigator;
 		}

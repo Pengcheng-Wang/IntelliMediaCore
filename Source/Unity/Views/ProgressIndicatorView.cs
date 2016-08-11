@@ -34,8 +34,8 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(ProgressIndicatorViewModel))]
-	public class ProgressIndicatorView : UnityGuiView<ProgressIndicatorViewModel>
+	[ViewDescriptor(typeof(ProgressIndicator))]
+	public class ProgressIndicatorView : UnityGuiView<ProgressIndicator>
 	{
 		public Text message;
 		public Button cancelButton;
@@ -46,7 +46,7 @@ namespace IntelliMedia
 			Contract.PropertyNotNull("cancelButton", cancelButton);
 
 			base.OnBindingContextChanged(oldViewModel, newViewModel);
-			ProgressIndicatorViewModel previousViewModel = oldViewModel as ProgressIndicatorViewModel;
+			ProgressIndicator previousViewModel = oldViewModel as ProgressIndicator;
 			if (previousViewModel != null)
 			{
 				previousViewModel.ProgressUpdated -= UpdateControls;

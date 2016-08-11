@@ -71,14 +71,14 @@ namespace IntelliMedia
         /// Request the activities which the instructor has enabled AND which are viewable by the instructor
         /// through access control settings.
         /// </summary>
-        public void GetActivities(string courseId, ResponseHandler callback)
+		public IAsyncTask GetActivities(string courseId)
         {              
 			Contract.ArgumentNotNull("courseId", courseId);
             
 			string path = String.Format("courseid/{0}", courseId);
             
             
-            Get(new Uri(ReadUri, path), callback);
+            return Get(new Uri(ReadUri, path));
         }
     }
 }

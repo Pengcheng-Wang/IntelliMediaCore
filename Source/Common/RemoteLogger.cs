@@ -110,48 +110,14 @@ namespace IntelliMedia
 
 		private delegate void UploadFileHandler(bool success, string error);
 
-		private void UploadFile(System.IO.Stream stream, string filename, UploadFileHandler callback)
+		private AsyncTask<string> UploadFile(System.IO.Stream stream, string filename, UploadFileHandler callback)
 		{	
 			stream.Seek(0, System.IO.SeekOrigin.Begin);
 
 			MimePart chunkInfo = new MimePart("MyPart", MimePart.UrlEncoded, "Finished", "true");
 			MimePart mimePart = new MimePart("fileUpload", MimePart.TextCsv, filename, stream);
 			
-			httpClient.Post(ServerUrl, DefaultRetryCount, true, new List<MimePart>() { mimePart, chunkInfo }, (postResult) =>
-			{
-				string error = null;
-				try
-				{
-					using (HttpResult httpResult = postResult.AsyncState as HttpResult)
-					{
-						// Check server response
-						if (httpResult.StatusCode == System.Net.HttpStatusCode.OK)
-						{
-							// Success!
-						}
-						else
-						{
-							throw new Exception(string.Format("Server responded with {0}. {1}", 
-							                                  httpResult.StatusCode, 
-							                                  httpResult.StatusDescription));
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					error = "Unable to upload trace data to the cloud. " + e.Message;
-				}
-
-				if (callback != null)
-				{
-					callback(error != null, error);
-				}
-
-				if (!String.IsNullOrEmpty(error))
-				{
-					DebugLog.Error(error);
-				}
-			});
+			return httpClient.Post(ServerUrl, true, new List<MimePart>() { mimePart, chunkInfo });
 		}
     }
 }

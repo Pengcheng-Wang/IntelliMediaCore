@@ -68,7 +68,7 @@ namespace IntelliMedia
         {
         }
 
-		public void GetActivityStates(String studentId, IEnumerable<string> activityIds, ResponseHandler callback)
+		public IAsyncTask GetActivityStates(String studentId, IEnumerable<string> activityIds)
         {              
 			Contract.ArgumentNotNull("studentId", studentId);
 			Contract.ArgumentNotNull("activityIds", activityIds);
@@ -77,7 +77,7 @@ namespace IntelliMedia
 			                            studentId, KeysToPath(activityIds.ToArray()));
             
             
-            Get(new Uri(ReadUri, path), callback);
+            return Get(new Uri(ReadUri, path));
         }
     }
 }

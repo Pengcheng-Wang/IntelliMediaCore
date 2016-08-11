@@ -33,8 +33,8 @@ using UnityEngine.Events;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(LoadingViewModel))]
-	public class LoadingView : UnityGuiView<LoadingViewModel>
+	[ViewDescriptor(typeof(Loading))]
+	public class LoadingView : UnityGuiView<Loading>
 	{
 		public Text message;
 		public Button cancelButton;
@@ -45,7 +45,7 @@ namespace IntelliMedia
 			Contract.PropertyNotNull("cancelButton", cancelButton);
 
 			base.OnBindingContextChanged(oldViewModel, newViewModel);
-            LoadingViewModel previousViewModel = oldViewModel as LoadingViewModel;
+            Loading previousViewModel = oldViewModel as Loading;
 			if (previousViewModel != null)
 			{
 				previousViewModel.ProgressUpdated -= UpdateControls;

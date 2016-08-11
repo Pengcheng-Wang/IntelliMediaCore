@@ -40,8 +40,8 @@ using System.IO;
 
 namespace IntelliMedia
 {
-	[ViewDescriptor(typeof(VideoPlayerViewModel))]
-	public class VideoPlayerView : UnityGuiView<VideoPlayerViewModel>
+	[ViewDescriptor(typeof(VideoPlayer))]
+	public class VideoPlayerView : UnityGuiView<VideoPlayer>
 	{
 		public const int VideoPrevNextCacheSize = 1;
 		public static readonly string[] VideoFilenameExtensions = { ".mov", ".mpg", ".mpeg", ".mp4" };
@@ -81,7 +81,7 @@ namespace IntelliMedia
 		{
 			base.OnBindingContextChanged(oldViewModel, newViewModel);
 
-			VideoPlayerViewModel oldVm = oldViewModel as VideoPlayerViewModel;
+			VideoPlayer oldVm = oldViewModel as VideoPlayer;
 			if (oldVm != null)
 			{
 				oldVm.VideoPathProperty.ValueChanged -= OnVideoPathChanged;

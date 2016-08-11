@@ -34,17 +34,17 @@ namespace IntelliMedia
 {
 	public class StageManager
 	{
-		private readonly List<IResolver> resolvers = new List<IResolver>();
+		private readonly List<ITheatreResolver> resolvers = new List<ITheatreResolver>();
 
 		private HashSet<IView> revealedViews = new HashSet<IView>();
 
-		public void Register(IResolver resolver)
+		public void Register(ITheatreResolver resolver)
 		{
 			DebugLog.Info("StageManager registered resolver: {0}", resolver.Name);
 			resolvers.Add(resolver);
 		}
 
-		public void Unregister(IResolver resolver)
+		public void Unregister(ITheatreResolver resolver)
 		{
 			DebugLog.Info("StageManager unregistered resolver: {0}", resolver.Name);
 			resolvers.Remove(resolver);

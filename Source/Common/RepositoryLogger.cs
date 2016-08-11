@@ -55,12 +55,9 @@ namespace IntelliMedia
         {
             if (Enabled)
             {
-                Insert(entry, (Response response) =>
+				Insert(entry).Start(null, (error) =>
                 {
-                    if (!response.Success)
-                    {
-                        DebugLog.Error("RepositoryLogger unabled to log. " + response.Error);
-                    }
+					DebugLog.Error("RepositoryLogger unabled to log. {0}", error.Message);
                 });
             }
         }

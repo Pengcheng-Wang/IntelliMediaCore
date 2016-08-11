@@ -67,13 +67,13 @@ namespace IntelliMedia
         {
         }
 
-        public void SignIn(string group, string username, string password, ResponseHandler callback)
+        public IAsyncTask SignIn(string group, string username, string password)
         {              
             string path = String.Format("group/{0}/username/{1}?digest={2}", 
                                          group, username, Cipher.Encrypt(password));
 
         
-            Get(new Uri(ReadUri, path), callback);
+            return Get(new Uri(ReadUri, path), true);
         }
     }
 }

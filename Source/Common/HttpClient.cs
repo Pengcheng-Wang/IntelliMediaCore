@@ -25,6 +25,9 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
+using System.Text.RegularExpressions;
+
+
 #if !(SILVERLIGHT || WPF || TOOL)
 using UnityEngine;
 using HttpWebResponse = IntelliMedia.UnityWebResponse;
@@ -48,147 +51,109 @@ namespace IntelliMedia
         /// Post a single MIME encoded payload to a URI
         /// </summary>
         /// <param name="uri">The URI of the web service to receive the Http post message</param>
-        /// <param name="retries">Number of times to retry post if there is an error</param>
         /// <param name="mimePart">MIME encoded payload</param>
-        /// <param name="callback">Method called on failure or success that is passed an AsyncResult whose Result property is set to HttpResult</param>
-        /// <returns>WebRequest IAsyncResult object</returns>
-        public IAsyncResult Post(Uri uri, int retries, MimePart mimePart, AsyncCallback callback)
+        /// <returns>Async task return returns the string result of the HTTP command</returns>
+		public AsyncTask<string> Post(Uri uri, MimePart mimePart)
         {
-            return Post(uri, retries, false, new List<MimePart> { mimePart }, callback);
+            return Post(uri, false, new List<MimePart> { mimePart });
         }
 
         /// <summary>
         /// Post one or more MIME parts to a URI
         /// </summary>
         /// <param name="uri">The URI of the web service to receive the Http post message</param>
-        /// <param name="retries">Number of times to retry post if there is an error</param>
         /// <param name="mimeParts">MIME encoded payload</param>
-        /// <param name="callback">Method called on failure or success that is passed an AsyncResult whose Result property is set to HttpResult</param>
-        /// <returns>WebRequest IAsyncResult object</returns>
-		public IAsyncResult Post(Uri uri, int retries, bool forceMultipart, List<MimePart> mimeParts, AsyncCallback callback)
+		/// <returns>Async task return returns the string result of the HTTP command</returns>
+		public AsyncTask<string> Post(Uri uri, bool forceMultipart, List<MimePart> mimeParts)
         {
+			return new AsyncTask<string>((onCompleted, onError) =>
+			{			
 #if (SILVERLIGHT || WPF || TOOL)
-            WebRequest webRequest = WebRequest.Create(uri);
+	            WebRequest webRequest = WebRequest.Create(uri);
 #else
-            WebRequest webRequest = new UnityWebRequest(uri);
+	            WebRequest webRequest = new UnityWebRequest(uri);
 #endif
-            webRequest.Method = "POST";
-            IAsyncResult asyncResult = webRequest.BeginGetRequestStream((asynchronousResult) =>
-            {
-                WebRequest request = (WebRequest)asynchronousResult.AsyncState;
+	            webRequest.Method = "POST";
+	            webRequest.BeginGetRequestStream((asynchronousResult) =>
+	            {
+					try
+					{					
+		                WebRequest request = (WebRequest)asynchronousResult.AsyncState;
 
-				if (mimeParts.Count > 1 || forceMultipart)
-                {
-                    CreateMultiPartRequest(request, asynchronousResult, mimeParts);
-                }
-                else
-                {
-                    CreateSinglePartRequest(request, asynchronousResult, mimeParts[0]);
-                }
+						if (mimeParts.Count > 1 || forceMultipart)
+		                {
+		                    CreateMultiPartRequest(request, asynchronousResult, mimeParts);
+		                }
+		                else
+		                {
+		                    CreateSinglePartRequest(request, asynchronousResult, mimeParts[0]);
+		                }
 
-                // Start the asynchronous operation to get the response
-                request.BeginGetResponse((responseResult) =>
-                {
-                    bool retry = false;
-                    HttpResult httpResult = null;
-                    try
-                    {
-                        HttpWebResponse response = ((WebRequest)responseResult.AsyncState).EndGetResponse(responseResult) as HttpWebResponse;
-                        // Response stream is released when HttpResult is released
-                        httpResult = new HttpResult(response.GetResponseStream(), response.StatusCode, response.StatusDescription, response.ContentType);
-                    }
-                    catch (WebException we)
-                    {
-                        DebugLog.Error("WebException -> {0} '{1}' failed", webRequest.Method, uri.ToString());
-                        DebugLog.Error(we.Message);
-                        if (retries > 0 && we.Status != WebExceptionStatus.RequestCanceled)
-                        {
-                            DebugLog.Info("Retry {0} '{1}'", webRequest.Method, uri.ToString());
-							Post(uri, --retries, forceMultipart, mimeParts, callback);
-                            retry = true;
-                        }
-                        else
-                        {
-                            httpResult = new HttpResult(we);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        DebugLog.Error("HTTP {0} '{1}' failed: {2}", webRequest.Method, uri.ToString(), e.Message);
-                        httpResult = new HttpResult(e);
-                    }
-                    finally
-                    {
-                        if (!retry && callback != null)
-                        {
-                            callback(new AsyncResult<HttpResult>(httpResult));
-                        }
-                    }
-                },
-                request);
-            },
+		                // Start the asynchronous operation to get the response
+		                request.BeginGetResponse((responseResult) =>
+		                {
+		                    try
+		                    {
+		                        HttpWebResponse response = ((WebRequest)responseResult.AsyncState).EndGetResponse(responseResult) as HttpWebResponse;
+		                        // Response stream is released when HttpResult is released
+								using (HttpResult httpResult = new HttpResult(response.GetResponseStream(), response.StatusCode, response.StatusDescription, response.ContentType))
+								{
+									ProcessResult(httpResult, onCompleted);
+								}
+		                    }
+		                    catch (Exception e)
+		                    {
+		                        DebugLog.Error("HTTP {0} '{1}' failed: {2}", webRequest.Method, uri.ToString(), e.Message);
+		                        onError(e);
+		                    }
+		                },
+		                request);
+					}
+					catch (Exception e)
+					{
+						DebugLog.Error("HTTP {0} '{1}' failed: {2}", webRequest.Method, uri.ToString(), e.Message);
+						onError(e);
+					}						
+	            },
                 webRequest);
-
-            return asyncResult;
-        }
+			});
+		}
 
         /// <summary>
         /// Get response stream from a web service indicated by URI 
         /// </summary>
         /// <param name="uri">URI (path plus query string) to web service</param>
-        /// <param name="retries">The number of times to retry get if it fails</param>
-        /// <param name="callback">Method called on failure or success that is passed an AsyncResult whose Result property is set to HttpResult</param>
-        /// <returns>WebRequest IAsyncResult object</returns>
-        public IAsyncResult Get(Uri uri, int retries, AsyncCallback callback)
+		/// <returns>Async task return returns the string result of the HTTP command</returns>
+		public AsyncTask<string> Get(Uri uri)
         {
+			return new AsyncTask<string>((onCompleted, onError) =>
+			{				
 #if (SILVERLIGHT || WPF || TOOL)
-            WebRequest webRequest = WebRequest.Create(uri);
+	            WebRequest webRequest = WebRequest.Create(uri);
 #else
-            WebRequest webRequest = new UnityWebRequest(uri);
+	            WebRequest webRequest = new UnityWebRequest(uri);
 #endif
-            webRequest.Method = "GET";
-            IAsyncResult asyncResult = webRequest.BeginGetResponse((responseResult) =>
-            {
-                bool retry = false;
-                HttpResult httpResult = null;
-                try
-                {
-                    HttpWebResponse response = ((WebRequest)responseResult.AsyncState).EndGetResponse(responseResult) as HttpWebResponse;
-                    // Response stream is released when HttpResult is released
-                    httpResult = new HttpResult(response.GetResponseStream(), response.StatusCode, response.StatusDescription, response.ContentType);
-                }
-                catch (WebException we)
-                {
-                    DebugLog.Error("WebException -> Get '{0}' failed", uri.ToString());
-                    DebugLog.Error(we.Message);
-                    if (retries > 0 && we.Status != WebExceptionStatus.RequestCanceled)
-                    {
-                        DebugLog.Info("Retry Get '{0}'", uri.ToString());
-                        Get(uri, --retries, callback);
-                        retry = true;
-                    }
-                    else
-                    {
-                        httpResult = new HttpResult(we);
-                    }
-                }
-                catch (Exception e)
-                {
-                    DebugLog.Error("HTTP GET '{0}' failed: {1}", uri.ToString(), e.Message);
-                    httpResult = new HttpResult(e);
-                }
-                finally
-                {
-                    if (!retry && callback != null)
-                    {
-                        callback(new AsyncResult<HttpResult>(httpResult));
-                    }
-                }
-            },
-            webRequest);
-
-            return asyncResult;
-        }
+	            webRequest.Method = "GET";
+	            webRequest.BeginGetResponse((responseResult) =>
+	            {
+	                try
+	                {
+	                    HttpWebResponse response = ((WebRequest)responseResult.AsyncState).EndGetResponse(responseResult) as HttpWebResponse;
+	                    // Response stream is released when HttpResult is released
+						using (HttpResult httpResult = new HttpResult(response.GetResponseStream(), response.StatusCode, response.StatusDescription, response.ContentType))
+						{
+							ProcessResult(httpResult, onCompleted);
+						}
+	                }
+	                catch (Exception e)
+	                {
+						DebugLog.Error("HTTP {0} '{1}' failed: {2}", webRequest.Method, uri.ToString(), e.Message);
+						onError(e);
+	                }
+	            },
+	            webRequest);
+			});
+		}
 
         private static void CreateSinglePartRequest(WebRequest request, IAsyncResult asyncResult, MimePart part)
         {
@@ -259,5 +224,44 @@ namespace IntelliMedia
                 postStream.Write(footer, 0, footer.Length);
             }
         }
+
+		private void ProcessResult(HttpResult httpResult, CompletedHandler onCompleted)
+		{
+			// Check server response
+			CheckServerResult(httpResult);
+
+			// Process response before using block ends and releases resources
+			onCompleted(httpResult.Response);
+		}
+
+		private static readonly string httpErrorRegexPattern = @"^(?<status>\d*)\s*(?<message>.+)";
+
+		private void CheckServerResult(HttpResult httpResult)
+		{       
+			// Parse HTTP exception message
+			if (httpResult.Error != null && !string.IsNullOrEmpty(httpResult.Error.Message))
+			{
+				Regex errorRegex = new Regex(httpErrorRegexPattern, RegexOptions.None);
+				MatchCollection matches = errorRegex.Matches(httpResult.Error.Message);
+				if (matches.Count > 0 && matches[0].Success)
+				{
+					throw new Exception(matches[0].Groups["message"].Value);
+				}
+			}
+
+			// Accept any HTTP status code in the 2xx range as success
+			else if (httpResult.StatusCode != System.Net.HttpStatusCode.OK
+				&& httpResult.StatusCode != System.Net.HttpStatusCode.Created
+				&& httpResult.StatusCode != System.Net.HttpStatusCode.Accepted
+				&& httpResult.StatusCode != System.Net.HttpStatusCode.NonAuthoritativeInformation
+				&& httpResult.StatusCode != System.Net.HttpStatusCode.NoContent
+				&& httpResult.StatusCode != System.Net.HttpStatusCode.ResetContent
+				&& httpResult.StatusCode != System.Net.HttpStatusCode.PartialContent)
+			{
+				// If this fails, confirm all "correct" status codes are listed above AND
+				// check the parsing code in UnityWebResponse.
+				throw new Exception(string.Format("Unexpected Status Code: {0}", httpResult.StatusDescription));
+			}
+		}
     }
 }

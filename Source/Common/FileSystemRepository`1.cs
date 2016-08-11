@@ -56,11 +56,10 @@ namespace IntelliMedia
 
         #region IRepository implementation
 
-        public override void Insert(T instance, ResponseHandler callback)
+		public override IAsyncTask Insert(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
                 if (IsIdNull(instance))
                 {
                     AssignUniqueId(instance);
@@ -77,96 +76,58 @@ namespace IntelliMedia
                 {
                     stream.Write(serializedObject);
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instance, error));
-                }
-            }
+				onCompleted(instance);
+			});
         }
 
-        public override void Update(T instance, ResponseHandler callback)
+		public override IAsyncTask Update(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
                 string serializedObject = Serializer.Serialize<T>(instance, true);
                 using (StreamWriter stream = new StreamWriter(GetFilenameFromInstance(instance), false))
                 {
                     stream.Write(serializedObject);
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instance, error));
-                }
-            }
+				onCompleted(instance);
+			});
         }
 
-        public override void Delete(T instance, ResponseHandler callback)
+		public override IAsyncTask Delete(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
                 File.Delete(GetFilenameFromInstance(instance));
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(error));
-                }
-            }
+				onCompleted(instance);
+			});
+		}
+
+		public override IAsyncTask Get(System.Func<T, bool> predicate)
+        {
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				List<T> instances = new List<T>();
+				foreach(string filename in Directory.GetFiles(DataDirectory))
+				{
+					using(StreamReader reader = new StreamReader(filename))
+					{
+						string serializeObject = reader.ReadToEnd();
+						T instance = Serializer.Deserialize<T>(serializeObject);
+						if (predicate == null || predicate(instance))
+						{
+							instances.Add(instance);
+						}
+					}
+				}				
+				onCompleted(instances);
+			});				
         }
 
-        public override IQuery<T> Where(System.Linq.Expressions.Expression<System.Func<T, bool>> predicate)
+		public override IAsyncTask GetByKeys(object[] keys)
         {
-            throw new System.NotImplementedException ();
-        }
-
-        public override void Get(System.Func<T, bool> predicate, ResponseHandler callback)
-        {
-            GetAll((Response response) =>
-            {
-                if (!response.Success)
-                {
-                    throw new Exception(response.Error);
-                }
-
-                try
-                {
-                    List<T> filteredItems = response.Items.Where(predicate).ToList();
-                    callback(new Response(filteredItems, null));
-                }
-                catch(Exception e)
-                {
-                    callback(new Response(e.Message));
-                }
-            });
-        }
-
-        public override void GetByKeys(object[] keys, ResponseHandler callback)
-        {
-            List<T> instances = new List<T>();
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				List<T> instances = new List<T>();
                 foreach (object key in keys)
                 {
                     using(StreamReader reader = new StreamReader(GetFilenameFromKey(key)))
@@ -175,23 +136,20 @@ namespace IntelliMedia
                         instances.Add(Serializer.Deserialize<T>(serializeObject));
                     }
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instances, error));
-                }
-            }
-        }
+				onCompleted(instances);
+			});
+		}
 
-        public override void GetByKey(object key, ResponseHandler callback)
+		public override IAsyncTask GetByKey(object key)
         {
-            GetByKeys(new object[] { key }, callback);
+			return new AsyncTask((onCompleted, onError) =>
+			{			
+				using(StreamReader reader = new StreamReader(GetFilenameFromKey(key)))
+				{
+					string serializeObject = reader.ReadToEnd();
+					onCompleted(Serializer.Deserialize<T>(serializeObject));
+				}
+			});
         }
 
         #endregion 
@@ -211,34 +169,6 @@ namespace IntelliMedia
         private string GetFilenameFromInstance(T instance)
         {
             return GetFilenameFromKey(GetKey(instance));
-        }
-
-        protected virtual void GetAll(ResponseHandler callback)
-        {
-            string error = null;
-            List<T> instances = new List<T>();
-            try
-            {
-                foreach(string filename in Directory.GetFiles(DataDirectory))
-                {
-                    using(StreamReader reader = new StreamReader(filename))
-                    {
-                        string serializeObject = reader.ReadToEnd();
-                        instances.Add(Serializer.Deserialize<T>(serializeObject));
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instances, error));
-                }
-            }
-        }
+        }			
     }
 }

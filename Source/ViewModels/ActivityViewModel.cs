@@ -30,7 +30,7 @@ using System;
 
 namespace IntelliMedia
 {
-	public class ActivityViewModel : ViewModel
+	public abstract class ActivityViewModel : ViewModel
 	{
 		protected StageManager navigator;
 		protected ActivityService activityService;
@@ -110,9 +110,9 @@ namespace IntelliMedia
 		protected void SaveActivityStateAndTransition<ToViewModel>()
 		{												
 			DebugLog.Info("Save state");
-			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
-				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+			ProgressIndicator.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicator>())
+				.Then<ProgressIndicator>((progressIndicatorViewModel) =>
 				{
 	                busyIndicator = progressIndicatorViewModel.Begin("Saving...");
 					return activityService.SaveActivityState(ActivityState);
@@ -120,7 +120,7 @@ namespace IntelliMedia
 				.Then<ActivityState>((activityState) => navigator.Transition(this, typeof(ToViewModel)))
                 .Catch((Exception e) =>
                 {
-                   navigator.Reveal<AlertViewModel>(alert =>
+                   navigator.Reveal<Alert>(alert =>
                     {
                         alert.Title = "Unable to save";
                         alert.Message = e.Message;

@@ -1,4 +1,4 @@
-﻿//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 // Copyright 2014 North Carolina State University
 //
 // Center for Educational Informatics
@@ -26,51 +26,55 @@
 //
 //---------------------------------------------------------------------------------------
 using System;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-	public class ExampleActivityViewModel : ActivityViewModel
+	public class Alert : ViewModel
 	{
-		public int CurrentCount { get; set; }
+		private StageManager navigator;
 
-		public readonly BindableProperty<int> BarProperty = new BindableProperty<int>();
+		public string Title { get; set; }
+		public string Message { get; set; }
+		public Exception Error { get; set; }
+		public string[] ButtonLabels { get; set; }
 
-		public static readonly BindableProperty<int> GamesPlayed = new BindableProperty<int>();
+		public delegate void AlertDismissedHandler(int buttonIndex);
+		public AlertDismissedHandler AlertDismissed;
 
-		public ExampleActivityViewModel(StageManager stageManager, ActivityService activityService) : base(stageManager, activityService)
+		public Alert(StageManager navigator)
 		{
+			Contract.ArgumentNotNull("navigator", navigator);
+
+			this.navigator = navigator;
+			Reset();
 		}
 
-		public override void OnStartReveal()
+		public override void OnStartReveal ()
 		{
 			base.OnStartReveal();
 
-			InitializeFromSaveData();
+			if (Error != null)
+			{
+				DebugLog.Error("Error Alert Displayed. {0}. {1}", Error.Message, Error.StackTrace);
+			}
 		}
 
-		private void InitializeFromSaveData()
+		public void ButtonPressed(int index)
 		{
-			ExampleActivitySaveData gameSave = DeserializeActivityData<ExampleActivitySaveData>();
-
-			CurrentCount = gameSave.MagicNumber;
-		}
-		
-		public void SaveAndQuit()
-		{
-			ExampleActivitySaveData gameSave = DeserializeActivityData<ExampleActivitySaveData>();
-
-			gameSave.MagicNumber = CurrentCount;
-
-			SerializeActivityData(gameSave);
-			SaveActivityStateAndTransition<MainMenuViewModel>();
+			navigator.Hide(this).Start((result) =>
+			{
+				if (AlertDismissed != null)
+				{
+					AlertDismissed(index);
+				}
+				Reset();
+			});
 		}
 
-		public void Restart()
+		private void Reset()
 		{
-			SerializeActivityData(new ExampleActivitySaveData());
-			InitializeFromSaveData();
+			ButtonLabels = new string[] { "OK" };
+			AlertDismissed = null;
 		}
 	}
 }

@@ -67,11 +67,10 @@ namespace IntelliMedia
 
         #region IRepository implementation
 
-        public override void Insert(T instance, ResponseHandler callback)
+		public override IAsyncTask Insert(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{			
                 if (IsIdNull(instance))
                 {
                     AssignUniqueId(instance);
@@ -87,25 +86,14 @@ namespace IntelliMedia
                 PlayerPrefs.SetString(keyPath, serializedObject);
                 KeysIndex.Add(GetKey(instance));
                 OnPlayerPrefsChanged();
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instance, error));
-                }
-            }
-        }
+				onCompleted(instance);
+			});
+		}
 
-        public override void Update(T instance, ResponseHandler callback)
+		public override IAsyncTask Update(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{	
                 string serializedObject = Serializer.Serialize<T>(instance, true);
                 string keyPath = GetKeyFromInstance(instance);
                 if (!PlayerPrefs.HasKey(keyPath))
@@ -114,76 +102,35 @@ namespace IntelliMedia
                 }
                 PlayerPrefs.SetString(keyPath, serializedObject);
                 OnPlayerPrefsChanged();
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instance, error));
-                }
-            }
-        }
+				onCompleted(instance);
+			});
+		}
 
-        public override void Delete(T instance, ResponseHandler callback)
+		public override IAsyncTask Delete(T instance)
         {
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{	
                 string keyPath = GetKeyFromInstance(instance);
                 PlayerPrefs.DeleteKey(keyPath);
                 KeysIndex.Remove(GetKey(instance));
                 OnPlayerPrefsChanged();
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(error));
-                }
-            }
-        }
+				onCompleted(instance);
+			});
+		}
 
-        public override IQuery<T> Where(System.Linq.Expressions.Expression<System.Func<T, bool>> predicate)
+		public override IAsyncTask Get(System.Func<T, bool> predicate)
         {
-            throw new System.NotImplementedException ();
-        }
+			return new AsyncTask((onCompleted, onError) =>
+			{	
+				onCompleted(GetAll().Where(predicate).ToList());
+			});
+		}
 
-        public override void Get(System.Func<T, bool> predicate, ResponseHandler callback)
+		public override IAsyncTask GetByKeys(object[] keys)
         {
-            string error = null;
-            List<T> filteredItems = null;
-            try
-            {
-                filteredItems = GetAll().Where(predicate).ToList();
-                callback(new Response(filteredItems, null));
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(filteredItems, error));
-                }
-            }
-        }
-
-        public override void GetByKeys(object[] keys, ResponseHandler callback)
-        {
-            List<T> instances = new List<T>();
-            string error = null;
-            try
-            {
+			return new AsyncTask((onCompleted, onError) =>
+			{			
+            	List<T> instances = new List<T>();
                 foreach (object key in keys)
                 {
                     string keyString = GetKeyPath(key);
@@ -197,23 +144,23 @@ namespace IntelliMedia
                         throw new Exception(String.Format("Unable to find {0} with id = {1}", typeof(T).Name, key.ToString()));
                     }
                 }
-            }
-            catch(Exception e)
-            {
-                error = e.Message;
-            }
-            finally
-            {
-                if (callback != null)
-                {
-                    callback(new Response(instances, error));
-                }
-            }
-        }
+				onCompleted(instances);
+			});
+		}
 
-        public override void GetByKey(object key, ResponseHandler callback)
+		public override IAsyncTask GetByKey(object key)
         {
-            GetByKeys(new object[] { key }, callback);
+			return new AsyncTask((onCompleted, onError) =>
+			{
+				T instance = null;
+				string keyString = GetKeyPath(key);
+				if (PlayerPrefs.HasKey(keyString))
+				{
+					string serializeObject = PlayerPrefs.GetString(keyString);
+					instance = Serializer.Deserialize<T>(serializeObject);
+				}
+				onCompleted(instance);
+			});				
         }
 
         #endregion 

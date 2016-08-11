@@ -40,31 +40,18 @@ namespace IntelliMedia
 			this.appSettings = appSettings;
 		}
 		
-		public AsyncTask LoadSettings(string studentId)
+		public IAsyncTask LoadSettings(string studentId)
 		{
-			return new AsyncTask((onCompleted, onError) =>
+			Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
+			Uri restUri = new Uri(serverUri, "rest/");
+
+			CourseSettingsRepository repo = new CourseSettingsRepository(restUri);
+			if (repo == null)
 			{
-				Uri serverUri = new Uri(appSettings.ServerURI, UriKind.RelativeOrAbsolute);
-				Uri restUri = new Uri(serverUri, "rest/");
+				throw new Exception("CourseSettingsRepository is not initialized.");
+			}
 
-				CourseSettingsRepository repo = new CourseSettingsRepository(restUri);
-				if (repo == null)
-				{
-					throw new Exception("CourseSettingsRepository is not initialized.");
-				}
-
-				repo.GetByKey("studentid/", studentId, (CourseSettingsRepository.Response response) =>
-				{
-					if (response.Success)
-					{
-						onCompleted(response.Item);
-					}
-					else
-					{
-						onError(new Exception(response.Error));
-					}
-				});                  
-			});
+			return repo.GetByKey("studentid/", studentId);                  
 		}
 	}
 }

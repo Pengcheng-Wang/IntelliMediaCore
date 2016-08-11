@@ -31,7 +31,7 @@ using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-	public class HudViewModel : ViewModel
+	public class PauseMenu : ViewModel
 	{
 //		private StageManager navigator;
 //		private SessionState sessionState;
@@ -62,7 +62,7 @@ namespace IntelliMedia
 //			set { ActivityStatesProperty.Value = value; }
 //		}
 //
-//		public HudViewModel(
+//		public PauseMenuViewModel(
 //			StageManager navigator, 
 //			SessionState sessionState,
 //			AuthenticationService authenticator, 
@@ -81,10 +81,53 @@ namespace IntelliMedia
 //		}
 //
 //
-//		public void PauseMenu()
-//		{            
-//			navigator.Transition(this, typeof(PauseMenuViewModel));
+//		public void SignOut()
+//		{
+//			DebugLog.Info("SignOut...");
+//			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
+//			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
+//				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+//				{
+//					busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
+//					return sessionService.EndSession();
+//				})
+//				.Then<bool>((success) =>
+//				{
+//					DebugLog.Info("Session ended");
+//					return authenticator.SignOut();
+//				})
+//				.Then<bool>((success) =>
+//				{
+//					DebugLog.Info("Signed out");
+//					navigator.Transition(this, typeof(SignInViewModel));
+//				})
+//				.Catch((Exception e) =>
+//				{
+//					navigator.Reveal<AlertViewModel>(alert =>
+//					{
+//						alert.Title = "Unable to sign out";
+//						alert.Message = e.Message;
+//						alert.Error = e;
+//						alert.AlertDismissed += ((int index) => DebugLog.Info("Button {0} pressed", index));
+//					}).Start();
+//				})
+//				.Finally(() =>
+//				{
+//					if (busyIndicator != null)
+//					{
+//						busyIndicator.Dispose();
+//					}
+//				}).Start();
 //		}
-			
+//
+//		public void Settings()
+//		{            
+//			navigator.Transition(this, typeof(SettingsViewModel));
+//		}
+//
+//		public void Resume()
+//		{ 
+//			navigator.Transition(this, typeof(HudViewModel));
+//		}
 	}
 }

@@ -47,9 +47,9 @@ namespace IntelliMedia
 
 		public IAsyncTask LoadScene(string sceneName, bool isAdditive)
         {
-			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-			return new AsyncTry(stageManager.Reveal<ProgressIndicatorViewModel>())
-				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+			ProgressIndicator.ProgressInfo busyIndicator = null;
+			return new AsyncTry(stageManager.Reveal<ProgressIndicator>())
+				.Then<ProgressIndicator>((progressIndicatorViewModel) =>
 				{
 					busyIndicator = progressIndicatorViewModel.Begin("Loading...");
 					return LoadScenes(new List<SceneInfo>() { new SceneInfo() { DisplayName = sceneName, Name = sceneName }}, isAdditive);

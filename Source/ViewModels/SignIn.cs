@@ -29,7 +29,7 @@ using System;
 
 namespace IntelliMedia
 {
-	public class SignInViewModel : ViewModel
+	public class SignIn : ViewModel
 	{
 		private StageManager navigator;
 		private AppSettings appSettings;
@@ -38,7 +38,7 @@ namespace IntelliMedia
 		private SessionService sessionService;
 		private CourseSettingsService courseSettingsService;
 
-		public SignInViewModel(
+		public SignIn(
 			StageManager navigator, 
 			AppSettings appSettings,
 			SessionState sessionState,
@@ -59,7 +59,7 @@ namespace IntelliMedia
 			get { return appSettings.Version != null ? appSettings.Version : "unknown version"; }
 		}
 
-		public void SignIn(string group, string username, string password)
+		public void SignInAndStartSession(string group, string username, string password)
 		{
 			try
 			{
@@ -77,9 +77,9 @@ namespace IntelliMedia
 				sessionState.Session = null;
 
 				DebugLog.Info("SignIn {0}...", username);
-				ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-				new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
-					.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+				ProgressIndicator.ProgressInfo busyIndicator = null;
+				new AsyncTry(navigator.Reveal<ProgressIndicator>())
+					.Then<ProgressIndicator>((progressIndicatorViewModel) =>
                 	{
                     	busyIndicator = progressIndicatorViewModel.Begin("Signing in...");
 						return authenticator.SignIn(group, username, password);
@@ -102,13 +102,13 @@ namespace IntelliMedia
 						{
 							DebugLog.Info("Settings loaded");
 							sessionState.CourseSettings = settings;
-                        	navigator.Transition(this, typeof(MainMenuViewModel));
+                        	navigator.Transition(this, typeof(MainMenu));
 							onComplete(true);
 						});
 
                     }).Catch((Exception e) =>
                     {
-                        navigator.Reveal<AlertViewModel>(alert =>
+                        navigator.Reveal<Alert>(alert =>
                         {
                             alert.Title = "Unable to sign in";
                             alert.Message = e.Message;
@@ -126,7 +126,7 @@ namespace IntelliMedia
 			}
 			catch (Exception e)
 			{
-				navigator.Reveal<AlertViewModel>(alert => 
+				navigator.Reveal<Alert>(alert => 
 				{
 					alert.Title = "Unable to sign in";
 					alert.Message = e.Message;

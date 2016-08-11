@@ -31,7 +31,7 @@ using System.Collections.Generic;
 
 namespace IntelliMedia
 {
-	public class MainMenuViewModel : ViewModel
+	public class MainMenu : ViewModel
 	{
 		private StageManager navigator;
 		private SessionState sessionState;
@@ -62,7 +62,7 @@ namespace IntelliMedia
 			set { ActivityStatesProperty.Value = value; }
 		}
 		
-		public MainMenuViewModel(
+		public MainMenu(
 			StageManager navigator, 
 			SessionState sessionState,
 			AuthenticationService authenticator, 
@@ -98,9 +98,9 @@ namespace IntelliMedia
 			Contract.PropertyNotNull("sessionState.CourseSettings", sessionState.CourseSettings);
 			
 			DebugLog.Info("RefreshActivityList");
-			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
-				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+			ProgressIndicator.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicator>())
+				.Then<ProgressIndicator>((progressIndicatorViewModel) =>
 				{
                     busyIndicator = progressIndicatorViewModel.Begin("Loading...");
 					return activityService.LoadActivities(sessionState.CourseSettings.CourseId);
@@ -124,7 +124,7 @@ namespace IntelliMedia
                 .Catch((Exception e) =>
                 {
 					DebugLog.Error("Can't load activitues: {0}", e.Message);	
-                    navigator.Reveal<AlertViewModel>(alert =>
+                    navigator.Reveal<Alert>(alert =>
                     {
                          alert.Title = "Unable to load activity information.";
                          alert.Message = e.Message;
@@ -162,7 +162,7 @@ namespace IntelliMedia
 
 		public void ShowMessageHandler(string title, string message, string[] buttons = null, EyeTrackingService.ButtonHandler buttonHandler = null)
 		{
-			navigator.Reveal<AlertViewModel>(alert =>
+			navigator.Reveal<Alert>(alert =>
 			{
 				alert.Title = title;
 				alert.Message = message;
@@ -183,9 +183,9 @@ namespace IntelliMedia
 			
 			DebugLog.Info("Started Activity {0}", activity.Name);
 
-			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
-				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+			ProgressIndicator.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicator>())
+				.Then<ProgressIndicator>((progressIndicatorViewModel) =>
 				{
                 	busyIndicator = progressIndicatorViewModel.Begin("Starting...");
 					return activityLauncher.Start(sessionState.Student, activity, false);
@@ -196,7 +196,7 @@ namespace IntelliMedia
                 })
                 .Catch((Exception e) =>
                	{
-                   navigator.Reveal<AlertViewModel>(alert =>
+                   navigator.Reveal<Alert>(alert =>
                     {
                         alert.Title = "Unable to start activity";
                         alert.Message = e.Message;
@@ -216,9 +216,9 @@ namespace IntelliMedia
 		public void SignOut()
 		{
 			DebugLog.Info("SignOut...");
-			ProgressIndicatorViewModel.ProgressInfo busyIndicator = null;
-			new AsyncTry(navigator.Reveal<ProgressIndicatorViewModel>())
-				.Then<ProgressIndicatorViewModel>((progressIndicatorViewModel) =>
+			ProgressIndicator.ProgressInfo busyIndicator = null;
+			new AsyncTry(navigator.Reveal<ProgressIndicator>())
+				.Then<ProgressIndicator>((progressIndicatorViewModel) =>
 				{
 					busyIndicator = progressIndicatorViewModel.Begin("Signing out...");
 					return sessionService.EndSession();
@@ -231,10 +231,10 @@ namespace IntelliMedia
 				.Then<bool>((success) =>
 				{
 					DebugLog.Info("Signed out");
-					navigator.Transition(this, typeof(SignInViewModel));
+					navigator.Transition(this, typeof(SignIn));
 				}).Catch((Exception e) =>
 				{
-					navigator.Reveal<AlertViewModel>(alert =>
+					navigator.Reveal<Alert>(alert =>
 					{
 						alert.Title = "Unable to sign out";
 						alert.Message = e.Message;
