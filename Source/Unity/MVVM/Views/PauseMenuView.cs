@@ -25,32 +25,45 @@
 // OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //---------------------------------------------------------------------------------------
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using Zenject;
-using System.Collections.Generic;
-using System;
-using System.Linq;
 using IntelliMedia.ViewModels;
+using UnityEngine;
 
 namespace IntelliMedia.Views
 {
 	[ViewDescriptor(typeof(PauseMenu))]
 	public class PauseMenuView : UnityGuiView<PauseMenu>
 	{
+		private float previousTimeScale;
+
+		public override void OnVisible ()
+		{
+			base.OnVisible();
+
+			// Freeze game
+			previousTimeScale = Time.timeScale;
+			//Time.timeScale = 0;
+		}
+
+		public override void OnHidden ()
+		{
+			base.OnHidden();
+
+			// Unfreeze game
+			Time.timeScale = previousTimeScale;
+		}
 		public void SaveAndExit()
 		{
-			//ViewModel.SignOut();
+			ViewModel.SaveAndExit();
 		}
 
 		public void Resume()
 		{
-			//ViewModel.Resume();
+			ViewModel.Resume();
 		}
 
 		public void Settings()
 		{
+			// TODO rgtaylor 2016-08-12 Need to implement flexible settings system
 			//ViewModel.Settings();
 		}
 
