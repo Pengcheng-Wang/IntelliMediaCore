@@ -29,6 +29,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using IntelliMedia.DecisionMaking;
+using IntelliMedia.Utilities;
 
 namespace IntelliMedia
 {
