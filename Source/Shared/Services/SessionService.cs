@@ -106,7 +106,8 @@ namespace IntelliMedia.Services
 		{
 			// Enable Trace Logging 
 			string filename = String.Format ("{0}.{1}", session.Id, SerializerCsv.Instance.FilenameExtension);
-			TraceLog.Open (session.Id, new FileLogger (System.IO.Path.Combine (appSettings.TraceDataDirectory, filename), SerializerCsv.Instance, appSettings.WriteTraceDataToLocalFile)//, new RepositoryLogger(TraceDataDirectory, SerializerXml.Instance, true)
+			string traceLogDirectory = System.IO.Path.Combine(appSettings.TraceDataDirectory != null ? appSettings.TraceDataDirectory : ".", filename);
+			TraceLog.Open (session.Id, new FileLogger(traceLogDirectory, SerializerCsv.Instance, appSettings.WriteTraceDataToLocalFile)//, new RepositoryLogger(TraceDataDirectory, SerializerXml.Instance, true)
 			);
 			sessionStartedEntry = TraceLog.Player(TraceLog.Action.Started, "Session", 
 				"Username", student.Username, 
