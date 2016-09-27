@@ -1,4 +1,6 @@
-﻿//-------------------------------------------------------------------------------------------------
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+//-------------------------------------------------------------------------------------------------
 // Copyright (c) Bradford W. Mott
 // IntelliMedia, Center for Educational Informatics, North Carolina State University
 //
@@ -53,7 +55,7 @@ Shader "IntelliMedia/Shimmer Bumped Diffuse" {
 		void vert(inout appdata_full v, out Input o)
 		{
 			UNITY_INITIALIZE_OUTPUT(Input, o);
-			o.wNorm = mul((float3x3)_Object2World, v.normal);
+			o.wNorm = mul((float3x3)unity_ObjectToWorld, v.normal);
 			
 			float angle = _Time.y * _ShimmerSpeed;
 			
